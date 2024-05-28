@@ -41,7 +41,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
             ),
             Positioned(
-              top: 100,
+              top: 40,
               left: 0,
               right: 0,
               child: Text(
@@ -57,7 +57,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
             
             Container(
-              margin: EdgeInsets.only(top: 200),
+              margin: EdgeInsets.only(top: 90),
               child: RegisterCard()
             )
           ],

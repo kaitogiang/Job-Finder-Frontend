@@ -81,7 +81,7 @@ class AuthService {
     String api = '';
     //Đăng ký tài khoản cho nhà tuyển dụng
     if (isEmployer) {
-      api = 'http://localhost:3000/api/employer/sign-up';
+      api = 'http://10.0.2.2:3000/api/employer/sign-up';
       jsonValue = {
         'firstName': firstName,
         'lastName': lastName,
@@ -97,7 +97,7 @@ class AuthService {
       };
     } else {
       //Đăng ký tài khoản cho người tìm việc
-      api = 'http://localhost:3000/api/employee/sign-up';
+      api = 'http://10.0.2.2:3000/api/employee/sign-up';
       jsonValue = {
         'firstName': firstName,
         'lastName': lastName,
@@ -110,20 +110,20 @@ class AuthService {
     //Gửi dữ liệu về server xử lý
     try {
       final url = Uri.parse(api);
-      final response = await http.post(
-          url,
+      final response = await http.post(url,
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
           },
           body: json.encode(jsonValue));
-          if (response.statusCode >= 200 && response.statusCode < 300) {
-            //Khi đăng ký xong thì đăng nhập ứng dụng
-            return _authenticate(jsonValue['email'], jsonValue['password'], isEmployer);
-          } else {
-            final errorResponse = json.decode(response.body);
-            throw HttpException.fromJson(errorResponse);
-          }
-    } catch(error) {
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        //Khi đăng ký xong thì đăng nhập ứng dụng
+        return _authenticate(
+            jsonValue['email'], jsonValue['password'], isEmployer);
+      } else {
+        final errorResponse = json.decode(response.body);
+        throw HttpException.fromJson(errorResponse);
+      }
+    } catch (error) {
       log(error.toString());
       rethrow;
     }
@@ -178,5 +178,31 @@ class AuthService {
       expiryDate: DateTime.now().add(Duration(seconds: json['expiresIn'])),
       isEmployer: isEmployer,
     );
+  }
+
+  //Hàm gửi OTP qua email
+  Future<bool> sendOTP(String email, bool isEmployer) async {
+    String uri = !isEmployer
+        ? 'http://10.0.2.2:3000/api/employee/send-otp'
+        : 'http://10.0.2.2:3000/api/employer/send-otp';
+    try {
+      final url = Uri.parse(uri);
+      final response = await http.post(
+        url,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: json.encode({'email': email}),
+      );
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        return true;
+      } else {
+        final errorResponse = json.decode(response.body);
+        throw HttpException.fromJson(errorResponse);
+      }
+    } catch (error) {
+      log(error.toString());
+      rethrow;
+    }
   }
 }

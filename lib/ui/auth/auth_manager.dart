@@ -80,4 +80,9 @@ class AuthManager with ChangeNotifier {
       logout,
     );
   }
+
+  //Hàm gửi OTP qua email
+  Future<bool> sendOTP({required String email, required bool isEmployer}) async {
+    return await _authService.sendOTP(email, isEmployer);
+  }
 }
