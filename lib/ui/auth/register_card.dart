@@ -16,30 +16,36 @@ class RegisterCard extends StatefulWidget {
 
 class _RegisterCardState extends State<RegisterCard> {
   final GlobalKey<FormState> _formKey = GlobalKey();
-  final PageController _pageController = PageController(); //Controller để quản lý việc chuyển form
-  UserType userType = UserType.employee;
-  final Map<String, String> _authData = {
+  final PageController _pageController =
+      PageController(); //Controller để quản lý việc chuyển form
+  ValueNotifier<UserType> userType = ValueNotifier<UserType>(UserType.employee);
+  ValueNotifier<bool> isPasswordShown = ValueNotifier<bool>(false);
+  final PageStorageBucket _bucket = PageStorageBucket();
+
+  final addressController = TextEditingController();
+
+  Map<String, String> submitedData = {
+    'firstName': '',
+    'lastName': '',
+    'phone': '',
     'email': '',
     'password': '',
+    'address': '',
+    'role': '',
+    'companyName': '',
+    'companyEmail': '',
+    'companyPhone': '',
+    'companyAddress': '',
+    'otp': ''
   };
 
-  Future<void> _login() async {
+  Future<void> _register() async {
     if (!_formKey.currentState!.validate()) {
       return;
     }
     _formKey.currentState!.save();
-    try {
-      if (userType == UserType.employee) {
-        //Đăng nhập cho người tìm việc
-        await context
-            .read<AuthManager>()
-            .login(_authData['email']!, _authData['password']!, false);
-      } else {
-        await context
-            .read<AuthManager>()
-            .login(_authData['email']!, _authData['password']!, true);
-      }
-    } catch (error) {
+    log(submitedData.toString());
+    try {} catch (error) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(error.toString()),
@@ -49,16 +55,15 @@ class _RegisterCardState extends State<RegisterCard> {
   }
 
   void _updateCurrentPageIndex(int index) {
-    _pageController.animateToPage(
-      index,
-      duration: const Duration(milliseconds: 400),
-      curve: Curves.easeInOut
-    );
+    _pageController.animateToPage(index,
+        duration: const Duration(milliseconds: 400), curve: Curves.easeInOut);
   }
 
   @override
   Widget build(BuildContext context) {
     Size currentSceen = MediaQuery.of(context).size;
+    TextStyle userTitleStyle =
+        TextStyle(fontSize: 25, fontWeight: FontWeight.bold);
 
     return Card(
         elevation: 10,
@@ -90,12 +95,15 @@ class _RegisterCardState extends State<RegisterCard> {
                     ),
                     Padding(
                       padding: const EdgeInsets.only(left: 0),
-                      child: Text(
-                          userType == UserType.employee
+                      child: ValueListenableBuilder(
+                        valueListenable: userType,
+                        builder: (context, value, child) {
+                          String userString = (value == UserType.employee)
                               ? 'ỨNG VIÊN'
-                              : 'NHÀ TUYỂN DỤNG',
-                          style: TextStyle(
-                              fontSize: 25, fontWeight: FontWeight.bold)),
+                              : 'NHÀ TUYỂN DỤNG';
+                          return Text(userString, style: userTitleStyle);
+                        },
+                      ),
                     ),
                   ],
                 ),
@@ -108,35 +116,82 @@ class _RegisterCardState extends State<RegisterCard> {
                         horizontal: 20, vertical: 20),
                     child: Form(
                       key: _formKey,
-                      child: Column(
-                        children: <Widget>[
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Expanded(child: _buildFirstNameField()),
-                              const SizedBox(width: 5,),
-                              Expanded(child: _buildLastNameField()),
-                            ],
-                          ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          _buildPhoneField(),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          _buildEmailField(),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          _buildPasswordField(),
-                          const SizedBox(height: 10,),
-                          _buildAddressField(),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          _buildOTP()
-                        ],
+                      child: PageStorage(
+                        bucket: _bucket,
+                        child: PageView(
+                          controller: _pageController,
+                          children: [
+                            Column(
+                              key: PageStorageKey('informationKey'),
+                              children: <Widget>[
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    Expanded(child: _buildFirstNameField()),
+                                    const SizedBox(
+                                      width: 5,
+                                    ),
+                                    Expanded(child: _buildLastNameField()),
+                                  ],
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                _buildPhoneField(),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                _buildEmailField(),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                _buildPasswordField(),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                _buildAddressField(),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                ValueListenableBuilder(
+                                  valueListenable: userType,
+                                  builder: (context, value, child) {
+                                    return value == UserType.employee
+                                        ? _buildOTP()
+                                        : _buildRoleField();
+                                  },
+                                )
+                              ],
+                            ),
+                            Column(
+                              key: PageStorageKey('companyKey'),
+                              children: <Widget>[
+                                _buildCompanyNameField(),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                _buildCompanyEmailField(),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                _buildCompanyPhoneField(),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                _buildCompanyAddressField(),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                _buildOTP(),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                _buildBackButton()
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -144,13 +199,24 @@ class _RegisterCardState extends State<RegisterCard> {
                 const SizedBox(
                   height: 10,
                 ),
-                _buildLoginButton(),
+                _buildRegisterButton(),
                 const SizedBox(
                   height: 10,
                 ),
                 _buildSwitchUser()
               ],
             )));
+  }
+
+  Widget _buildBackButton() {
+    return ElevatedButton(
+        onPressed: () {
+          _updateCurrentPageIndex(0);
+        },
+        child: const Text(
+          'Quay về',
+          style: TextStyle(fontSize: 17),
+        ));
   }
 
   Widget _buildFirstNameField() {
@@ -198,7 +264,7 @@ class _RegisterCardState extends State<RegisterCard> {
       ),
       keyboardType: TextInputType.number,
       validator: (value) {
-        if (value!.isEmpty || value!.length != 10) {
+        if (value!.isEmpty || value.length != 10) {
           return 'Số điện thoại không hợp lệ';
         }
         return null;
@@ -209,6 +275,7 @@ class _RegisterCardState extends State<RegisterCard> {
 
   Widget _buildAddressField() {
     return TextFormField(
+      controller: addressController,
       decoration: const InputDecoration(
         labelText: 'Address',
         prefixIcon: Icon(Icons.place),
@@ -239,38 +306,77 @@ class _RegisterCardState extends State<RegisterCard> {
         }
         return null;
       },
-      onSaved: (value) {
-        _authData['email'] = value!;
-      },
+      onSaved: (value) {},
     );
   }
 
   Widget _buildPasswordField() {
-    return TextFormField(
-      decoration: const InputDecoration(
-        labelText: 'Mật khẩu',
-        border: OutlineInputBorder(),
-        prefixIcon: Icon(Icons.lock),
-        
-      ),
-      obscureText: true,
-      validator: (value) {
-        if (value == null || value.length < 8) {
-          return 'Mật khẩu ít nhất 8 ký tự';
-        }
-        return null;
-      },
-      onSaved: (value) {
-        _authData['password'] = value!;
-      },
-    );
+    return ValueListenableBuilder(
+        valueListenable: isPasswordShown,
+        builder: (context, value, child) {
+          return TextFormField(
+            decoration: InputDecoration(
+                labelText: 'Mật khẩu',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.lock),
+                suffixIcon: IconButton(
+                  icon: Icon(!value ? Icons.visibility : Icons.visibility_off),
+                  onPressed: () {
+                    log('Hiện mật khẩu');
+                    isPasswordShown.value = !isPasswordShown.value;
+                  },
+                )),
+            obscureText: !isPasswordShown.value,
+            validator: (value) {
+              if (value == null || value.length < 8) {
+                return 'Mật khẩu ít nhất 8 ký tự';
+              }
+              return null;
+            },
+            onSaved: (value) {},
+          );
+        });
   }
 
-  Widget _buildLoginButton() {
+  Widget _buildRegisterButton() {
+    return ValueListenableBuilder(
+        valueListenable: userType,
+        builder: (context, value, child) {
+          return ElevatedButton(
+            onPressed: () {
+              log(_pageController.page?.toInt().toString() ?? '');
+              // _login();
+              if (value == UserType.employer) {
+                _bucket.writeState(context, addressController.value);
+                _updateCurrentPageIndex(1);
+                log('Chuyển đến form công ty');
+              } else {
+                log('Thực hiện đăng ký');
+                // _register();
+              }
+            },
+            style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 8),
+                fixedSize: Size(350, 60)),
+            child: Text(
+              (value == UserType.employer && _pageController.page?.toInt() == 0)
+                  ? 'TIẾP THEO'
+                  : 'ĐĂNG KÝ',
+              style: TextStyle(fontSize: 17),
+            ),
+          );
+        });
+  }
+
+  Widget _buildNextButton() {
     return ElevatedButton(
       onPressed: () {
-        log('Đăng nhập vào' + userType.toString());
-        // _login();
+        _updateCurrentPageIndex(1);
       },
       style: ElevatedButton.styleFrom(
           shape: RoundedRectangleBorder(
@@ -289,28 +395,29 @@ class _RegisterCardState extends State<RegisterCard> {
 
   Widget _buildSwitchUser() {
     return TextButton(
-      onPressed: () {
-        setState(() {
-          if (userType == UserType.employee) {
-            userType = UserType.employer;
+        onPressed: () {
+          if (userType.value == UserType.employee) {
+            userType.value = UserType.employer;
           } else {
-            userType = UserType.employee;
+            userType.value = UserType.employee;
+            _updateCurrentPageIndex(0);
           }
-        });
-      },
-      style: TextButton.styleFrom(
-          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 4),
-          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          textStyle: TextStyle(
-            color: Theme.of(context).colorScheme.primary,
-          )),
-      child: Text(
-        userType != UserType.employee
-            ? 'Đăng nhập ứng tuyển viên'
-            : 'Đăng nhập nhà tuyển dụng',
-        style: TextStyle(fontSize: 17),
-      ),
-    );
+        },
+        style: TextButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 4),
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            textStyle: TextStyle(
+              color: Theme.of(context).colorScheme.primary,
+            )),
+        child: ValueListenableBuilder(
+          valueListenable: userType,
+          builder: (context, value, child) {
+            String switchString = value != UserType.employee
+                ? 'Đăng ký ứng tuyển viên'
+                : 'Đăng ký nhà tuyển dụng';
+            return Text(switchString, style: TextStyle(fontSize: 17));
+          },
+        ));
   }
 
   Widget _buildCompanyNameField() {
@@ -348,7 +455,7 @@ class _RegisterCardState extends State<RegisterCard> {
       onSaved: (value) {},
     );
   }
-  
+
   Widget _buildCompanyEmailField() {
     return TextFormField(
       decoration: const InputDecoration(
@@ -366,7 +473,7 @@ class _RegisterCardState extends State<RegisterCard> {
       onSaved: (value) {},
     );
   }
-  
+
   Widget _buildCompanyPhoneField() {
     return TextFormField(
       decoration: const InputDecoration(
@@ -384,7 +491,7 @@ class _RegisterCardState extends State<RegisterCard> {
       onSaved: (value) {},
     );
   }
-  
+
   Widget _buildCompanyAddressField() {
     return TextFormField(
       decoration: const InputDecoration(
@@ -427,7 +534,9 @@ class _RegisterCardState extends State<RegisterCard> {
               onSaved: (value) {},
             ),
           ),
-          const SizedBox(width: 5,),
+          const SizedBox(
+            width: 5,
+          ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: Theme.of(context).colorScheme.primary,
@@ -439,13 +548,12 @@ class _RegisterCardState extends State<RegisterCard> {
             onPressed: () {
               log('Gửi OTP');
             },
-            child: const Text('Gửi OTP', style:TextStyle(fontSize: 17)),
+            child: const Text('Gửi OTP', style: TextStyle(fontSize: 17)),
           )
         ],
       ),
     );
   }
 
-
-
+  //Xây dựng Form nhập thông tin cá nhân dành cho Người tìm việc và nhà tuyển dụng
 }
