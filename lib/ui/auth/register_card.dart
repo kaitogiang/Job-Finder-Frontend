@@ -46,9 +46,15 @@ class _RegisterCardState extends State<RegisterCard> {
     if (!_formKey.currentState!.validate()) {
       return;
     }
-    // _formKey.currentState!.save();
+    _formKey.currentState!.save();
     log(submitedData.toString());
-    try {} catch (error) {
+    try {
+      await context.read<AuthManager>().register(
+          submitedData, userType.value == UserType.employer ? true : false).then((value) {
+            log('Tạo tài khoản thành công');
+          });
+      
+    } catch (error) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(error.toString()),
@@ -138,6 +144,7 @@ class _RegisterCardState extends State<RegisterCard> {
                         bucket: _bucket,
                         child: PageView(
                           controller: _pageController,
+                          physics: NeverScrollableScrollPhysics(),
                           onPageChanged: (value) {
                             _currentIndexPage.value = value;
                           },
@@ -149,9 +156,6 @@ class _RegisterCardState extends State<RegisterCard> {
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(
-                  height: 10,
                 ),
                 ValueListenableBuilder<UserType>(
                     valueListenable: userType,
@@ -273,7 +277,9 @@ class _RegisterCardState extends State<RegisterCard> {
         }
         return null;
       },
-      onSaved: (value) {},
+      onSaved: (value) {
+        submitedData['firstName'] = value!;
+      },
     );
   }
 
@@ -292,7 +298,9 @@ class _RegisterCardState extends State<RegisterCard> {
         }
         return null;
       },
-      onSaved: (value) {},
+      onSaved: (value) {
+        submitedData['lastName'] = value!;
+      },
     );
   }
 
@@ -311,7 +319,9 @@ class _RegisterCardState extends State<RegisterCard> {
         }
         return null;
       },
-      onSaved: (value) {},
+      onSaved: (value) {
+        submitedData['phone'] = value!;
+      },
     );
   }
 
@@ -330,7 +340,9 @@ class _RegisterCardState extends State<RegisterCard> {
         }
         return null;
       },
-      onSaved: (value) {},
+      onSaved: (value) {
+        submitedData['address'] = value!;
+      },
     );
   }
 
@@ -355,7 +367,9 @@ class _RegisterCardState extends State<RegisterCard> {
         }
         return null;
       },
-      onSaved: (value) {},
+      onSaved: (value) {
+        submitedData['email'] = value!;
+      },
     );
   }
 
@@ -383,7 +397,9 @@ class _RegisterCardState extends State<RegisterCard> {
               }
               return null;
             },
-            onSaved: (value) {},
+            onSaved: (value) {
+              submitedData['password'] = value!;
+            },
           );
         });
   }
@@ -392,7 +408,7 @@ class _RegisterCardState extends State<RegisterCard> {
     return ElevatedButton(
       onPressed: () {
         log('Thực hiện đăng ký');
-        // _register();
+        _register();
         _formKey.currentState!.validate();
       },
       style: ElevatedButton.styleFrom(
@@ -413,8 +429,16 @@ class _RegisterCardState extends State<RegisterCard> {
   Widget _buildNextButton() {
     return ElevatedButton(
       onPressed: () {
+        //Kiểm tra xác thực người dùng đã nhập các trường chưa trước khi nhập tiếp form kế tiếp
+        if (!_formKey.currentState!.validate()) {
+          log('Nhập đầy đủ thông tin');
+          return;
+        }
+        //Lưu thông tin vào submitedData cho form thứ nhất
+        _formKey.currentState!.save();
+        log('Lưu thông tin cá nhân');
         _updateCurrentPageIndex(1);
-        _bucket.writeState(context, addressController.value);
+        // _bucket.writeState(context, addressController.value);
       },
       style: ElevatedButton.styleFrom(
           shape: RoundedRectangleBorder(
@@ -473,7 +497,9 @@ class _RegisterCardState extends State<RegisterCard> {
         }
         return null;
       },
-      onSaved: (value) {},
+      onSaved: (value) {
+        submitedData['companyName'] = value!;
+      },
     );
   }
 
@@ -492,7 +518,9 @@ class _RegisterCardState extends State<RegisterCard> {
         }
         return null;
       },
-      onSaved: (value) {},
+      onSaved: (value) {
+        submitedData['role'] = value!;
+      },
     );
   }
 
@@ -517,7 +545,9 @@ class _RegisterCardState extends State<RegisterCard> {
         }
         return null;
       },
-      onSaved: (value) {},
+      onSaved: (value) {
+        submitedData['companyEmail'] = value!;
+      },
     );
   }
 
@@ -536,7 +566,9 @@ class _RegisterCardState extends State<RegisterCard> {
         }
         return null;
       },
-      onSaved: (value) {},
+      onSaved: (value) {
+        submitedData['companyPhone'] = value!;
+      },
     );
   }
 
@@ -555,13 +587,15 @@ class _RegisterCardState extends State<RegisterCard> {
         }
         return null;
       },
-      onSaved: (value) {},
+      onSaved: (value) {
+        submitedData['companyAddress'] = value!;
+      },
     );
   }
 
   Widget _buildOTP() {
     return SizedBox(
-      height: 90,
+      height: 80,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -569,12 +603,10 @@ class _RegisterCardState extends State<RegisterCard> {
           Expanded(
             child: TextFormField(
               controller: textControllers['otpController'],
-            
               decoration: const InputDecoration(
                 labelText: 'OTP',
                 prefixIcon: Icon(Icons.lock_clock),
                 border: OutlineInputBorder(),
-                
               ),
               keyboardType: TextInputType.text,
               validator: (value) {
@@ -583,7 +615,9 @@ class _RegisterCardState extends State<RegisterCard> {
                 }
                 return null;
               },
-              onSaved: (value) {},
+              onSaved: (value) {
+                submitedData['otp'] = value!;
+              },
             ),
           ),
           const SizedBox(
@@ -609,7 +643,7 @@ class _RegisterCardState extends State<RegisterCard> {
                 final RegExp emailRegex = RegExp(
                   r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
                 );
-            
+
                 // Check if the email matches the pattern
                 if (email.isEmpty || !emailRegex.hasMatch(email)) {
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -627,7 +661,7 @@ class _RegisterCardState extends State<RegisterCard> {
                         email: textControllers['emailController']!.text,
                         isEmployer: isEmployer)
                     .then((value) {
-                      _isSendingOTP.value = false;
+                  _isSendingOTP.value = false;
                   return ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                     content: Text('Gửi OTP thành công'),
                     duration: const Duration(seconds: 3),
@@ -639,7 +673,9 @@ class _RegisterCardState extends State<RegisterCard> {
                   builder: (context, value, child) {
                     return !value
                         ? const Text('Gửi OTP', style: TextStyle(fontSize: 17))
-                        : const CircularProgressIndicator(color: Colors.white,);
+                        : const CircularProgressIndicator(
+                            color: Colors.white,
+                          );
                   }),
             ),
           )

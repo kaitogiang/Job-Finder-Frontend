@@ -55,10 +55,49 @@ List<StatefulShellBranch> _buildEmployeeRoutes() {
           name: 'employee-home',
           path: '/employee-home',
           builder: (context, state) => const SafeArea(child: EmployeeHome())
-        )
-      ]
+        ),
+      ],
     ),
-
+    //Nhánh tìm kiếm bài viết hoặc công ty....
+    StatefulShellBranch(
+      routes: <RouteBase>[
+        GoRoute(
+          name: 'searching',
+          path: '/searching',
+          builder: (context, state) => const SafeArea(child: EmployeeHome())
+        ),
+      ],
+    ),
+    //Nhánh xem công việc đã lưu, đã thích và đã nộp CV
+    StatefulShellBranch(
+      routes: <RouteBase>[
+        GoRoute(
+          name: 'saved-work',
+          path: '/saved-work',
+          builder: (context, state) => const SafeArea(child: EmployeeHome())
+        ),
+      ],
+    ),
+    //Nhánh xem danh sách tất cả công ty đã hợp tác
+    StatefulShellBranch(
+      routes: <RouteBase>[
+        GoRoute(
+          name: 'company',
+          path: '/company',
+          builder: (context, state) => const SafeArea(child: EmployeeHome())
+        ),
+      ],
+    ),
+    //Nhánh xem tài khoản cùng các thông tin cá nhân
+    StatefulShellBranch(
+      routes: <RouteBase>[
+        GoRoute(
+          name: 'account',
+          path: '/account',
+          builder: (context, state) => const SafeArea(child: EmployeeHome())
+        ),
+      ],
+    ),
   ];
 
   return routes;

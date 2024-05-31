@@ -74,6 +74,7 @@ class AuthService {
     String? companyEmail,
     String? companyPhone,
     String? companyAddress,
+    String? otp,
     bool isEmployer = false,
   }) async {
     //Tạo dữ liệu JSon để gửi cho server
@@ -94,6 +95,7 @@ class AuthService {
         'companyEmail': companyEmail,
         'companyPhone': companyPhone,
         'companyAddress': companyAddress,
+        'otp': otp,
       };
     } else {
       //Đăng ký tài khoản cho người tìm việc
@@ -105,6 +107,7 @@ class AuthService {
         'password': password,
         'phone': phone,
         'address': address,
+        'otp': otp,
       };
     }
     //Gửi dữ liệu về server xử lý

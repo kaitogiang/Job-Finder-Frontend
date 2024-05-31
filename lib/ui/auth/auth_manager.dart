@@ -2,6 +2,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
+import '../../models/employee.dart';
 import '../../services/auth_service.dart';
 import '../../models/auth_token.dart';
 
@@ -9,6 +11,8 @@ class AuthManager with ChangeNotifier {
   AuthToken? _authToken;
   Timer? _authTimer;
   bool _isEmployer = false; //Biến quản lý loại người dùng
+  late Employee employee;
+
 
   final AuthService _authService = AuthService();
 
@@ -43,7 +47,28 @@ class AuthManager with ChangeNotifier {
   }
 
   //Hàm đăng ký tài khoản
-
+  Future<void> register(Map<String, String> submitedData, bool isEmployer) async{
+    await _authService.signup(
+      firstName: submitedData['firstName'],
+      lastName: submitedData['lastName'],
+      phone: submitedData['phone'],
+      email: submitedData['email'],
+      password: submitedData['password'],
+      address: submitedData['address'],
+      role: submitedData['role'],
+      companyName: submitedData['companyName'],
+      companyEmail: submitedData['companyEmail'],
+      companyPhone: submitedData['companyPhone'],
+      companyAddress: submitedData['companyAddress'],
+      otp: submitedData['otp'],
+      isEmployer: isEmployer,
+    );
+    _setAuthToken(await _authService.signIn(
+      email: submitedData['email'],
+      password: submitedData['password'],
+      isEmployer: isEmployer,
+    ), isEmployer);
+  }
 
   //Hàm đăng nhập tự động nếu mà token vẫn còn trong sharedPreference
   Future<bool> tryAutoLogin() async {
