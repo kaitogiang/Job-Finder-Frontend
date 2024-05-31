@@ -55,6 +55,8 @@ class AuthService {
     }
   }
 
+  
+
   //Hàm đăng nhập vào ứng dụng
   Future<AuthToken> signIn(
       {String? email, String? password, bool isEmployer = false}) async {
