@@ -3,10 +3,11 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 
 class EmployeeInfoCard extends StatelessWidget {
-  const EmployeeInfoCard({this.iconButton, required this.children, super.key});
+  const EmployeeInfoCard({required this.title, this.iconButton, required this.children, super.key});
 
   final List<Widget> children;
   final IconButton? iconButton;
+  final String title;
   
   @override
   Widget build(BuildContext context) {
@@ -16,7 +17,7 @@ class EmployeeInfoCard extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       width: deviceSize.width - 30,
-      height: 300,
+      // height: 300,
       decoration: BoxDecoration(
         color: theme.colorScheme.background,
         border: Border.all(color: theme.colorScheme.secondary),
@@ -32,13 +33,14 @@ class EmployeeInfoCard extends StatelessWidget {
       ),
       child: Column(
         children: [
+          if (iconButton == null) const SizedBox(height: 10,),
           //Dòng đầu tiên tiêu đề và nút chỉnh sửa thông tin cá nhân
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               //Tiêu đề thông tin cá nhân
               Text(
-                'Thông tin cá nhân',
+                title,
                 style:
                     textTheme.titleLarge!.copyWith(fontWeight: FontWeight.bold),
               ),
@@ -47,11 +49,13 @@ class EmployeeInfoCard extends StatelessWidget {
               iconButton!
             ],
           ),
+          if (iconButton == null) const SizedBox(height: 10,),
           Divider(
             thickness: 1,
           ),
           //Các con được thêm vào
-          ...children
+          ...children,
+          const SizedBox(height: 20,)
         ],
       ),
     );
