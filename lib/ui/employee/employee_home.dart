@@ -22,7 +22,7 @@ class EmployeeHome extends StatelessWidget {
         ],
       ),
       body: Center(
-        child: Text('Employee Home'),
+        child: Text('Employee Home ${context.read<AuthManager>().employee.skills}'),
       ),
     );
   }

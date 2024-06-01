@@ -45,11 +45,18 @@ class Employee extends User {
       phone: json['phone'],
       address: json['address'],
       avatar: json['avatar'],
-      resume: (json['resume'] as List?)?.map((e) => Resume.fromJson(e)).toList() ?? [],
+      resume:
+          (json['resume'] as List?)?.map((e) => Resume.fromJson(e)).toList() ??
+              [],
       skills: json['skills'] ?? [],
-      experience:
-          (json['experience'] as List?)?.map((e) => Experience.fromJson(e)).toList() ?? [],
-      education: (json['education'] as List?)?.map((e) => Education.fromJson(e)).toList() ?? [],
+      experience: (json['experience'] as List?)
+              ?.map((e) => Experience.fromJson(e))
+              .toList() ??
+          [],
+      education: (json['education'] as List?)
+              ?.map((e) => Education.fromJson(e))
+              .toList() ??
+          [],
     );
   }
   //Trả về tất cả CV của một người đã tải lên
@@ -91,16 +98,21 @@ class Employee extends User {
   }) {
     return Employee(
       id: id,
-      firstName: firstName?? this.firstName,
-      lastName: lastName?? this.lastName,
-      email: email?? this.email,
-      phone: phone?? this.phone,
-      address: address?? this.address,
-      avatar: avatar?? this.avatar,
-      resume: resume?? this.resume,
-      skills: skills?? this.skills,
-      experience: experience?? this.experience,
-      education: education?? this.education,
+      firstName: firstName ?? this.firstName,
+      lastName: lastName ?? this.lastName,
+      email: email ?? this.email,
+      phone: phone ?? this.phone,
+      address: address ?? this.address,
+      avatar: avatar ?? this.avatar,
+      resume: resume ?? this.resume,
+      skills: skills ?? this.skills,
+      experience: experience ?? this.experience,
+      education: education ?? this.education,
     );
+  }
+
+  @override
+  String toString() {
+    return 'Employee(id: $id, firstName: $firstName, lastName: $lastName, email: $email, phone: $phone, address: $address, avatar: $avatar, resume: $resume, skills: $skills, experience: $experience, education: $education)';
   }
 }

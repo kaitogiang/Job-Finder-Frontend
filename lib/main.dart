@@ -17,10 +17,14 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = ColorScheme.fromSeed(
       seedColor: Colors.blueAccent,
-      secondary: Colors.grey,
+      secondary: Colors.grey.shade400,
       surface: Colors.white,
       background: Colors.white,
+      surfaceTint: Colors.grey,
+      onSecondary: Colors.black
     );
+
+
 
     return MultiProvider(
       providers: [
@@ -46,7 +50,7 @@ class MyApp extends StatelessWidget {
                 selectedItemColor: colorScheme.primary,
                 unselectedItemColor: colorScheme.secondary,
                 showUnselectedLabels: true
-              )
+              ),
             ),
             routerConfig: buildRouter(authManager),
           );

@@ -1,9 +1,11 @@
 
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 
 import '../../models/employee.dart';
+import '../../models/employer.dart';
 import '../../services/auth_service.dart';
 import '../../models/auth_token.dart';
 
@@ -11,8 +13,8 @@ class AuthManager with ChangeNotifier {
   AuthToken? _authToken;
   Timer? _authTimer;
   bool _isEmployer = false; //Biến quản lý loại người dùng
-  late Employee employee;
-
+  late Employee _employee;
+  late Employer _employer;
 
   final AuthService _authService = AuthService();
 
@@ -29,21 +31,34 @@ class AuthManager with ChangeNotifier {
     return _authToken;
   }
 
+  Employee get employee => _employee;
+
+  Employer get employer => _employer;
+
+
   //Hàm gán lại token
-  void _setAuthToken(AuthToken token, bool isEmployer) {
+  Future<void> _setAuthToken(AuthToken token, bool isEmployer) async{
     _authToken = token;
     _isEmployer = isEmployer;
+    if (isEmployer) {
+      _employer = await _authService.fetchUserInfo(token.userId, isEmployer) as Employer;
+    } else {
+      _employee = await _authService.fetchUserInfo(token.userId, isEmployer) as Employee;
+    }
     _autoLogout();
     notifyListeners();
   }
 
   //Hàm đăng nhập vào tài khoản
   Future<void> login(String email, String password, bool isEmployer) async {
-    _setAuthToken(await _authService.signIn(
+    log("Đăng nhập nè");
+    await _setAuthToken(await _authService.signIn(
       email: email,
       password: password,
       isEmployer: isEmployer,
     ), isEmployer);
+    //Lấy thông tin người dùng
+    log("Đang chay");
   }
 
   //Hàm đăng ký tài khoản
