@@ -4,17 +4,22 @@ import 'package:flutter/material.dart';
 import 'package:job_finder_app/ui/auth/auth_manager.dart';
 import 'package:provider/provider.dart';
 
-import 'widgets/employee_info_card.dart';
+import '../../models/experience.dart';
+import 'widgets/jobseeker_experience_card.dart';
+import 'widgets/jobseeker_info_card.dart';
 
-class EmployeeProfileScreen extends StatelessWidget {
-  const EmployeeProfileScreen({super.key});
+class JobseekerProfileScreen extends StatelessWidget {
+  const JobseekerProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
     TextTheme textTheme = Theme.of(context).textTheme;
     Size deviceSize = MediaQuery.of(context).size;
-
+    Experience exp = Experience(
+        role: 'Java Backend',
+        company: 'PTN Global',
+        duration: '01/2024 - Hiện tại');
     return Scaffold(
         appBar: AppBar(
           title: Text(
@@ -62,7 +67,7 @@ class EmployeeProfileScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(15),
                             image: DecorationImage(
                               image: NetworkImage(
-                                  authManager.employee.getImageUrl()),
+                                  authManager.jobseeker.getImageUrl()),
                               fit: BoxFit.cover,
                             ),
                           ),
@@ -78,7 +83,7 @@ class EmployeeProfileScreen extends StatelessWidget {
                             children: [
                               //Họ và Tên hiển thị ở đây
                               Text(
-                                '${authManager.employee.firstName} ${authManager.employee.lastName}',
+                                '${authManager.jobseeker.firstName} ${authManager.jobseeker.lastName}',
                                 style: textTheme.titleLarge!.copyWith(
                                     color: theme.indicatorColor,
                                     fontWeight: FontWeight.bold,
@@ -101,7 +106,7 @@ class EmployeeProfileScreen extends StatelessWidget {
                                   ),
                                   Expanded(
                                     child: Text(
-                                      authManager.employee.email,
+                                      authManager.jobseeker.email,
                                       style: textTheme.titleMedium!.copyWith(
                                         color: theme.colorScheme.secondary,
                                       ),
@@ -127,7 +132,7 @@ class EmployeeProfileScreen extends StatelessWidget {
                                     width: 10,
                                   )),
                                   TextSpan(
-                                      text: authManager.employee.phone,
+                                      text: authManager.jobseeker.phone,
                                       style: textTheme.titleMedium!.copyWith(
                                         color: theme.colorScheme.secondary,
                                       ))
@@ -144,128 +149,133 @@ class EmployeeProfileScreen extends StatelessWidget {
                   height: 20,
                 ),
                 //Card hiển thị chi tiết thông tin cá nhân
-                EmployeeInfoCard(
+                JobseekerInfoCard(
                   title: 'Thông tin cá nhân',
                   iconButton: IconButton(
-                            onPressed: () {
-                              log('Chỉnh sửa thông tin cá nhân');
-                            },
-                            icon: Icon(Icons.edit),
-                          ),
+                    onPressed: () {
+                      log('Chỉnh sửa thông tin cá nhân');
+                    },
+                    icon: Icon(
+                      Icons.edit,
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
                   children: [
                     //Hiển thông tin họ và tên
-                      _buildInfoRow(
-                          title1: 'Họ',
-                          value1: authManager.employee.lastName,
-                          title2: 'Tên',
-                          value2: authManager.employee.firstName,
-                          textTheme: textTheme,
-                          theme: theme
-                      ),
-                      _buildInfoRow(
-                          title1: 'Số điện thoại',
-                          value1: authManager.employee.phone,
-                          title2: 'Địa chỉ',
-                          value2: authManager.employee.address,
-                          textTheme: textTheme,
-                          theme: theme
-                      ),
-                      _buildInfoRow(
-                          title1: 'Email',
-                          value1: authManager.employee.email,
-                          textTheme: textTheme,
-                          theme: theme
-                      ),
+                    _buildInfoRow(
+                        title1: 'Họ',
+                        value1: authManager.jobseeker.lastName,
+                        title2: 'Tên',
+                        value2: authManager.jobseeker.firstName,
+                        textTheme: textTheme,
+                        theme: theme),
+                    _buildInfoRow(
+                        title1: 'Số điện thoại',
+                        value1: authManager.jobseeker.phone,
+                        title2: 'Địa chỉ',
+                        value2: authManager.jobseeker.address,
+                        textTheme: textTheme,
+                        theme: theme),
+                    _buildInfoRow(
+                        title1: 'Email',
+                        value1: authManager.jobseeker.email,
+                        textTheme: textTheme,
+                        theme: theme),
                   ],
-                ),                
+                ),
                 const SizedBox(
                   height: 20,
                 ),
                 //Card hiển thị thông tin CV đã tải lên
-                EmployeeInfoCard(
+                JobseekerInfoCard(
                   //Tiêu đề cho Card
                   title: 'CV của tôi',
                   children: [
                     //Khung dùng để chứa thông tin tên CV và ngày tải lên cùng nút
                     //Hành động, một dòng chứa CV được tải lên
-                    Container(
-                      margin: EdgeInsets.only(top: 10),
-                      width: double.maxFinite,
-                      padding: EdgeInsets.all(10),
-                      height: 80,
-                      decoration: BoxDecoration(
-                        border: Border.all(color: theme.dividerColor),
-                        borderRadius: BorderRadius.circular(15)
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          //Cột chứa thông tin tên CV và ngày tải lên
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Hồ sơ VietnameWorks',
-                                style: textTheme.titleMedium!.copyWith(
-                                  fontSize: 20
-                                ),
-                              ),
-                              RichText(
-                                text: TextSpan(
+                    !authManager.jobseeker.resume.isEmpty
+                        ? Container(
+                            margin: EdgeInsets.only(top: 10),
+                            child: Text(
+                              'Bạn chưa tải CV nào, hãy tải lên để các nhà tuyển dụng có thể thấy CV của bạn',
+                              style: textTheme.bodyLarge,
+                            ),
+                          )
+                        : Container(
+                            margin: EdgeInsets.only(top: 10),
+                            width: double.maxFinite,
+                            padding: EdgeInsets.all(10),
+                            height: 80,
+                            decoration: BoxDecoration(
+                                border: Border.all(color: theme.dividerColor),
+                                borderRadius: BorderRadius.circular(15)),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                //Cột chứa thông tin tên CV và ngày tải lên
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    WidgetSpan(
-                                      child: Icon(Icons.attach_file)
+                                    Text(
+                                      'Hồ sơ VietnameWorks.pdf',
+                                      style: textTheme.titleMedium!
+                                          .copyWith(fontSize: 20),
                                     ),
-                                    WidgetSpan(
-                                      child: const SizedBox(width: 10,)
-                                    ),
-                                    TextSpan(
-                                      text: 'Đã tải lên: 01/06/2024'
+                                    RichText(
+                                      text: TextSpan(
+                                          children: [
+                                            WidgetSpan(
+                                                child: Icon(Icons.attach_file)),
+                                            WidgetSpan(
+                                                child: const SizedBox(
+                                              width: 10,
+                                            )),
+                                            TextSpan(
+                                                text: 'Đã tải lên: 01/06/2024')
+                                          ],
+                                          style: textTheme.bodyLarge!.copyWith(
+                                              color: Colors.grey.shade700,
+                                              fontFamily: 'Lato',
+                                              fontSize: 15)),
                                     )
                                   ],
-                                  style: textTheme.bodyLarge!.copyWith(
-                                    color: Colors.grey.shade700,
-                                    fontFamily: 'Lato',
-                                    fontSize: 15
-                                  )
                                 ),
-                              )
-                            ],
-                          ),
-                          //Cột chứa tùy chọn hành động tải xuống hoặc xem
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              IconButton(
-                                onPressed: () {
-                                  log('Xem hoặc tải xuống');
-                                },
-                                icon: Icon(Icons.more_vert),
-                              )
-                            ],
-                          )
-                        ],
-                      )
+                                //Cột chứa tùy chọn hành động tải xuống hoặc xem
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    IconButton(
+                                      onPressed: () {
+                                        log('Xem hoặc tải xuống');
+                                      },
+                                      icon: Icon(Icons.more_vert),
+                                    )
+                                  ],
+                                )
+                              ],
+                            )),
+                    const SizedBox(
+                      height: 20,
                     ),
-                    const SizedBox(height: 20,),
                     //Nút tùy chỉnh CV
                     ElevatedButton(
                       onPressed: () {
                         log('Chỉnh sửa CV');
                       },
-                      child: const Text('Chỉnh sửa CV'),
+                      child: Text(authManager.jobseeker.resume.isEmpty
+                          ? 'Tải lên CV'
+                          : 'Chỉnh sửa CV'),
                       style: ElevatedButton.styleFrom(
-                        side: BorderSide(
-                          color: theme.colorScheme.primary
-                        ),
+                        side: BorderSide(color: theme.colorScheme.primary),
                         elevation: 0,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
                         foregroundColor: theme.colorScheme.primary,
                         fixedSize: Size(deviceSize.width - 30, 50),
-                        textStyle: textTheme.titleLarge!.copyWith(fontFamily: 'Lato',fontSize: 20),
+                        textStyle: textTheme.titleLarge!
+                            .copyWith(fontFamily: 'Lato', fontSize: 20),
                       ),
                     )
                   ],
@@ -273,7 +283,42 @@ class EmployeeProfileScreen extends StatelessWidget {
                 const SizedBox(
                   height: 20,
                 ),
-                //Card hiển thị chi tiết thông tin nhân viên
+                //Card hiển thị các kinh nghiệm làm việc của ứng viên
+                JobseekerInfoCard(
+                  title: 'Kinh nghiệm làm việc',
+                  iconButton: IconButton(
+                    onPressed: () {
+                      log('Thêm kinh nghiệm mới');
+                    },
+                    icon: Icon(
+                      Icons.add_circle,
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
+                  children: [
+                    //đại diện cho một kinh nghiệm làm việc, những kinh nghiệm
+                    //sẽ được liệt kê tại đây
+                    ListView.builder(
+                      physics: NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      itemCount: 3,
+                      itemBuilder: (context, index) {
+                        return SizedBox(
+                          child: JobseekerExperienceCard(
+                            exp: exp,
+                            onCustomize: () {
+                              log('Chỉnh sửa hoặc xóa kinh nghiệm làm việc');
+                            },
+                          ),
+                        );
+                      },
+                    )
+                  ],
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+
                 //Hiển thị nút đăng xuất ở cuối cùng
                 ElevatedButton(
                   onPressed: () {
@@ -288,7 +333,8 @@ class EmployeeProfileScreen extends StatelessWidget {
                     ),
                     foregroundColor: theme.colorScheme.onSecondary,
                     fixedSize: Size(deviceSize.width - 30, 50),
-                    textStyle: textTheme.titleLarge!.copyWith(fontFamily: 'Lato'),
+                    textStyle:
+                        textTheme.titleLarge!.copyWith(fontFamily: 'Lato'),
                   ),
                 )
               ],
@@ -299,9 +345,9 @@ class EmployeeProfileScreen extends StatelessWidget {
 
   Row _buildInfoRow(
       {required String title1,
-       required String value1,
-       String? title2,
-       String? value2,
+      required String value1,
+      String? title2,
+      String? value2,
       required TextTheme textTheme,
       required ThemeData theme}) {
     return Row(
@@ -332,29 +378,29 @@ class EmployeeProfileScreen extends StatelessWidget {
           ),
         ),
         if (title2 != null)
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title2,
-                style: textTheme.titleMedium!.copyWith(
-                    color: theme.colorScheme.secondary,
-                    fontFamily: 'Lato',
-                    fontSize: 20,
-                    fontWeight: FontWeight.normal),
-              ),
-              Text(
-                value2!,
-                style: textTheme.titleMedium!.copyWith(
-                    color: theme.colorScheme.onSecondary,
-                    fontFamily: 'Lato',
-                    fontSize: 20,
-                    fontWeight: FontWeight.normal),
-              )
-            ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title2,
+                  style: textTheme.titleMedium!.copyWith(
+                      color: theme.colorScheme.secondary,
+                      fontFamily: 'Lato',
+                      fontSize: 20,
+                      fontWeight: FontWeight.normal),
+                ),
+                Text(
+                  value2!,
+                  style: textTheme.titleMedium!.copyWith(
+                      color: theme.colorScheme.onSecondary,
+                      fontFamily: 'Lato',
+                      fontSize: 20,
+                      fontWeight: FontWeight.normal),
+                )
+              ],
+            ),
           ),
-        ),
       ],
     );
   }

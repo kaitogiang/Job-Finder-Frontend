@@ -3,15 +3,15 @@ import 'package:provider/provider.dart';
 
 import '../auth/auth_manager.dart';
 
-class EmployeeHome extends StatelessWidget {
+class JobseekerHome extends StatelessWidget {
 
-  const EmployeeHome({super.key});
+  const JobseekerHome({super.key});
   
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Employee Home'),
+        title: Text('Jobseeker Home'),
         actions: [
           IconButton(
             icon: Icon(Icons.logout),
@@ -22,7 +22,7 @@ class EmployeeHome extends StatelessWidget {
         ],
       ),
       body: Center(
-        child: Text('Employee Home ${context.read<AuthManager>().employee.skills}'),
+        child: Text('Employee Home ${context.read<AuthManager>().jobseeker.skills}'),
       ),
     );
   }

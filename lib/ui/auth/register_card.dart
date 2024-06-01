@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:job_finder_app/ui/auth/auth_manager.dart';
 import 'package:provider/provider.dart';
 
-enum UserType { employee, employer }
+enum UserType { jobseeker, employer }
 
 class RegisterCard extends StatefulWidget {
   RegisterCard({super.key});
@@ -17,7 +17,7 @@ class _RegisterCardState extends State<RegisterCard> {
   final GlobalKey<FormState> _formKey = GlobalKey();
   final PageController _pageController =
       PageController(); //Controller để quản lý việc chuyển form
-  ValueNotifier<UserType> userType = ValueNotifier<UserType>(UserType.employee);
+  ValueNotifier<UserType> userType = ValueNotifier<UserType>(UserType.jobseeker);
   ValueNotifier<bool> isPasswordShown = ValueNotifier<bool>(false);
   ValueNotifier<int> _currentIndexPage = ValueNotifier<int>(0);
   ValueNotifier<bool> _isSendingOTP = ValueNotifier<bool>(false);
@@ -125,7 +125,7 @@ class _RegisterCardState extends State<RegisterCard> {
                       child: ValueListenableBuilder(
                         valueListenable: userType,
                         builder: (context, value, child) {
-                          String userString = (value == UserType.employee)
+                          String userString = (value == UserType.jobseeker)
                               ? 'ỨNG VIÊN'
                               : 'NHÀ TUYỂN DỤNG';
                           return Text(userString, style: userTitleStyle);
@@ -163,7 +163,7 @@ class _RegisterCardState extends State<RegisterCard> {
                       return ValueListenableBuilder<int>(
                         valueListenable: _currentIndexPage,
                         builder: (context, index, child) {
-                          return (user == UserType.employee || index == 1)
+                          return (user == UserType.jobseeker || index == 1)
                               ? _buildRegisterButton()
                               : _buildNextButton();
                         },
@@ -244,7 +244,7 @@ class _RegisterCardState extends State<RegisterCard> {
         ValueListenableBuilder(
           valueListenable: userType,
           builder: (context, value, child) {
-            return value == UserType.employee ? _buildOTP() : _buildRoleField();
+            return value == UserType.jobseeker ? _buildOTP() : _buildRoleField();
           },
         )
       ],
@@ -458,10 +458,10 @@ class _RegisterCardState extends State<RegisterCard> {
   Widget _buildSwitchUser() {
     return TextButton(
         onPressed: () {
-          if (userType.value == UserType.employee) {
+          if (userType.value == UserType.jobseeker) {
             userType.value = UserType.employer;
           } else {
-            userType.value = UserType.employee;
+            userType.value = UserType.jobseeker;
             _updateCurrentPageIndex(0);
           }
         },
@@ -474,7 +474,7 @@ class _RegisterCardState extends State<RegisterCard> {
         child: ValueListenableBuilder(
           valueListenable: userType,
           builder: (context, value, child) {
-            String switchString = value != UserType.employee
+            String switchString = value != UserType.jobseeker
                 ? 'Đăng ký ứng tuyển viên'
                 : 'Đăng ký nhà tuyển dụng';
             return Text(switchString, style: TextStyle(fontSize: 17));
@@ -683,6 +683,4 @@ class _RegisterCardState extends State<RegisterCard> {
       ),
     );
   }
-
-  //Xây dựng Form nhập thông tin cá nhân dành cho Người tìm việc và nhà tuyển dụng
 }

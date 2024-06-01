@@ -7,7 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:job_finder_app/models/employer.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../models/employee.dart';
+import '../models/jobseeker.dart';
 import '../models/http_exception.dart';
 
 class AuthService {
@@ -19,7 +19,7 @@ class AuthService {
   String _buildAuthUrl(bool isEmployer) {
     return isEmployer
         ? 'http://10.0.2.2:3000/api/employer/sign-in'
-        : 'http://10.0.2.2:3000/api/employee/sign-in';
+        : 'http://10.0.2.2:3000/api/jobseeker/sign-in';
   }
 
   //Hàm xác thực đăng nhập
@@ -71,14 +71,14 @@ class AuthService {
     if (isEmployer) {
       url = 'http://10.0.2.2:3000/api/employer/$id';
     } else {
-      url = 'http://10.0.2.2:3000/api/employee/$id';
+      url = 'http://10.0.2.2:3000/api/jobseeker/$id';
     }
     final uri = Uri.parse(url);
     final response = await http.get(uri);
     if (response.statusCode >= 200 && response.statusCode < 300) {
         final responseJson = json.decode(response.body);
         //Trả về đối tượng tùy theo loại của chúng, khi lấy dữ liệu thì chỉ cần ép kiểu là được
-        return isEmployer ? Employer.fromJson(responseJson) : Employee.fromJson(responseJson);
+        return isEmployer ? Employer.fromJson(responseJson) : Jobseeker.fromJson(responseJson);
     } else {
         final errorResponse = json.decode(response.body);
         throw HttpException.fromJson(errorResponse);
@@ -123,7 +123,7 @@ class AuthService {
       };
     } else {
       //Đăng ký tài khoản cho người tìm việc
-      api = 'http://10.0.2.2:3000/api/employee/sign-up';
+      api = 'http://10.0.2.2:3000/api/jobseeker/sign-up';
       jsonValue = {
         'firstName': firstName,
         'lastName': lastName,
@@ -210,7 +210,7 @@ class AuthService {
   //Hàm gửi OTP qua email
   Future<bool> sendOTP(String email, bool isEmployer) async {
     String uri = !isEmployer
-        ? 'http://10.0.2.2:3000/api/employee/send-otp'
+        ? 'http://10.0.2.2:3000/api/jobseeker/send-otp'
         : 'http://10.0.2.2:3000/api/employer/send-otp';
     try {
       final url = Uri.parse(uri);
