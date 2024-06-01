@@ -2,8 +2,8 @@ class Education {
   final String specialization;
   final String school;
   final String degree;
-  final DateTime startDate;
-  final DateTime endDate;
+  final String startDate;
+  final String endDate;
 
   Education({
     required this.specialization,
@@ -18,8 +18,8 @@ class Education {
       specialization: json['specialization'],
       school: json['school'],
       degree: json['degree'],
-      startDate: DateTime.parse(json['startDate']),
-      endDate: DateTime.parse(json['endDate']),
+      startDate: json['startDate'],
+      endDate: json['endDate'],
     );
   }
 
@@ -28,8 +28,8 @@ class Education {
       'specialization': specialization,
       'school': school,
       'degree': degree,
-      'startDate': startDate.toIso8601String(),
-      'endDate': endDate.toIso8601String(),
+      'startDate': startDate,
+      'endDate': endDate,
     };
   }
 }

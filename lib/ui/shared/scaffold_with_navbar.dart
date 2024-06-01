@@ -19,10 +19,21 @@ class ScaffoldWithNavBar extends StatelessWidget {
       body: navigationShell,
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: navigationShell.currentIndex,
-        onTap: (index) => navigationShell.goBranch(index),
+        onTap: (index) => _onTap(context, index),
         items: isEmployer
           ? _buildEmployerNavItems() : _buildJobseekerNavItems(),
       ),
+    );
+  }
+
+  //Hàm dùng để chuyển hướng tới một nhánh
+  void _onTap(BuildContext context, int index) {
+    //Hàm goBranch dùng để chuyển hướng tới một nhánh nào đó đã định nghĩa
+    //theo chỉ số. Thứ tự các nhánh bắt đầu từ 0. Nhánh đầu tiên là 0,
+    //thứ hai là 1, vv..vv
+    navigationShell.goBranch(
+      index,
+      initialLocation: index == navigationShell.currentIndex
     );
   }
 

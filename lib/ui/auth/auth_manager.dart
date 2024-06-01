@@ -125,4 +125,15 @@ class AuthManager with ChangeNotifier {
   Future<bool> sendOTP({required String email, required bool isEmployer}) async {
     return await _authService.sendOTP(email, isEmployer);
   }
+
+  //Các hàm liên quan đến người tìm việc
+  void addJobseekerSkill(List<String> e) {
+    _jobseeker.skills.addAll(e);
+    notifyListeners();
+  }
+
+  void removeJobseekerSkill(String e) {
+    _jobseeker.skills.remove(e);
+    notifyListeners();
+  }
 }
