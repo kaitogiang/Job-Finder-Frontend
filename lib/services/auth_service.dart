@@ -4,8 +4,10 @@ import 'dart:io';
 
 import 'package:job_finder_app/models/auth_token.dart';
 import 'package:http/http.dart' as http;
+import 'package:job_finder_app/models/employer.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../models/employee.dart';
 import '../models/http_exception.dart';
 
 class AuthService {
@@ -61,6 +63,26 @@ class AuthService {
   Future<AuthToken> signIn(
       {String? email, String? password, bool isEmployer = false}) async {
     return _authenticate(email!, password!, isEmployer);
+  }
+
+  //Hàm nạp dữ liệu người dùng
+  Future<dynamic> fetchUserInfo(String id, bool isEmployer) async{
+    String url = '';
+    if (isEmployer) {
+      url = 'http://10.0.2.2:3000/api/employer/$id';
+    } else {
+      url = 'http://10.0.2.2:3000/api/employee/$id';
+    }
+    final uri = Uri.parse(url);
+    final response = await http.get(uri);
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+        final responseJson = json.decode(response.body);
+        //Trả về đối tượng tùy theo loại của chúng, khi lấy dữ liệu thì chỉ cần ép kiểu là được
+        return isEmployer ? Employer.fromJson(responseJson) : Employee.fromJson(responseJson);
+    } else {
+        final errorResponse = json.decode(response.body);
+        throw HttpException.fromJson(errorResponse);
+    }
   }
 
   //Hàm đăng ký tài khoản theo từng người dùng

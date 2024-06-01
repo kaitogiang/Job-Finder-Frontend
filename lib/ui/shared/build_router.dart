@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:job_finder_app/ui/auth/auth_manager.dart';
 
-import '../employee/employee-home.dart';
+import '../employee/employee_home.dart';
+import '../employee/employee_profile_screen.dart';
 import '../employer/employer_home.dart';
 import 'scaffold_with_navbar.dart';
 import 'splash_screen.dart';
@@ -54,7 +55,7 @@ List<StatefulShellBranch> _buildEmployeeRoutes() {
         GoRoute(
           name: 'employee-home',
           path: '/employee-home',
-          builder: (context, state) => const SafeArea(child: EmployeeHome())
+          builder: (context, state) => EmployeeProfileScreen()
         ),
       ],
     ),
@@ -94,7 +95,7 @@ List<StatefulShellBranch> _buildEmployeeRoutes() {
         GoRoute(
           name: 'account',
           path: '/account',
-          builder: (context, state) => const SafeArea(child: EmployeeHome())
+          builder: (context, state) => const SafeArea(child: EmployeeProfileScreen())
         ),
       ],
     ),
