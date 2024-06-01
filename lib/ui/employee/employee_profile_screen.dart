@@ -188,6 +188,14 @@ class EmployeeProfileScreen extends StatelessWidget {
                   children: [
                     //Khung dùng để chứa thông tin tên CV và ngày tải lên cùng nút
                     //Hành động, một dòng chứa CV được tải lên
+                    authManager.employee.resume.isEmpty 
+                    ? Container(
+                      margin: EdgeInsets.only(top: 10),
+                      child: Text(
+                        'Bạn chưa tải CV nào, hãy tải lên để các nhà tuyển dụng có thể thấy CV của bạn',
+                        style: textTheme.bodyLarge,
+                      ),
+                    ) :
                     Container(
                       margin: EdgeInsets.only(top: 10),
                       width: double.maxFinite,
@@ -254,7 +262,7 @@ class EmployeeProfileScreen extends StatelessWidget {
                       onPressed: () {
                         log('Chỉnh sửa CV');
                       },
-                      child: const Text('Chỉnh sửa CV'),
+                      child: Text(authManager.employee.resume.isEmpty ? 'Tải lên CV' : 'Chỉnh sửa CV'),
                       style: ElevatedButton.styleFrom(
                         side: BorderSide(
                           color: theme.colorScheme.primary
@@ -273,7 +281,8 @@ class EmployeeProfileScreen extends StatelessWidget {
                 const SizedBox(
                   height: 20,
                 ),
-                //Card hiển thị chi tiết thông tin nhân viên
+                //Card hiển thị các kinh nghiệm làm việc của ứng viên
+
                 //Hiển thị nút đăng xuất ở cuối cùng
                 ElevatedButton(
                   onPressed: () {
