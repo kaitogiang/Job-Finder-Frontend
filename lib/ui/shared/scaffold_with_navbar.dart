@@ -21,13 +21,13 @@ class ScaffoldWithNavBar extends StatelessWidget {
         currentIndex: navigationShell.currentIndex,
         onTap: (index) => navigationShell.goBranch(index),
         items: isEmployer
-          ? _buildEmployerNavItems() : _buildEmployeeNavItems(),
+          ? _buildEmployerNavItems() : _buildJobseekerNavItems(),
       ),
     );
   }
 
   //Hàm build các mục cho người tìm việc
-  List<BottomNavigationBarItem> _buildEmployeeNavItems() {
+  List<BottomNavigationBarItem> _buildJobseekerNavItems() {
     return <BottomNavigationBarItem>[
       BottomNavigationBarItem(
         icon: Icon(Icons.home),

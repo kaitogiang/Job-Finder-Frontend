@@ -4,13 +4,13 @@ import 'package:job_finder_app/models/resume.dart';
 
 import 'user.dart';
 
-class Employee extends User {
+class Jobseeker extends User {
   final List<Resume> _resume;
   final List<String> _skills;
   final List<Experience> _experience;
   final List<Education> _education;
 
-  Employee({
+  Jobseeker({
     required String id,
     required String firstName,
     required String lastName,
@@ -36,8 +36,8 @@ class Employee extends User {
           avatar: avatar,
         );
 
-  factory Employee.fromJson(Map<String, dynamic> json) {
-    return Employee(
+  factory Jobseeker.fromJson(Map<String, dynamic> json) {
+    return Jobseeker(
       id: json['_id'],
       firstName: json['firstName'],
       lastName: json['lastName'],
@@ -84,7 +84,7 @@ class Employee extends User {
     };
   }
 
-  Employee copyWith({
+  Jobseeker copyWith({
     String? firstName,
     String? lastName,
     String? email,
@@ -96,7 +96,7 @@ class Employee extends User {
     List<Experience>? experience,
     List<Education>? education,
   }) {
-    return Employee(
+    return Jobseeker(
       id: id,
       firstName: firstName ?? this.firstName,
       lastName: lastName ?? this.lastName,
@@ -113,6 +113,6 @@ class Employee extends User {
 
   @override
   String toString() {
-    return 'Employee(id: $id, firstName: $firstName, lastName: $lastName, email: $email, phone: $phone, address: $address, avatar: $avatar, resume: $resume, skills: $skills, experience: $experience, education: $education)';
+    return 'Jobseeker(id: $id, firstName: $firstName, lastName: $lastName, email: $email, phone: $phone, address: $address, avatar: $avatar, resume: $resume, skills: $skills, experience: $experience, education: $education)';
   }
 }

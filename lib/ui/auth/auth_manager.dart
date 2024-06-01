@@ -4,7 +4,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 
-import '../../models/employee.dart';
+import '../../models/jobseeker.dart';
 import '../../models/employer.dart';
 import '../../services/auth_service.dart';
 import '../../models/auth_token.dart';
@@ -13,7 +13,7 @@ class AuthManager with ChangeNotifier {
   AuthToken? _authToken;
   Timer? _authTimer;
   bool _isEmployer = false; //Biến quản lý loại người dùng
-  late Employee _employee;
+  late Jobseeker _jobseeker;
   late Employer _employer;
 
   final AuthService _authService = AuthService();
@@ -31,7 +31,7 @@ class AuthManager with ChangeNotifier {
     return _authToken;
   }
 
-  Employee get employee => _employee;
+  Jobseeker get jobseeker => _jobseeker;
 
   Employer get employer => _employer;
 
@@ -43,7 +43,7 @@ class AuthManager with ChangeNotifier {
     if (isEmployer) {
       _employer = await _authService.fetchUserInfo(token.userId, isEmployer) as Employer;
     } else {
-      _employee = await _authService.fetchUserInfo(token.userId, isEmployer) as Employee;
+      _jobseeker = await _authService.fetchUserInfo(token.userId, isEmployer) as Jobseeker;
     }
     _autoLogout();
     notifyListeners();

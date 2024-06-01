@@ -1,9 +1,7 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 
-class EmployeeInfoCard extends StatelessWidget {
-  const EmployeeInfoCard({required this.title, this.iconButton, required this.children, super.key});
+class JobseekerInfoCard extends StatelessWidget {
+  const JobseekerInfoCard({required this.title, this.iconButton, required this.children, super.key});
 
   final List<Widget> children;
   final IconButton? iconButton;
