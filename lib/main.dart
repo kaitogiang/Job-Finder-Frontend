@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:job_finder_app/services/auth_service.dart';
 import 'package:job_finder_app/ui/auth/auth_manager.dart';
 import 'package:job_finder_app/ui/auth/auth_screen.dart';
+import 'package:job_finder_app/ui/jobseeker/jobseeker_manager.dart';
 import 'package:provider/provider.dart';
 
 import 'ui/shared/build_router.dart';
@@ -31,6 +32,13 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (context) => AuthManager(),
         ),
+        ChangeNotifierProxyProvider<AuthManager, JobseekerManager>(
+          create: (context) => JobseekerManager(context.read<AuthManager>().jobseeker),
+          update: (context, authManager, jobseekerManager) {
+            
+            return jobseekerManager!;
+          },
+        )
       ],
       child: Consumer<AuthManager>(
         builder: (ctx, authManager, child) {
