@@ -17,6 +17,11 @@ dependencies:
   jwt_decoder: ^2.0.1
   cupertino_icons: ^1.0.2
   blur: 3.1.0
+  http_parser: ^4.0.2
+  mime: ^1.0.5
+  path: 1.8.3
+  image_picker: 1.0.8
+
 
 dev_dependencies:
   flutter_test:

@@ -1,7 +1,9 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:job_finder_app/ui/auth/auth_manager.dart';
+import 'package:job_finder_app/ui/jobseeker/jobseeker_manager.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/education.dart';
@@ -29,7 +31,6 @@ class JobseekerProfileScreen extends StatelessWidget {
         startDate: '01/2020',
         endDate: 'Hiện tại');
     List<String> skils = ['Java', 'Kỹ năng thuyết trình', 'Python', 'Flutter', 'Backend', 'Reactjs'];
-    final jobseeker = context.read<AuthManager>().jobseeker;
 
     return Scaffold(
         appBar: AppBar(
@@ -42,15 +43,15 @@ class JobseekerProfileScreen extends StatelessWidget {
           ),
           elevation: 0,
         ),
-        body: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              //Khung chứa ảnh đại diện và thông tin cơ bản ngắn gọn
-              Consumer<AuthManager>(
-                builder: (context, authManager, child) {
-                  return Container(
+        body: Consumer<JobseekerManager>(
+          builder: (context, jobseekerManager, child) {
+            return SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  //Khung chứa ảnh đại diện và thông tin cơ bản ngắn gọn
+                  Container(
                     height: 200,
                     padding: EdgeInsets.only(bottom: 13),
                     decoration: BoxDecoration(
@@ -79,7 +80,7 @@ class JobseekerProfileScreen extends StatelessWidget {
                               borderRadius: BorderRadius.circular(15),
                               image: DecorationImage(
                                 image: NetworkImage(
-                                    authManager.jobseeker.getImageUrl()),
+                                    jobseekerManager.jobseeker.getImageUrl()),
                                 fit: BoxFit.cover,
                               ),
                             ),
@@ -95,7 +96,7 @@ class JobseekerProfileScreen extends StatelessWidget {
                               children: [
                                 //Họ và Tên hiển thị ở đây
                                 Text(
-                                  '${authManager.jobseeker.firstName} ${authManager.jobseeker.lastName}',
+                                  '${jobseekerManager.jobseeker.firstName} ${jobseekerManager.jobseeker.lastName}',
                                   style: textTheme.titleLarge!.copyWith(
                                       color: theme.indicatorColor,
                                       fontWeight: FontWeight.bold,
@@ -118,7 +119,7 @@ class JobseekerProfileScreen extends StatelessWidget {
                                     ),
                                     Expanded(
                                       child: Text(
-                                        authManager.jobseeker.email,
+                                        jobseekerManager.jobseeker.email,
                                         style: textTheme.titleMedium!.copyWith(
                                           color: theme.colorScheme.secondary,
                                         ),
@@ -144,7 +145,7 @@ class JobseekerProfileScreen extends StatelessWidget {
                                       width: 10,
                                     )),
                                     TextSpan(
-                                        text: authManager.jobseeker.phone,
+                                        text: jobseekerManager.jobseeker.phone,
                                         style: textTheme.titleMedium!.copyWith(
                                           color: theme.colorScheme.secondary,
                                         ))
@@ -156,20 +157,18 @@ class JobseekerProfileScreen extends StatelessWidget {
                         ],
                       ),
                     ),
-                  );
-                }
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              //Card hiển thị chi tiết thông tin cá nhân
-              Consumer<AuthManager>(
-                builder: (context, authManager, child) {
-                  return JobseekerInfoCard(
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  //Card hiển thị chi tiết thông tin cá nhân
+                  JobseekerInfoCard(
                     title: 'Thông tin cá nhân',
                     iconButton: IconButton(
                       onPressed: () {
                         log('Chỉnh sửa thông tin cá nhân');
+                        // jobseekerManager.modifyFirstName('Thị Nó');
+                        context.goNamed('information-edit');
                       },
                       icon: Icon(
                         Icons.edit,
@@ -180,40 +179,36 @@ class JobseekerProfileScreen extends StatelessWidget {
                       //Hiển thông tin họ và tên
                       _buildInfoRow(
                           title1: 'Họ',
-                          value1: authManager.jobseeker.lastName,
+                          value1: jobseekerManager.jobseeker.lastName,
                           title2: 'Tên',
-                          value2: authManager.jobseeker.firstName,
+                          value2: jobseekerManager.jobseeker.firstName,
                           textTheme: textTheme,
                           theme: theme),
                       _buildInfoRow(
                           title1: 'Số điện thoại',
-                          value1: authManager.jobseeker.phone,
+                          value1: jobseekerManager.jobseeker.phone,
                           title2: 'Địa chỉ',
-                          value2: authManager.jobseeker.address,
+                          value2: jobseekerManager.jobseeker.address,
                           textTheme: textTheme,
                           theme: theme),
                       _buildInfoRow(
                           title1: 'Email',
-                          value1: authManager.jobseeker.email,
+                          value1: jobseekerManager.jobseeker.email,
                           textTheme: textTheme,
                           theme: theme),
                     ],
-                  );
-                }
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              //Card hiển thị thông tin CV đã tải lên
-              Consumer<AuthManager>(
-                builder: (context, authManager, child) {
-                  return JobseekerInfoCard(
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  //Card hiển thị thông tin CV đã tải lên
+                  JobseekerInfoCard(
                     //Tiêu đề cho Card
                     title: 'CV của tôi',
                     children: [
                       //Khung dùng để chứa thông tin tên CV và ngày tải lên cùng nút
                       //Hành động, một dòng chứa CV được tải lên
-                      !authManager.jobseeker.resume.isEmpty
+                      !jobseekerManager.jobseeker.resume.isEmpty
                           ? Container(
                               margin: EdgeInsets.only(top: 10),
                               child: Text(
@@ -283,7 +278,7 @@ class JobseekerProfileScreen extends StatelessWidget {
                         onPressed: () {
                           log('Chỉnh sửa CV');
                         },
-                        child: Text(authManager.jobseeker.resume.isEmpty
+                        child: Text(jobseekerManager.jobseeker.resume.isEmpty
                             ? 'Tải lên CV'
                             : 'Chỉnh sửa CV'),
                         style: ElevatedButton.styleFrom(
@@ -299,16 +294,12 @@ class JobseekerProfileScreen extends StatelessWidget {
                         ),
                       )
                     ],
-                  );
-                }
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              //Card hiển thị các kinh nghiệm làm việc của ứng viên
-              Consumer<AuthManager>(
-                builder: (context, authManager, child) {
-                  return JobseekerInfoCard(
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  //Card hiển thị các kinh nghiệm làm việc của ứng viên
+                  JobseekerInfoCard(
                     title: 'Kinh nghiệm làm việc',
                     iconButton: IconButton(
                       onPressed: () {
@@ -322,7 +313,7 @@ class JobseekerProfileScreen extends StatelessWidget {
                     children: [
                       //đại diện cho một kinh nghiệm làm việc, những kinh nghiệm
                       //sẽ được liệt kê tại đây
-                      authManager.jobseeker.experience.isEmpty
+                      jobseekerManager.jobseeker.experience.isEmpty
                           ? Container(
                               margin: EdgeInsets.only(top: 10),
                               child: Text(
@@ -346,16 +337,12 @@ class JobseekerProfileScreen extends StatelessWidget {
                               },
                             )
                     ],
-                  );
-                }
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              //Card hiển thị thông tin học vấn
-              Consumer<AuthManager>(
-                builder: (context, authManager, child) {
-                  return JobseekerInfoCard(
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  //Card hiển thị thông tin học vấn
+                  JobseekerInfoCard(
                     title: 'Học vấn của tôi',
                     iconButton: IconButton(
                       onPressed: () {},
@@ -365,7 +352,7 @@ class JobseekerProfileScreen extends StatelessWidget {
                       ),
                     ),
                     children: [
-                      authManager.jobseeker.education.isEmpty
+                      jobseekerManager.jobseeker.education.isEmpty
                           ? Container(
                               margin: EdgeInsets.only(top: 10),
                               child: Text(
@@ -388,74 +375,66 @@ class JobseekerProfileScreen extends StatelessWidget {
                               },
                             )
                     ],
-                  );
-                }
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              //Card hiển thị kỹ năng (mềm, lập trình, v.vv.)
-              Selector<AuthManager, List<String>>(
-                selector: (context, authManager) => authManager.jobseeker.skills,
-                builder: (context, skills, child) {
-                  return JobseekerInfoCard(
-                    title: 'Kỹ năng của tôi',
-                    iconButton: IconButton(
-                      onPressed: () {
-                        log('Tùy chỉnh kỹ năng');
-                        // authManager.addJobseekerSkill(skils);
-                        // skills.addAll(skils);
-                        context.read<AuthManager>().addJobseekerSkill(skils);
-                      },
-                      icon: Icon(
-                        Icons.edit,
-                        color: theme.colorScheme.primary,
-                      ),
-                    ),
-                    children: [
-                      Wrap(
-                        alignment: WrapAlignment.start,
-                        spacing: 5,
-                        runSpacing: 3,
-                        children: List<Widget>.generate(jobseeker.skills.length, (index) {
-                            return InputChip(
-                              label: Text(jobseeker.skills[index]),
-                              onDeleted: () {
-                                log('Xóa kỹ năng ${jobseeker.skills[index]}');
-                                // authManager.removeJobseekerSkill(authManager.jobseeker.skills[index]);
-                              },
-                              labelStyle: TextStyle(color: Colors.grey.shade700),
-                            );
-                          }).toList(),
-                      )
-                    ],
-                  );
-                }
-              ),
-        
-              const SizedBox(
-                height: 20,
-              ),
-              //Hiển thị nút đăng xuất ở cuối cùng
-              ElevatedButton(
-                onPressed: () {
-                  log('Đăng xuất');
-                },
-                child: const Text('Đăng xuất'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.grey.shade300,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
                   ),
-                  foregroundColor: theme.colorScheme.onSecondary,
-                  fixedSize: Size(deviceSize.width - 30, 50),
-                  textStyle:
-                      textTheme.titleLarge!.copyWith(fontFamily: 'Lato'),
-                ),
-              )
-            ],
-          ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  //Card hiển thị kỹ năng (mềm, lập trình, v.vv.)
+                  JobseekerInfoCard(
+                        title: 'Kỹ năng của tôi',
+                        iconButton: IconButton(
+                          onPressed: () {
+                            log('Tùy chỉnh kỹ năng');
+                            jobseekerManager.addSkill('Ròi ok');
+                          },
+                          icon: Icon(
+                            Icons.edit,
+                            color: theme.colorScheme.primary,
+                          ),
+                        ),
+                        children: [
+                          Wrap(
+                            alignment: WrapAlignment.start,
+                            spacing: 5,
+                            runSpacing: 3,
+                            children: List<Widget>.generate(jobseekerManager.skills.length, (index) {
+                                return InputChip(
+                                  label: Text(jobseekerManager.skills[index]),
+                                  onDeleted: () {
+                                    log('Xóa kỹ năng ${jobseekerManager.skills[index]}');
+                                    jobseekerManager.removeSkill(jobseekerManager.skills[index]);
+                                  },
+                                  labelStyle: TextStyle(color: Colors.grey.shade700),
+                                );
+                              }).toList(),
+                          )
+                        ],
+                      ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  //Hiển thị nút đăng xuất ở cuối cùng
+                  ElevatedButton(
+                    onPressed: () {
+                      log('Đăng xuất');
+                    },
+                    child: const Text('Đăng xuất'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.grey.shade300,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      foregroundColor: theme.colorScheme.onSecondary,
+                      fixedSize: Size(deviceSize.width - 30, 50),
+                      textStyle:
+                          textTheme.titleLarge!.copyWith(fontFamily: 'Lato'),
+                    ),
+                  )
+                ],
+              ),
+            );
+          }
         ));
   }
 

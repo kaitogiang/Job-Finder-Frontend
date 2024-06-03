@@ -35,8 +35,10 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProxyProvider<AuthManager, JobseekerManager>(
           create: (context) => JobseekerManager(context.read<AuthManager>().jobseeker),
           update: (context, authManager, jobseekerManager) {
-            
-            return jobseekerManager!;
+            //Khi authManager có báo hiệu thay đổi thì đọc lại authToken
+            //cho JobseekerManager
+            jobseekerManager!.authToken = authManager.authToken;
+            return jobseekerManager;
           },
         )
       ],

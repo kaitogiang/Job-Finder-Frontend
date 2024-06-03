@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:job_finder_app/ui/auth/auth_manager.dart';
 
 import '../jobseeker/jobseeker_home.dart';
+import '../jobseeker/jobseeker_profile_pages/information_edit_screen.dart';
 import '../jobseeker/jobseeker_profile_screen.dart';
 import '../employer/employer_home.dart';
 import 'scaffold_with_navbar.dart';
@@ -55,7 +56,7 @@ List<StatefulShellBranch> _buildJobseekerRoutes() {
         GoRoute(
           name: 'jobseeker-home',
           path: '/jobseeker-home',
-          builder: (context, state) => JobseekerProfileScreen()
+          builder: (context, state) => InformationEditScreen()
         ),
       ],
     ),
@@ -95,7 +96,15 @@ List<StatefulShellBranch> _buildJobseekerRoutes() {
         GoRoute(
           name: 'account',
           path: '/account',
-          builder: (context, state) => const SafeArea(child: JobseekerProfileScreen())
+          builder: (context, state) => const SafeArea(child: JobseekerProfileScreen()),
+          routes: <RouteBase>[
+            GoRoute(
+              parentNavigatorKey: _rootNavigatorkey,
+              name: 'information-edit',
+              path: 'information-edit',
+              builder: (context, state) => const SafeArea(child: const InformationEditScreen())
+            )
+          ]
         ),
       ],
     ),

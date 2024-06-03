@@ -1,10 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:job_finder_app/models/auth_token.dart';
 import 'package:job_finder_app/models/jobseeker.dart';
+import 'package:job_finder_app/services/jobseeker_service.dart';
 
 class JobseekerManager extends ChangeNotifier {
   Jobseeker _jobseeker;
   
-  JobseekerManager([Jobseeker? jobseeker]) : _jobseeker = jobseeker!;
+  final JobseekerService _jobseekerService;
+
+  JobseekerManager([Jobseeker? jobseeker, AuthToken? authToken]) 
+  : _jobseeker = jobseeker!, _jobseekerService = JobseekerService(authToken);
+
+  set authToken(AuthToken? authToken) {
+    _jobseekerService.authToken = authToken;
+  }
 
   Jobseeker get jobseeker => _jobseeker;
 
@@ -18,6 +27,11 @@ class JobseekerManager extends ChangeNotifier {
 
   void removeSkill(String skill) {
     skills.remove(skill);
+    notifyListeners();
+  }
+
+  void modifyFirstName(String firstName) {
+    jobseeker.firstName = firstName;
     notifyListeners();
   }
 }
