@@ -58,7 +58,6 @@ class _CombinedTextFormFieldState extends State<CombinedTextFormField> {
       decoration: InputDecoration(
         hintText: widget.hintText,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-        fillColor: Colors.grey.shade200,
         constraints: BoxConstraints.tight(Size.fromHeight(60)),
       ),
       keyboardType: widget.keyboardType,

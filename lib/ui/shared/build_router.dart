@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:job_finder_app/models/jobseeker.dart';
 import 'package:job_finder_app/ui/auth/auth_manager.dart';
 
 import '../jobseeker/jobseeker_home.dart';
@@ -56,7 +57,7 @@ List<StatefulShellBranch> _buildJobseekerRoutes() {
         GoRoute(
           name: 'jobseeker-home',
           path: '/jobseeker-home',
-          builder: (context, state) => InformationEditScreen()
+          builder: (context, state) => JobseekerHome()
         ),
       ],
     ),
@@ -96,13 +97,14 @@ List<StatefulShellBranch> _buildJobseekerRoutes() {
         GoRoute(
           name: 'account',
           path: '/account',
-          builder: (context, state) => const SafeArea(child: JobseekerProfileScreen()),
+          builder: (context, state) => JobseekerProfileScreen(),
           routes: <RouteBase>[
+            //Trang chỉnh sửa thông tin cá nhân
             GoRoute(
               parentNavigatorKey: _rootNavigatorkey,
               name: 'information-edit',
               path: 'information-edit',
-              builder: (context, state) => const SafeArea(child: const InformationEditScreen())
+              builder: (context, state) => InformationEditScreen(state.extra as Jobseeker,)
             )
           ]
         ),

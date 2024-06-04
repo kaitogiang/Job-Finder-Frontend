@@ -3,11 +3,19 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:job_finder_app/models/jobseeker.dart';
+import 'package:job_finder_app/ui/jobseeker/jobseeker_manager.dart';
 import 'package:job_finder_app/ui/shared/combined_text_form_field.dart';
 import 'package:job_finder_app/ui/shared/modal_bottom_sheet.dart';
+import 'package:job_finder_app/ui/shared/vietname_provinces.dart';
+import 'package:provider/provider.dart';
+
+import '../../shared/utils.dart';
 
 class InformationEditScreen extends StatefulWidget {
-  const InformationEditScreen({super.key});
+  InformationEditScreen(this.jobseeker, {super.key});
+
+  Jobseeker? jobseeker;
 
   @override
   State<InformationEditScreen> createState() => _InformationEditScreenState();
@@ -17,19 +25,82 @@ class _InformationEditScreenState extends State<InformationEditScreen> {
   final _formKey = GlobalKey<FormState>();
   final ImagePicker _picker = ImagePicker();
   File? file;
-  
+  final firstNameController = TextEditingController();
+  final lastNameController = TextEditingController();
+  final phoneController = TextEditingController();
+  final addressController = TextEditingController();
+  final searchController = TextEditingController();
+  Map<String, String> userInfo = {
+    'firstName': '',
+    'lastName': '',
+    'phone': '',
+    'address': ''
+  };
+  ValueNotifier<List<String>> provinceListenable =
+      ValueNotifier(VietNameProvinces.provinces);
+  ValueNotifier<int> selectedProvinceIndex = ValueNotifier(0);
+  @override
+  void initState() {
+    firstNameController.text = widget.jobseeker!.firstName;
+    lastNameController.text = widget.jobseeker!.lastName;
+    phoneController.text = widget.jobseeker!.phone;
+    addressController.text = widget.jobseeker!.address;
+    //TODO: Tìm chỉ số tỉnh mà trùng với danh sách tỉnh
+    int selectedIndex = provinceListenable.value.indexWhere((element) {
+      String alteredElement =
+          Utils.removeVietnameseAccent(element).toLowerCase();
+      String alteredAddress =
+          Utils.removeVietnameseAccent(addressController.text).toLowerCase();
+      return alteredElement.compareTo(alteredAddress) == 0;
+    });
+    //TODO: Đặt chỉ số được chọn lại
+    selectedProvinceIndex.value = selectedIndex;
+    searchController.addListener(() {
+      String searchText = searchController.text;
+      List<String> searchProivinces =
+          VietNameProvinces.searchProvinces(searchText);
+      provinceListenable.value = searchProivinces;
+    });
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    firstNameController.dispose();
+    lastNameController.dispose();
+    phoneController.dispose();
+    addressController.dispose();
+    searchController.dispose();
+    super.dispose();
+  }
+
   Future<void> _pickFile() async {
     try {
       final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        file = File(pickedFile.path);
-      });
-    }
-    } catch(error) {
+      if (pickedFile != null) {
+        setState(() {
+          file = File(pickedFile.path);
+        });
+      }
+    } catch (error) {
       log(error.toString());
     }
-    
+  }
+
+  Future<void> _updateProfile() async {
+    if (!_formKey.currentState!.validate()) {
+      log('Lỗi trong info edit, chưa điền hết');
+      return;
+    }
+    _formKey.currentState!.save();
+    log(userInfo.toString());
+    try {
+      final jobseekerManager = context.read<JobseekerManager>();
+      await jobseekerManager.updateProfile(userInfo, file);
+      Navigator.pop(context);
+    } catch (error) {
+      log('Lỗi trong infor edit ${error}');
+    }
   }
 
   @override
@@ -37,6 +108,7 @@ class _InformationEditScreenState extends State<InformationEditScreen> {
     Size deviceSize = MediaQuery.of(context).size;
     ThemeData theme = Theme.of(context);
     TextTheme textTheme = Theme.of(context).textTheme;
+
     return Scaffold(
         appBar: AppBar(
           title: Text("Thông tin cá nhân"),
@@ -74,9 +146,12 @@ class _InformationEditScreenState extends State<InformationEditScreen> {
                                 ],
                                 borderRadius: BorderRadius.circular(15),
                                 image: DecorationImage(
-                                  image: file!=null ? FileImage(file!) as ImageProvider<Object>
-                                  : NetworkImage(
-                                      'https://avatarfiles.alphacoders.com/208/208601.png'),
+                                  image: file != null
+                                      ? FileImage(file!)
+                                          as ImageProvider<Object>
+                                      : NetworkImage((widget.jobseeker == null)
+                                          ? 'https://avatarfiles.alphacoders.com/208/208601.png'
+                                          : widget.jobseeker!.getImageUrl()),
                                   fit: BoxFit.cover,
                                 ),
                               ),
@@ -92,7 +167,7 @@ class _InformationEditScreenState extends State<InformationEditScreen> {
                                 ),
                                 onPressed: () {
                                   log('Upload ảnh');
-                                   _pickFile();
+                                  _pickFile();
                                 },
                               ),
                             ),
@@ -104,7 +179,16 @@ class _InformationEditScreenState extends State<InformationEditScreen> {
                           title: 'Tên của bạn',
                           hintText: 'Bắt buộc',
                           keyboardType: TextInputType.name,
-                          onSaved: (value) {},
+                          controller: firstNameController,
+                          validator: (value) {
+                            if (value!.isEmpty) {
+                              return 'Vui lòng nhập tên';
+                            }
+                            return null;
+                          },
+                          onSaved: (value) {
+                            userInfo['firstName'] = value!;
+                          },
                         ),
                         const SizedBox(
                           height: 20,
@@ -114,7 +198,16 @@ class _InformationEditScreenState extends State<InformationEditScreen> {
                           title: 'Họ của bạn',
                           hintText: 'Bắt buộc',
                           keyboardType: TextInputType.name,
-                          onSaved: (value) {},
+                          controller: lastNameController,
+                          validator: (value) {
+                            if (value!.isEmpty) {
+                              return 'Vui lòng nhập họ';
+                            }
+                            return null;
+                          },
+                          onSaved: (value) {
+                            userInfo['lastName'] = value!;
+                          },
                         ),
                         const SizedBox(
                           height: 20,
@@ -124,7 +217,16 @@ class _InformationEditScreenState extends State<InformationEditScreen> {
                           title: 'Số điện thoại',
                           hintText: 'Bắt buộc',
                           keyboardType: TextInputType.phone,
-                          onSaved: (value) {},
+                          controller: phoneController,
+                          validator: (value) {
+                            if (value!.isEmpty) {
+                              return 'Vui lòng nhập số điện thoại';
+                            }
+                            return null;
+                          },
+                          onSaved: (value) {
+                            userInfo['phone'] = value!;
+                          },
                         ),
                         const SizedBox(
                           height: 20,
@@ -132,21 +234,32 @@ class _InformationEditScreenState extends State<InformationEditScreen> {
                         CombinedTextFormField(
                           title: 'Địa chỉ',
                           hintText: 'Bắt buộc',
+                          isRead: true,
                           keyboardType: TextInputType.streetAddress,
-                          onSaved: (value) {},
+                          controller: addressController,
+                          onTap: _showProvincesOption,
+                          validator: (value) {
+                            if (value!.isEmpty) {
+                              return 'Vui lòng nhập địa chỉ';
+                            }
+                            return null;
+                          },
+                          onSaved: (value) {
+                            userInfo['address'] = value!;
+                          },
                         ),
                       ],
                     ),
                   ),
                 ),
-                const SizedBox(height: 40,),
+                const SizedBox(
+                  height: 40,
+                ),
                 //Nút dùng để lưu form lại
                 Container(
                   margin: EdgeInsets.only(bottom: 10),
                   child: ElevatedButton(
-                    onPressed: () {
-                      log('Lưu');
-                    },
+                    onPressed: _updateProfile,
                     child: Text('Lưu thay đổi'),
                     style: ElevatedButton.styleFrom(
                       // side: BorderSide(color: theme.colorScheme.primary),
@@ -157,15 +270,104 @@ class _InformationEditScreenState extends State<InformationEditScreen> {
                       foregroundColor: theme.colorScheme.onPrimary,
                       backgroundColor: theme.colorScheme.primary,
                       fixedSize: Size(deviceSize.width - 30, 50),
-                      textStyle: textTheme.titleLarge!
-                          .copyWith(fontFamily: 'Lato', fontSize: 20,),
+                      textStyle: textTheme.titleLarge!.copyWith(
+                        fontFamily: 'Lato',
+                        fontSize: 20,
+                      ),
                     ),
                   ),
                 )
               ],
             ),
           ),
-        )
-      );
+        ));
+  }
+
+  void _showProvincesOption() {
+    log('So luong tinh: ${provinceListenable.value.length}');
+    showAdditionalScreen(
+        context: context,
+        title: 'Tỉnh/thành phố',
+        child: Column(
+          children: [
+            TextFormField(
+              controller: searchController,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                constraints: BoxConstraints.tight(Size.fromHeight(60)),
+                labelText: 'Tìm Tỉnh/thành phố',
+                prefixIcon: Icon(Icons.search),
+              ),
+              textInputAction: TextInputAction.search,
+            ),
+            Expanded(
+              child: Container(
+                  padding: EdgeInsets.only(top: 5),
+                  child: ValueListenableBuilder<List<String>>(
+                      valueListenable: provinceListenable,
+                      builder: (context, provinces, child) {
+                        return !provinces.isEmpty
+                            ? ListView.separated(
+                                shrinkWrap:
+                                    true, //TODO: Chỉ định kích thước của ListView bằng với cố lượng phần tử
+                                itemCount: provinces.length,
+                                separatorBuilder:
+                                    (BuildContext context, int index) =>
+                                        const Divider(
+                                          thickness: 0.3,
+                                        ),
+                                itemBuilder: (context, index) {
+                                  return ValueListenableBuilder<int>(
+                                      valueListenable: selectedProvinceIndex,
+                                      builder: (context, provinceIndex, child) {
+                                        return ListTile(
+                                          selected: index == provinceIndex,
+                                          title: Text(
+                                            provinces[index],
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodyLarge!
+                                                .copyWith(
+                                                    fontFamily: 'Lato',
+                                                    color:
+                                                        index == provinceIndex
+                                                            ? Theme.of(context)
+                                                                .primaryColor
+                                                            : Colors.black),
+                                          ),
+                                          trailing: index == provinceIndex
+                                              ? Icon(
+                                                  Icons.check,
+                                                  color: Theme.of(context)
+                                                      .primaryColor,
+                                                )
+                                              : null,
+                                          onTap: () {
+                                            log('Đã chọn ${provinces[index]}');
+                                            addressController.text =
+                                                provinces[index];
+                                            Navigator.pop(context);
+                                          },
+                                        );
+                                      });
+                                })
+                            : Padding(
+                                padding: const EdgeInsets.only(top: 10),
+                                child: Text(
+                                  'Không tìm thấy địa điểm phù hợp',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyLarge!
+                                      .copyWith(
+                                        fontSize: 17,
+                                      ),
+                                ),
+                              );
+                      })),
+            )
+          ],
+        ));
   }
 }
