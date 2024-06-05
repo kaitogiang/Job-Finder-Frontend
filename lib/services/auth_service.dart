@@ -34,12 +34,12 @@ class AuthService {
           body: json.encode({'email': email, 'password': password}));
       if (response.statusCode >= 200 && response.statusCode < 300) {
         final responseJson = json.decode(response.body);
-        log('Đang trong auth_service: '+responseJson.toString());
+        log('Đang trong auth_service: ' + responseJson.toString());
         final token = responseJson['token'];
         //decode token to get information
         if (token != null) {
           Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
-          log('Đang trong auth_service: '+decodedToken.toString());
+          log('Đang trong auth_service: ' + decodedToken.toString());
           final authToken = _fromJson(responseJson);
           //lưu trữ lại AuthToken để đăng nhập tự động khi còn thời gian
           _saveAuthToken(authToken);
@@ -64,7 +64,7 @@ class AuthService {
   }
 
   //Hàm nạp dữ liệu người dùng
-  Future<dynamic> fetchUserInfo(String id, bool isEmployer) async{
+  Future<dynamic> fetchUserInfo(String id, bool isEmployer) async {
     String url = '';
     if (isEmployer) {
       url = 'http://10.0.2.2:3000/api/employer/$id';
@@ -74,20 +74,21 @@ class AuthService {
     final uri = Uri.parse(url);
     final response = await http.get(uri);
     if (response.statusCode >= 200 && response.statusCode < 300) {
-        final responseJson = json.decode(response.body) as Map<String, dynamic>;
-        final list = responseJson['skills'] as List<dynamic>;
-        log('Hàm fetchUserInfo auth_servie '+list.toString());
-        list.forEach((element) { 
-          String e = element as String;
-          log(e);
-          
-        });
-        //Trả về đối tượng tùy theo loại của chúng, khi lấy dữ liệu thì chỉ cần ép kiểu là được
-        return isEmployer ? Employer.fromJson(responseJson) : Jobseeker.fromJson(responseJson);
+      final responseJson = json.decode(response.body) as Map<String, dynamic>;
+      final list = responseJson['skills'] as List<dynamic>;
+      log('Hàm fetchUserInfo auth_servie ' + list.toString());
+      list.forEach((element) {
+        String e = element as String;
+        log(e);
+      });
+      //Trả về đối tượng tùy theo loại của chúng, khi lấy dữ liệu thì chỉ cần ép kiểu là được
+      return isEmployer
+          ? Employer.fromJson(responseJson)
+          : Jobseeker.fromJson(responseJson);
     } else {
-        final errorResponse = json.decode(response.body);
-        log(errorResponse.toString());
-        throw HttpException.fromJson(errorResponse);
+      final errorResponse = json.decode(response.body);
+      log(errorResponse.toString());
+      throw HttpException.fromJson(errorResponse);
     }
   }
 

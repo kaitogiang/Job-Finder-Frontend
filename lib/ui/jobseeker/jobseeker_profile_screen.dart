@@ -392,7 +392,7 @@ class JobseekerProfileScreen extends StatelessWidget {
                   iconButton: IconButton(
                     onPressed: () {
                       log('Tùy chỉnh kỹ năng');
-                      jobseekerManager.addSkill('Ròi ok');
+                      context.goNamed('skill-addition');
                     },
                     icon: Icon(
                       Icons.edit,

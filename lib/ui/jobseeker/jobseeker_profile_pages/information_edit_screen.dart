@@ -1,11 +1,13 @@
 import 'dart:developer';
 import 'dart:io';
+import 'dart:isolate';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:job_finder_app/models/jobseeker.dart';
 import 'package:job_finder_app/ui/jobseeker/jobseeker_manager.dart';
 import 'package:job_finder_app/ui/shared/combined_text_form_field.dart';
+import 'package:job_finder_app/ui/shared/loading_screen.dart';
 import 'package:job_finder_app/ui/shared/modal_bottom_sheet.dart';
 import 'package:job_finder_app/ui/shared/vietname_provinces.dart';
 import 'package:provider/provider.dart';
@@ -39,6 +41,8 @@ class _InformationEditScreenState extends State<InformationEditScreen> {
   ValueNotifier<List<String>> provinceListenable =
       ValueNotifier(VietNameProvinces.provinces);
   ValueNotifier<int> selectedProvinceIndex = ValueNotifier(0);
+  bool _isLoading = false;
+
   @override
   void initState() {
     firstNameController.text = widget.jobseeker!.firstName;
@@ -92,11 +96,18 @@ class _InformationEditScreenState extends State<InformationEditScreen> {
       log('Lỗi trong info edit, chưa điền hết');
       return;
     }
+
     _formKey.currentState!.save();
     log(userInfo.toString());
     try {
+      setState(() {
+        _isLoading = true;
+      });
       final jobseekerManager = context.read<JobseekerManager>();
       await jobseekerManager.updateProfile(userInfo, file);
+      setState(() {
+        _isLoading = false;
+      });
       Navigator.pop(context);
     } catch (error) {
       log('Lỗi trong infor edit ${error}');
@@ -115,170 +126,177 @@ class _InformationEditScreenState extends State<InformationEditScreen> {
         ),
         resizeToAvoidBottomInset: true,
         body: SingleChildScrollView(
-          child: Container(
-            width: deviceSize.width,
-            padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                SingleChildScrollView(
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Stack(
-                          alignment: Alignment.bottomRight,
+          child: Stack(
+            children: [
+              Container(
+                width: deviceSize.width,
+                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    SingleChildScrollView(
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            //Hiển thị ảnh đại diện trong Container
-                            Container(
-                              width: 130,
-                              height: 130,
-                              decoration: BoxDecoration(
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.shade600,
-                                    spreadRadius: 1,
-                                    blurRadius: 5,
-                                    offset: const Offset(0, 3),
-                                  )
-                                ],
-                                borderRadius: BorderRadius.circular(15),
-                                image: DecorationImage(
-                                  image: file != null
-                                      ? FileImage(file!)
-                                          as ImageProvider<Object>
-                                      : NetworkImage((widget.jobseeker == null)
-                                          ? 'https://avatarfiles.alphacoders.com/208/208601.png'
-                                          : widget.jobseeker!.getImageUrl()),
-                                  fit: BoxFit.cover,
+                            Stack(
+                              alignment: Alignment.bottomRight,
+                              children: [
+                                //Hiển thị ảnh đại diện trong Container
+                                Container(
+                                  width: 130,
+                                  height: 130,
+                                  decoration: BoxDecoration(
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.grey.shade600,
+                                        spreadRadius: 1,
+                                        blurRadius: 5,
+                                        offset: const Offset(0, 3),
+                                      )
+                                    ],
+                                    borderRadius: BorderRadius.circular(15),
+                                    image: DecorationImage(
+                                      image: file != null
+                                          ? FileImage(file!)
+                                              as ImageProvider<Object>
+                                          : NetworkImage((widget.jobseeker ==
+                                                  null)
+                                              ? 'https://avatarfiles.alphacoders.com/208/208601.png'
+                                              : widget.jobseeker!
+                                                  .getImageUrl()),
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            ),
-                            //Hiển thị nút chỉnh sửa ảnh
-                            CircleAvatar(
-                              radius: 20,
-                              backgroundColor: theme.colorScheme.primary,
-                              child: IconButton(
-                                icon: Icon(
-                                  Icons.edit,
-                                  color: theme.indicatorColor,
+                                //Hiển thị nút chỉnh sửa ảnh
+                                CircleAvatar(
+                                  radius: 20,
+                                  backgroundColor: theme.colorScheme.primary,
+                                  child: IconButton(
+                                    icon: Icon(
+                                      Icons.edit,
+                                      color: theme.indicatorColor,
+                                    ),
+                                    onPressed: () {
+                                      log('Upload ảnh');
+                                      _pickFile();
+                                    },
+                                  ),
                                 ),
-                                onPressed: () {
-                                  log('Upload ảnh');
-                                  _pickFile();
-                                },
-                              ),
+                                //hiện thị form cho phép chỉnh sửa
+                              ],
                             ),
-                            //hiện thị form cho phép chỉnh sửa
+                            //Trường nhập tên của người tìm việc
+                            CombinedTextFormField(
+                              title: 'Tên của bạn',
+                              hintText: 'Bắt buộc',
+                              keyboardType: TextInputType.name,
+                              controller: firstNameController,
+                              validator: (value) {
+                                if (value!.isEmpty) {
+                                  return 'Vui lòng nhập tên';
+                                }
+                                return null;
+                              },
+                              onSaved: (value) {
+                                userInfo['firstName'] = value!;
+                              },
+                            ),
+                            const SizedBox(
+                              height: 20,
+                            ),
+                            //Trường nhập họ của người tìm việc
+                            CombinedTextFormField(
+                              title: 'Họ của bạn',
+                              hintText: 'Bắt buộc',
+                              keyboardType: TextInputType.name,
+                              controller: lastNameController,
+                              validator: (value) {
+                                if (value!.isEmpty) {
+                                  return 'Vui lòng nhập họ';
+                                }
+                                return null;
+                              },
+                              onSaved: (value) {
+                                userInfo['lastName'] = value!;
+                              },
+                            ),
+                            const SizedBox(
+                              height: 20,
+                            ),
+                            //Trường nhập số điện thoại của người tìm việ
+                            CombinedTextFormField(
+                              title: 'Số điện thoại',
+                              hintText: 'Bắt buộc',
+                              keyboardType: TextInputType.phone,
+                              controller: phoneController,
+                              validator: (value) {
+                                if (value!.isEmpty) {
+                                  return 'Vui lòng nhập số điện thoại';
+                                }
+                                return null;
+                              },
+                              onSaved: (value) {
+                                userInfo['phone'] = value!;
+                              },
+                            ),
+                            const SizedBox(
+                              height: 20,
+                            ),
+                            CombinedTextFormField(
+                              title: 'Địa chỉ',
+                              hintText: 'Bắt buộc',
+                              isRead: true,
+                              keyboardType: TextInputType.streetAddress,
+                              controller: addressController,
+                              onTap: _showProvincesOption,
+                              validator: (value) {
+                                if (value!.isEmpty) {
+                                  return 'Vui lòng nhập địa chỉ';
+                                }
+                                return null;
+                              },
+                              onSaved: (value) {
+                                userInfo['address'] = value!;
+                              },
+                            ),
                           ],
                         ),
-                        //Trường nhập tên của người tìm việc
-                        CombinedTextFormField(
-                          title: 'Tên của bạn',
-                          hintText: 'Bắt buộc',
-                          keyboardType: TextInputType.name,
-                          controller: firstNameController,
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Vui lòng nhập tên';
-                            }
-                            return null;
-                          },
-                          onSaved: (value) {
-                            userInfo['firstName'] = value!;
-                          },
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        //Trường nhập họ của người tìm việc
-                        CombinedTextFormField(
-                          title: 'Họ của bạn',
-                          hintText: 'Bắt buộc',
-                          keyboardType: TextInputType.name,
-                          controller: lastNameController,
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Vui lòng nhập họ';
-                            }
-                            return null;
-                          },
-                          onSaved: (value) {
-                            userInfo['lastName'] = value!;
-                          },
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        //Trường nhập số điện thoại của người tìm việ
-                        CombinedTextFormField(
-                          title: 'Số điện thoại',
-                          hintText: 'Bắt buộc',
-                          keyboardType: TextInputType.phone,
-                          controller: phoneController,
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Vui lòng nhập số điện thoại';
-                            }
-                            return null;
-                          },
-                          onSaved: (value) {
-                            userInfo['phone'] = value!;
-                          },
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        CombinedTextFormField(
-                          title: 'Địa chỉ',
-                          hintText: 'Bắt buộc',
-                          isRead: true,
-                          keyboardType: TextInputType.streetAddress,
-                          controller: addressController,
-                          onTap: _showProvincesOption,
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Vui lòng nhập địa chỉ';
-                            }
-                            return null;
-                          },
-                          onSaved: (value) {
-                            userInfo['address'] = value!;
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  height: 40,
-                ),
-                //Nút dùng để lưu form lại
-                Container(
-                  margin: EdgeInsets.only(bottom: 10),
-                  child: ElevatedButton(
-                    onPressed: _updateProfile,
-                    child: Text('Lưu thay đổi'),
-                    style: ElevatedButton.styleFrom(
-                      // side: BorderSide(color: theme.colorScheme.primary),
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      foregroundColor: theme.colorScheme.onPrimary,
-                      backgroundColor: theme.colorScheme.primary,
-                      fixedSize: Size(deviceSize.width - 30, 50),
-                      textStyle: textTheme.titleLarge!.copyWith(
-                        fontFamily: 'Lato',
-                        fontSize: 20,
                       ),
                     ),
-                  ),
-                )
-              ],
-            ),
+                    const SizedBox(
+                      height: 40,
+                    ),
+                    //Nút dùng để lưu form lại
+                    Container(
+                      margin: EdgeInsets.only(bottom: 10),
+                      child: ElevatedButton(
+                        onPressed: _updateProfile,
+                        child: Text('Lưu thay đổi'),
+                        style: ElevatedButton.styleFrom(
+                          // side: BorderSide(color: theme.colorScheme.primary),
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          foregroundColor: theme.colorScheme.onPrimary,
+                          backgroundColor: theme.colorScheme.primary,
+                          fixedSize: Size(deviceSize.width - 30, 50),
+                          textStyle: textTheme.titleLarge!.copyWith(
+                            fontFamily: 'Lato',
+                            fontSize: 20,
+                          ),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+              if (_isLoading) LoadingScreen(),
+            ],
           ),
         ));
   }
@@ -348,6 +366,7 @@ class _InformationEditScreenState extends State<InformationEditScreen> {
                                             log('Đã chọn ${provinces[index]}');
                                             addressController.text =
                                                 provinces[index];
+                                            selectedProvinceIndex.value = index;
                                             Navigator.pop(context);
                                           },
                                         );

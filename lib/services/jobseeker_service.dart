@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
@@ -23,6 +24,26 @@ class JobseekerService extends NodeService {
       } else {
         return null;
       }
+    } catch (error) {
+      log('job service: ${error}');
+      return null;
+    }
+  }
+
+  //TODO: Hàm thêm các kỹ năng mới vào cơ sở dữ liệu
+  Future<List<String>?> appendSkills(List<String> skills) async {
+    try {
+      final responese = await httpFetch(
+        '$databaseUrl/api/jobseeker/$userId/skills',
+        method: HttpMethod.post,
+        headers: {'Content-Type': 'application/json; charset=UTF-8'},
+        body: jsonEncode({"skills": skills}),
+      ) as Map<String, dynamic>;
+      List<dynamic> originalList = responese['updatedSkills'] as List<dynamic>;
+      List<String> result = originalList.map((e) => e.toString()).toList();
+
+      log('jobservice: asdfasdf');
+      return result;
     } catch (error) {
       log('job service: ${error}');
       return null;

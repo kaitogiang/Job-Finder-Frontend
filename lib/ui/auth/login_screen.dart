@@ -3,9 +3,10 @@ import 'dart:developer';
 import 'package:blur/blur.dart';
 import 'package:flutter/material.dart';
 import 'package:job_finder_app/ui/auth/auth_manager.dart';
+import 'package:job_finder_app/ui/shared/loading_screen.dart';
 import 'package:provider/provider.dart';
 
-enum UserType {employee, employer}
+enum UserType { employee, employer }
 
 class LoginScreen extends StatefulWidget {
   LoginScreen({super.key});
@@ -80,11 +81,9 @@ class _LoginScreenState extends State<LoginScreen> {
 }
 
 class LoginCard extends StatefulWidget {
-
   LoginCard({this.isFocus, super.key});
 
   ValueNotifier<bool>? isFocus;
-
 
   @override
   State<LoginCard> createState() => _LoginCardState();
@@ -101,6 +100,7 @@ class _LoginCardState extends State<LoginCard> {
     'email': '',
     'password': '',
   };
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -133,22 +133,24 @@ class _LoginCardState extends State<LoginCard> {
       return;
     }
     _formKey.currentState!.save();
-    try{
+    try {
+      setState(() {
+        _isLoading = true;
+      });
       if (userType == UserType.employee) {
         //Đăng nhập cho người tìm việc
-        await context.read<AuthManager>().login(
-          _authData['email']!, 
-          _authData['password']!, 
-          false
-        );
+        await context
+            .read<AuthManager>()
+            .login(_authData['email']!, _authData['password']!, false);
       } else {
-        await context.read<AuthManager>().login(
-          _authData['email']!, 
-          _authData['password']!, 
-          true
-        );
+        await context
+            .read<AuthManager>()
+            .login(_authData['email']!, _authData['password']!, true);
       }
-    } catch(error) {
+      setState(() {
+        _isLoading = false;
+      });
+    } catch (error) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(error.toString()),
@@ -162,70 +164,78 @@ class _LoginCardState extends State<LoginCard> {
     Size currentSceen = MediaQuery.of(context).size;
 
     final ScrollController _scrollController = ScrollController();
-    return Card(
-        elevation: 10,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(50),
-        ),
-        child: Container(
-            width: currentSceen.width,
-            height: currentSceen.height,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const SizedBox(
-                  height: 20,
-                ),
-                Row(
+    return Stack(
+      children: [
+        Card(
+            elevation: 10,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(50),
+            ),
+            child: Container(
+                width: currentSceen.width,
+                height: currentSceen.height,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 10),
-                      child: IconButton(
-                        padding: EdgeInsets.only(left: 6),
-                        icon: Icon(Icons.arrow_back_ios),
-                        onPressed: () {
-                          print('Back to AuthScreen');
-                          Navigator.pop(context);
-                        },
-                      ),
+                    const SizedBox(
+                      height: 20,
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 0),
-                      child: Text(userType == UserType.employee ? 'ỨNG VIÊN' : 'NHÀ TUYỂN DỤNG',
-                          style: TextStyle(
-                              fontSize: 25, fontWeight: FontWeight.bold)),
-                    ),
-                  ],
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
+                    Row(
                       children: [
-                        _buildEmailField(),
-                        const SizedBox(
-                          height: 10,
+                        Padding(
+                          padding: const EdgeInsets.only(left: 10),
+                          child: IconButton(
+                            padding: EdgeInsets.only(left: 6),
+                            icon: Icon(Icons.arrow_back_ios),
+                            onPressed: () {
+                              print('Back to AuthScreen');
+                              Navigator.pop(context);
+                            },
+                          ),
                         ),
-                        _buildPasswordField(),
-                        const SizedBox(
-                          height: 10,
+                        Padding(
+                          padding: const EdgeInsets.only(left: 0),
+                          child: Text(
+                              userType == UserType.employee
+                                  ? 'ỨNG VIÊN'
+                                  : 'NHÀ TUYỂN DỤNG',
+                              style: TextStyle(
+                                  fontSize: 25, fontWeight: FontWeight.bold)),
                         ),
-                        _buildLoginButton(),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        _buildSwitchUser()
                       ],
                     ),
-                  ),
-                )
-              ],
-            )));
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          children: [
+                            _buildEmailField(),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            _buildPasswordField(),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            _buildLoginButton(),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            _buildSwitchUser()
+                          ],
+                        ),
+                      ),
+                    )
+                  ],
+                ))),
+        if (_isLoading) LoadingScreen()
+      ],
+    );
   }
 
   Widget _buildEmailField() {
@@ -310,8 +320,9 @@ class _LoginCardState extends State<LoginCard> {
             color: Theme.of(context).colorScheme.primary,
           )),
       child: Text(
-        userType != UserType.employee ? 'Đăng nhập ứng tuyển viên' :
-        'Đăng nhập nhà tuyển dụng',
+        userType != UserType.employee
+            ? 'Đăng nhập ứng tuyển viên'
+            : 'Đăng nhập nhà tuyển dụng',
         style: TextStyle(fontSize: 17),
       ),
     );

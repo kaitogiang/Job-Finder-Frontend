@@ -52,4 +52,14 @@ class JobseekerManager extends ChangeNotifier {
       log('Lỗi trong hàm updateProfile của job manager');
     }
   }
+
+  Future<void> appendSkills(List<String> skills) async {
+    final updatedSkils = await _jobseekerService.appendSkills(skills);
+    if (updatedSkils != null) {
+      jobseeker.skills.addAll(skills);
+      notifyListeners();
+    } else {
+      log('Lỗi trong hàm appendSkill của job manager');
+    }
+  }
 }
