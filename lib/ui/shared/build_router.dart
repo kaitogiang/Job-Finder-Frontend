@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:job_finder_app/models/jobseeker.dart';
 import 'package:job_finder_app/models/resume.dart';
 import 'package:job_finder_app/ui/auth/auth_manager.dart';
+import 'package:job_finder_app/ui/jobseeker/jobseeker_profile_pages/experience_addition_screen.dart';
 import 'package:job_finder_app/ui/jobseeker/jobseeker_profile_pages/resume_upload_screen.dart';
 import 'package:job_finder_app/ui/jobseeker/jobseeker_profile_pages/skill_addition_screen.dart';
 import 'package:job_finder_app/ui/shared/loading_screen.dart';
@@ -120,6 +121,12 @@ List<StatefulShellBranch> _buildJobseekerRoutes() {
                 path: 'resume-upload',
                 builder: (context, state) =>
                     ResumeUploadScreen(resume: state.extra as Resume?),
+              ),
+              GoRoute(
+                parentNavigatorKey: _rootNavigatorkey,
+                name: 'experience-addition',
+                path: 'experience-addition',
+                builder: (context, state) => ExperienceAdditionScreen(),
               )
             ]),
       ],

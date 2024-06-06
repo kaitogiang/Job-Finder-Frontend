@@ -6,9 +6,11 @@ import 'package:job_finder_app/ui/auth/auth_manager.dart';
 import 'package:job_finder_app/ui/jobseeker/jobseeker_manager.dart';
 import 'package:job_finder_app/ui/shared/loading_screen.dart';
 import 'package:provider/provider.dart';
+import 'package:quickalert/quickalert.dart';
 import '../../models/education.dart';
 import '../../models/experience.dart';
 import '../../models/resume.dart';
+import '../shared/modal_bottom_sheet.dart';
 import 'widgets/jobseeker_education_card.dart';
 import 'widgets/jobseeker_experience_card.dart';
 import 'widgets/jobseeker_info_card.dart';
@@ -22,24 +24,12 @@ class JobseekerProfileScreen extends StatelessWidget {
     ThemeData theme = Theme.of(context);
     TextTheme textTheme = Theme.of(context).textTheme;
     Size deviceSize = MediaQuery.of(context).size;
-    Experience exp = Experience(
-        role: 'Java Backend',
-        company: 'PTN Global',
-        duration: '01/2024 - Hiện tại');
     Education edu = Education(
         specialization: 'Mạng máy tính và truyền thông',
         school: 'Đại học Cần Thơ',
         degree: 'Thạc sĩ',
         startDate: '01/2020',
         endDate: 'Hiện tại');
-    List<String> skils = [
-      'Java',
-      'Kỹ năng thuyết trình',
-      'Python',
-      'Flutter',
-      'Backend',
-      'Reactjs'
-    ];
 
     return Scaffold(
         appBar: AppBar(
@@ -294,6 +284,7 @@ class JobseekerProfileScreen extends StatelessWidget {
                           iconButton: IconButton(
                             onPressed: () {
                               log('Thêm kinh nghiệm mới');
+                              context.goNamed('experience-addition');
                             },
                             icon: Icon(
                               Icons.add_circle,
@@ -314,13 +305,38 @@ class JobseekerProfileScreen extends StatelessWidget {
                                 : ListView.builder(
                                     physics: NeverScrollableScrollPhysics(),
                                     shrinkWrap: true,
-                                    itemCount: 3,
+                                    itemCount: jobseekerManager
+                                        .jobseeker.experience.length,
                                     itemBuilder: (context, index) {
                                       return SizedBox(
                                         child: JobseekerExperienceCard(
-                                          exp: exp,
+                                          exp: jobseekerManager
+                                              .jobseeker.experience[index],
                                           onCustomize: () {
                                             log('Chỉnh sửa hoặc xóa kinh nghiệm làm việc');
+                                            showAdditionalScreen(
+                                                context: context,
+                                                title: 'Tùy chọn',
+                                                child:
+                                                    Builder(builder: (context) {
+                                                  return _buildActionButton(
+                                                    context: context,
+                                                    onDelete: () async {
+                                                      log('Xóa bỏ kinh nghiệm');
+                                                      await context
+                                                          .read<
+                                                              JobseekerManager>()
+                                                          .removeExperience(
+                                                              index);
+                                                      Navigator.pop(context);
+                                                    },
+                                                    onEdit: () {
+                                                      log('Xem trước file');
+                                                      Navigator.pop(context);
+                                                    },
+                                                  );
+                                                }),
+                                                heightFactor: 0.3);
                                           },
                                         ),
                                       );
@@ -444,6 +460,37 @@ class JobseekerProfileScreen extends StatelessWidget {
                 }),
               );
             }));
+  }
+
+  Container _buildActionButton({
+    required BuildContext context,
+    void Function()? onDelete,
+    void Function()? onEdit,
+  }) {
+    return Container(
+      child: ListView(
+        shrinkWrap: true,
+        children: [
+          ListTile(
+            title: Text(
+              'Xóa bỏ',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            leading: Icon(Icons.delete),
+            onTap: onDelete,
+          ),
+          Divider(),
+          ListTile(
+            title: Text(
+              'Chỉnh sửa',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            leading: Icon(Icons.preview),
+            onTap: onEdit,
+          ),
+        ],
+      ),
+    );
   }
 
   Row _buildInfoRow(
