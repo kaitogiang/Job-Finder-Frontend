@@ -3,9 +3,11 @@ import 'dart:developer';
 import 'package:blur/blur.dart';
 import 'package:flutter/material.dart';
 import 'package:job_finder_app/ui/auth/auth_manager.dart';
+import 'package:job_finder_app/ui/shared/loading_screen.dart';
 import 'package:provider/provider.dart';
+import 'package:quickalert/quickalert.dart';
 
-enum UserType {employee, employer}
+enum UserType { employee, employer }
 
 class LoginScreen extends StatefulWidget {
   LoginScreen({super.key});
@@ -80,11 +82,9 @@ class _LoginScreenState extends State<LoginScreen> {
 }
 
 class LoginCard extends StatefulWidget {
-
   LoginCard({this.isFocus, super.key});
 
   ValueNotifier<bool>? isFocus;
-
 
   @override
   State<LoginCard> createState() => _LoginCardState();
@@ -133,22 +133,22 @@ class _LoginCardState extends State<LoginCard> {
       return;
     }
     _formKey.currentState!.save();
-    try{
+    try {
+      QuickAlert.show(
+          context: context,
+          type: QuickAlertType.loading,
+          text: 'Đang đăng nhập');
       if (userType == UserType.employee) {
         //Đăng nhập cho người tìm việc
-        await context.read<AuthManager>().login(
-          _authData['email']!, 
-          _authData['password']!, 
-          false
-        );
+        await context
+            .read<AuthManager>()
+            .login(_authData['email']!, _authData['password']!, false);
       } else {
-        await context.read<AuthManager>().login(
-          _authData['email']!, 
-          _authData['password']!, 
-          true
-        );
+        await context
+            .read<AuthManager>()
+            .login(_authData['email']!, _authData['password']!, true);
       }
-    } catch(error) {
+    } catch (error) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(error.toString()),
@@ -192,7 +192,10 @@ class _LoginCardState extends State<LoginCard> {
                     ),
                     Padding(
                       padding: const EdgeInsets.only(left: 0),
-                      child: Text(userType == UserType.employee ? 'ỨNG VIÊN' : 'NHÀ TUYỂN DỤNG',
+                      child: Text(
+                          userType == UserType.employee
+                              ? 'ỨNG VIÊN'
+                              : 'NHÀ TUYỂN DỤNG',
                           style: TextStyle(
                               fontSize: 25, fontWeight: FontWeight.bold)),
                     ),
@@ -310,8 +313,9 @@ class _LoginCardState extends State<LoginCard> {
             color: Theme.of(context).colorScheme.primary,
           )),
       child: Text(
-        userType != UserType.employee ? 'Đăng nhập ứng tuyển viên' :
-        'Đăng nhập nhà tuyển dụng',
+        userType != UserType.employee
+            ? 'Đăng nhập ứng tuyển viên'
+            : 'Đăng nhập nhà tuyển dụng',
         style: TextStyle(fontSize: 17),
       ),
     );

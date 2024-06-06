@@ -4,9 +4,8 @@ import 'package:provider/provider.dart';
 import '../auth/auth_manager.dart';
 
 class JobseekerHome extends StatelessWidget {
-
   const JobseekerHome({super.key});
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -15,14 +14,15 @@ class JobseekerHome extends StatelessWidget {
         actions: [
           IconButton(
             icon: Icon(Icons.logout),
-            onPressed: () {
-              context.read<AuthManager>().logout();
+            onPressed: () async {
+              await context.read<AuthManager>().logout();
             },
           )
         ],
       ),
       body: Center(
-        child: Text('Employee Home ${context.read<AuthManager>().jobseeker.skills}'),
+        child: Text(
+            'Employee Home ${context.read<AuthManager>().jobseeker?.email}'),
       ),
     );
   }

@@ -39,7 +39,7 @@ class JobseekerExperienceCard extends StatelessWidget {
               RichText(
                 text: TextSpan(
                     children: [
-                      WidgetSpan(child: Icon(Icons.business)),
+                      WidgetSpan(child: Icon(Icons.business, color: Colors.grey.shade700)),
                       WidgetSpan(
                           child: const SizedBox(
                         width: 10,
@@ -55,7 +55,7 @@ class JobseekerExperienceCard extends StatelessWidget {
                 text: TextSpan(
                     children: [
                       WidgetSpan(
-                          child: Icon(Icons.work_history)),
+                          child: Icon(Icons.work_history, color: Colors.grey.shade700)),
                       WidgetSpan(
                           child: const SizedBox(
                         width: 10,
