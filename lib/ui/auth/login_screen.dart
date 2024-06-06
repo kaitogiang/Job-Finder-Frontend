@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:job_finder_app/ui/auth/auth_manager.dart';
 import 'package:job_finder_app/ui/shared/loading_screen.dart';
 import 'package:provider/provider.dart';
+import 'package:quickalert/quickalert.dart';
 
 enum UserType { employee, employer }
 
@@ -100,7 +101,6 @@ class _LoginCardState extends State<LoginCard> {
     'email': '',
     'password': '',
   };
-  bool _isLoading = false;
 
   @override
   void initState() {
@@ -134,9 +134,10 @@ class _LoginCardState extends State<LoginCard> {
     }
     _formKey.currentState!.save();
     try {
-      setState(() {
-        _isLoading = true;
-      });
+      QuickAlert.show(
+          context: context,
+          type: QuickAlertType.loading,
+          text: 'Đang đăng nhập');
       if (userType == UserType.employee) {
         //Đăng nhập cho người tìm việc
         await context
@@ -147,9 +148,6 @@ class _LoginCardState extends State<LoginCard> {
             .read<AuthManager>()
             .login(_authData['email']!, _authData['password']!, true);
       }
-      setState(() {
-        _isLoading = false;
-      });
     } catch (error) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -164,78 +162,73 @@ class _LoginCardState extends State<LoginCard> {
     Size currentSceen = MediaQuery.of(context).size;
 
     final ScrollController _scrollController = ScrollController();
-    return Stack(
-      children: [
-        Card(
-            elevation: 10,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(50),
-            ),
-            child: Container(
-                width: currentSceen.width,
-                height: currentSceen.height,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.center,
+    return Card(
+        elevation: 10,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(50),
+        ),
+        child: Container(
+            width: currentSceen.width,
+            height: currentSceen.height,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SizedBox(
+                  height: 20,
+                ),
+                Row(
                   children: [
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    Row(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(left: 10),
-                          child: IconButton(
-                            padding: EdgeInsets.only(left: 6),
-                            icon: Icon(Icons.arrow_back_ios),
-                            onPressed: () {
-                              print('Back to AuthScreen');
-                              Navigator.pop(context);
-                            },
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 0),
-                          child: Text(
-                              userType == UserType.employee
-                                  ? 'ỨNG VIÊN'
-                                  : 'NHÀ TUYỂN DỤNG',
-                              style: TextStyle(
-                                  fontSize: 25, fontWeight: FontWeight.bold)),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 10,
+                    Padding(
+                      padding: const EdgeInsets.only(left: 10),
+                      child: IconButton(
+                        padding: EdgeInsets.only(left: 6),
+                        icon: Icon(Icons.arrow_back_ios),
+                        onPressed: () {
+                          print('Back to AuthScreen');
+                          Navigator.pop(context);
+                        },
+                      ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Form(
-                        key: _formKey,
-                        child: Column(
-                          children: [
-                            _buildEmailField(),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            _buildPasswordField(),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            _buildLoginButton(),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            _buildSwitchUser()
-                          ],
-                        ),
-                      ),
-                    )
+                      padding: const EdgeInsets.only(left: 0),
+                      child: Text(
+                          userType == UserType.employee
+                              ? 'ỨNG VIÊN'
+                              : 'NHÀ TUYỂN DỤNG',
+                          style: TextStyle(
+                              fontSize: 25, fontWeight: FontWeight.bold)),
+                    ),
                   ],
-                ))),
-        if (_isLoading) LoadingScreen()
-      ],
-    );
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        _buildEmailField(),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        _buildPasswordField(),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        _buildLoginButton(),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        _buildSwitchUser()
+                      ],
+                    ),
+                  ),
+                )
+              ],
+            )));
   }
 
   Widget _buildEmailField() {
