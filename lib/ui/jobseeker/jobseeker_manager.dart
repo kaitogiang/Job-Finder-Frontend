@@ -107,4 +107,32 @@ class JobseekerManager extends ChangeNotifier {
     }
     return result;
   }
+
+  //Todo Hàm thêm kinh nghiệm mới
+  Future<void> appendExperience(Map<String, String> data) async {
+    try {
+      final result = await _jobseekerService.appendExperience(data);
+      if (result != null) {
+        jobseeker.experience.clear();
+        jobseeker.experience.addAll(result);
+        notifyListeners();
+      } else {
+        log('Lỗi trong hàm addExperience của job manager');
+      }
+    } catch (error) {
+      log('Lỗi trong hàm addExperience của job manager: $error');
+    }
+  }
+
+  Future<void> removeExperience(int index) async {
+    try {
+      final result = await _jobseekerService.removeExperience(index);
+      if (result) {
+        jobseeker.experience.removeAt(index);
+        notifyListeners();
+      }
+    } catch (error) {
+      log('Lỗi trong job manager $error');
+    }
+  }
 }

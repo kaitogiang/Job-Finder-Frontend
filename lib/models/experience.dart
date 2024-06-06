@@ -9,6 +9,18 @@ class Experience {
     required this.duration,
   });
 
+  Experience copyWith({
+    String? role,
+    String? company,
+    String? duration,
+  }) {
+    return Experience(
+      role: role ?? this.role,
+      company: company ?? this.company,
+      duration: duration ?? this.duration,
+    );
+  }
+
   factory Experience.fromJson(Map<String, dynamic> json) {
     return Experience(
       role: json['role'],

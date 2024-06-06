@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:job_finder_app/models/auth_token.dart';
+import 'package:job_finder_app/models/experience.dart';
 import 'package:job_finder_app/models/resume.dart';
 import 'package:job_finder_app/services/node_service.dart';
 
@@ -103,6 +104,44 @@ class JobseekerService extends NodeService {
     try {
       final result = await httpFetch(
         '$databaseUrl/api/jobseeker/$userId/resume',
+        method: HttpMethod.delete,
+      );
+      if (result != null) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (error) {
+      log('job service: ${error}');
+      return false;
+    }
+  }
+
+  //TODO Hàm dùng để thêm kinh nghiệm mới
+  Future<List<Experience>?> appendExperience(
+      Map<String, String> expValue) async {
+    try {
+      final result = await httpFetch(
+        '$databaseUrl/api/jobseeker/$userId/experience',
+        method: HttpMethod.post,
+        headers: {'Content-Type': 'application/json; charset=UTF-8'},
+        body: jsonEncode(expValue),
+      ) as Map<String, dynamic>;
+      List<dynamic> newList = result['experience'] as List<dynamic>;
+      //Todo Ép kiểu từng phần tử trong List<dynamic>
+      List<Experience> exp =
+          newList.map((e) => Experience.fromJson(e)).toList();
+      return exp;
+    } catch (error) {
+      log('job service: ${error}');
+      return null;
+    }
+  }
+
+  Future<bool> removeExperience(int index) async {
+    try {
+      final result = await httpFetch(
+        '$databaseUrl/api/jobseeker/$userId/experience/$index',
         method: HttpMethod.delete,
       );
       if (result != null) {
