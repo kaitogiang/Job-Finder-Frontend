@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:job_finder_app/models/auth_token.dart';
 import 'package:http/http.dart' as http;
 import 'package:job_finder_app/models/employer.dart';
@@ -12,14 +13,18 @@ import '../models/http_exception.dart';
 
 class AuthService {
   static const _authTokenKey = 'authToken';
+  late final String? _baseUrl;
 
+  AuthService() {
+    _baseUrl = dotenv.env['DATABASE_BASE_URL'];
+  }
   //Hàm xác định url dành cho loại người đăng nhập hiện tại
   //Nếu isEmployer là true tức là nhà tuyển dụng đăng nhập
   //Thì sử dụng api dành cho nhà tuyển dụng, ngược lại dành cho người tìm việc
   String _buildAuthUrl(bool isEmployer) {
     return isEmployer
-        ? 'http://10.0.2.2:3000/api/employer/sign-in'
-        : 'http://10.0.2.2:3000/api/jobseeker/sign-in';
+        ? '$_baseUrl/api/employer/sign-in'
+        : '$_baseUrl/api/jobseeker/sign-in';
   }
 
   //Hàm xác thực đăng nhập
@@ -42,7 +47,7 @@ class AuthService {
           log('Đang trong auth_service: ' + decodedToken.toString());
           final authToken = _fromJson(responseJson);
           //lưu trữ lại AuthToken để đăng nhập tự động khi còn thời gian
-          _saveAuthToken(authToken);
+          await _saveAuthToken(authToken);
           return authToken;
         } else {
           throw HttpException('Token not found');
@@ -67,9 +72,9 @@ class AuthService {
   Future<dynamic> fetchUserInfo(String id, bool isEmployer) async {
     String url = '';
     if (isEmployer) {
-      url = 'http://10.0.2.2:3000/api/employer/$id';
+      url = '$_baseUrl/api/employer/$id';
     } else {
-      url = 'http://10.0.2.2:3000/api/jobseeker/$id';
+      url = '$_baseUrl/api/jobseeker/$id';
     }
     final uri = Uri.parse(url);
     final response = await http.get(uri);
@@ -113,7 +118,7 @@ class AuthService {
     String api = '';
     //Đăng ký tài khoản cho nhà tuyển dụng
     if (isEmployer) {
-      api = 'http://10.0.2.2:3000/api/employer/sign-up';
+      api = '$_baseUrl/api/employer/sign-up';
       jsonValue = {
         'firstName': firstName,
         'lastName': lastName,
@@ -130,7 +135,7 @@ class AuthService {
       };
     } else {
       //Đăng ký tài khoản cho người tìm việc
-      api = 'http://10.0.2.2:3000/api/jobseeker/sign-up';
+      api = '$_baseUrl/api/jobseeker/sign-up';
       jsonValue = {
         'firstName': firstName,
         'lastName': lastName,
@@ -217,8 +222,8 @@ class AuthService {
   //Hàm gửi OTP qua email
   Future<bool> sendOTP(String email, bool isEmployer) async {
     String uri = !isEmployer
-        ? 'http://10.0.2.2:3000/api/jobseeker/send-otp'
-        : 'http://10.0.2.2:3000/api/employer/send-otp';
+        ? '$_baseUrl/api/jobseeker/send-otp'
+        : '$_baseUrl/api/employer/send-otp';
     try {
       final url = Uri.parse(uri);
       final response = await http.post(

@@ -1,8 +1,8 @@
-
 import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../models/jobseeker.dart';
 import '../../models/employer.dart';
@@ -13,8 +13,8 @@ class AuthManager with ChangeNotifier {
   AuthToken? _authToken;
   Timer? _authTimer;
   bool _isEmployer = false; //Biến quản lý loại người dùng
-  late Jobseeker _jobseeker;
-  late Employer _employer;
+  late Jobseeker? _jobseeker;
+  late Employer? _employer;
 
   final AuthService _authService = AuthService();
 
@@ -31,19 +31,20 @@ class AuthManager with ChangeNotifier {
     return _authToken;
   }
 
-  Jobseeker get jobseeker => _jobseeker;
+  Jobseeker? get jobseeker => _jobseeker;
 
-  Employer get employer => _employer;
-
+  Employer? get employer => _employer;
 
   //Hàm gán lại token
-  Future<void> _setAuthToken(AuthToken token, bool isEmployer) async{
+  Future<void> _setAuthToken(AuthToken token, bool isEmployer) async {
     _authToken = token;
     _isEmployer = isEmployer;
     if (isEmployer) {
-      _employer = await _authService.fetchUserInfo(token.userId, isEmployer) as Employer;
+      _employer = await _authService.fetchUserInfo(token.userId, isEmployer)
+          as Employer;
     } else {
-      _jobseeker = await _authService.fetchUserInfo(token.userId, isEmployer) as Jobseeker;
+      _jobseeker = await _authService.fetchUserInfo(token.userId, isEmployer)
+          as Jobseeker;
     }
     _autoLogout();
     notifyListeners();
@@ -52,37 +53,44 @@ class AuthManager with ChangeNotifier {
   //Hàm đăng nhập vào tài khoản
   Future<void> login(String email, String password, bool isEmployer) async {
     log("Đăng nhập nè");
-    await _setAuthToken(await _authService.signIn(
-      email: email,
-      password: password,
-      isEmployer: isEmployer,
-    ), isEmployer);
+    await _setAuthToken(
+        await _authService.signIn(
+          email: email,
+          password: password,
+          isEmployer: isEmployer,
+        ),
+        isEmployer);
     //Lấy thông tin người dùng
     log("Đang chay");
   }
 
   //Hàm đăng ký tài khoản
-  Future<void> register(Map<String, String> submitedData, bool isEmployer) async{
-    await _authService.signup(
-      firstName: submitedData['firstName'],
-      lastName: submitedData['lastName'],
-      phone: submitedData['phone'],
-      email: submitedData['email'],
-      password: submitedData['password'],
-      address: submitedData['address'],
-      role: submitedData['role'],
-      companyName: submitedData['companyName'],
-      companyEmail: submitedData['companyEmail'],
-      companyPhone: submitedData['companyPhone'],
-      companyAddress: submitedData['companyAddress'],
-      otp: submitedData['otp'],
-      isEmployer: isEmployer,
-    );
-    _setAuthToken(await _authService.signIn(
-      email: submitedData['email'],
-      password: submitedData['password'],
-      isEmployer: isEmployer,
-    ), isEmployer);
+  Future<void> register(
+      Map<String, String> submitedData, bool isEmployer) async {
+    await _setAuthToken(
+        await _authService.signup(
+          firstName: submitedData['firstName'],
+          lastName: submitedData['lastName'],
+          phone: submitedData['phone'],
+          email: submitedData['email'],
+          password: submitedData['password'],
+          address: submitedData['address'],
+          role: submitedData['role'],
+          companyName: submitedData['companyName'],
+          companyEmail: submitedData['companyEmail'],
+          companyPhone: submitedData['companyPhone'],
+          companyAddress: submitedData['companyAddress'],
+          otp: submitedData['otp'],
+          isEmployer: isEmployer,
+        ),
+        isEmployer);
+    // await _setAuthToken(
+    //     await _authService.signIn(
+    //       email: submitedData['email'],
+    //       password: submitedData['password'],
+    //       isEmployer: isEmployer,
+    //     ),
+    //     isEmployer);
   }
 
   //Hàm đăng nhập tự động nếu mà token vẫn còn trong sharedPreference
@@ -101,12 +109,17 @@ class AuthManager with ChangeNotifier {
   Future<void> logout() async {
     _authToken = null;
     _isEmployer = false;
+    _jobseeker = null;
+    _employer = null;
     if (_authTimer != null) {
       _authTimer!.cancel();
       _authTimer = null;
     }
+    await _authService.clearSavedAuthToken();
     notifyListeners();
-    _authService.clearSavedAuthToken();
+    final prefs = await SharedPreferences.getInstance();
+    log('token trong Preferences la: ' +
+        prefs.getString("authToken").toString());
   }
 
   //hàm tự động đăng xuất khi token hết thời gian
@@ -114,7 +127,8 @@ class AuthManager with ChangeNotifier {
     if (_authTimer != null) {
       _authTimer!.cancel();
     }
-    final timeToExpiry = _authToken!.expiryDate.difference(DateTime.now()).inSeconds;
+    final timeToExpiry =
+        _authToken!.expiryDate.difference(DateTime.now()).inSeconds;
     _authTimer = Timer(
       Duration(seconds: timeToExpiry),
       logout,
@@ -122,18 +136,8 @@ class AuthManager with ChangeNotifier {
   }
 
   //Hàm gửi OTP qua email
-  Future<bool> sendOTP({required String email, required bool isEmployer}) async {
+  Future<bool> sendOTP(
+      {required String email, required bool isEmployer}) async {
     return await _authService.sendOTP(email, isEmployer);
-  }
-
-  //Các hàm liên quan đến người tìm việc
-  void addJobseekerSkill(List<String> e) {
-    _jobseeker.skills.addAll(e);
-    notifyListeners();
-  }
-
-  void removeJobseekerSkill(String e) {
-    _jobseeker.skills.remove(e);
-    notifyListeners();
   }
 }

@@ -6,6 +6,8 @@ import 'package:job_finder_app/ui/shared/utils.dart';
 import 'package:provider/provider.dart';
 import 'package:quickalert/quickalert.dart';
 
+import '../../shared/addition_data.dart';
+
 class SkillAdditionScreen extends StatefulWidget {
   const SkillAdditionScreen({super.key});
 
@@ -15,18 +17,7 @@ class SkillAdditionScreen extends StatefulWidget {
 
 class _SkillAdditionScreenState extends State<SkillAdditionScreen> {
   //TODO: Gợi ý sẽ hiển thị khi nhập vào ô kỹ năng
-  final List<String> _options = <String>[
-    'apple',
-    'banana',
-    'orange',
-    'grape',
-    'watermelon',
-    'lemon',
-    'lime',
-    'blueberry',
-    'strawberry',
-  ];
-  List<String> _containingSkillList = [];
+  final List<String> _options = List<String>.from(getJobseekerSkillHint());
   //TODO: Biến dùng để quan sát những kỹ năng được thêm vào
   ValueNotifier<List<String>> _skillsListenable = ValueNotifier([]);
 
@@ -86,6 +77,7 @@ class _SkillAdditionScreenState extends State<SkillAdditionScreen> {
                       }
                       return _options.where((option) {
                         return option
+                            .toLowerCase()
                             .contains(textEditingValue.text.toLowerCase());
                       });
                     },

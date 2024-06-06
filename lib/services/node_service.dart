@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:job_finder_app/models/auth_token.dart';
 import 'package:http/http.dart' as http;
@@ -20,8 +21,9 @@ abstract class NodeService {
 
   NodeService([AuthToken? authToken])
       : _token = authToken?.token,
-        _userId = authToken?.userId,
-        databaseUrl = 'http://10.0.2.2:3000';
+        _userId = authToken?.userId {
+    databaseUrl = dotenv.env['DATABASE_BASE_URL'];
+  }
 
   set authToken(AuthToken? authToken) {
     _token = authToken?.token;

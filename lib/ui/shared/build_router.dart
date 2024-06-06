@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:job_finder_app/models/jobseeker.dart';
+import 'package:job_finder_app/models/resume.dart';
 import 'package:job_finder_app/ui/auth/auth_manager.dart';
+import 'package:job_finder_app/ui/jobseeker/jobseeker_profile_pages/resume_upload_screen.dart';
 import 'package:job_finder_app/ui/jobseeker/jobseeker_profile_pages/skill_addition_screen.dart';
 import 'package:job_finder_app/ui/shared/loading_screen.dart';
 
@@ -111,7 +113,14 @@ List<StatefulShellBranch> _buildJobseekerRoutes() {
                   parentNavigatorKey: _rootNavigatorkey,
                   name: 'skill-addition',
                   path: 'skill-addition',
-                  builder: (context, state) => SkillAdditionScreen())
+                  builder: (context, state) => SkillAdditionScreen()),
+              GoRoute(
+                parentNavigatorKey: _rootNavigatorkey,
+                name: 'resume-upload',
+                path: 'resume-upload',
+                builder: (context, state) =>
+                    ResumeUploadScreen(resume: state.extra as Resume?),
+              )
             ]),
       ],
     ),

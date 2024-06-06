@@ -11,7 +11,7 @@ class Resume {
 
   factory Resume.fromJson(Map<String, dynamic> json) {
     return Resume(
-      fileName: json['fileName'],
+      fileName: json['filename'],
       url: json['url'],
       uploadedDate: DateTime.parse(json['uploadedDate']),
     );

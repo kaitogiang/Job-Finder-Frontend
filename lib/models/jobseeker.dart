@@ -48,7 +48,9 @@ class Jobseeker extends User {
       resume:
           (json['resume'] as List?)?.map((e) => Resume.fromJson(e)).toList() ??
               [],
-      skills: (json['skills'] as List<dynamic>).map((item) => item as String).toList(),
+      skills: (json['skills'] as List<dynamic>)
+          .map((item) => item as String)
+          .toList(),
       experience: (json['experience'] as List?)
               ?.map((e) => Experience.fromJson(e))
               .toList() ??
