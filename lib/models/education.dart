@@ -13,6 +13,22 @@ class Education {
     required this.endDate,
   });
 
+  Education copyWith({
+    String? specialization,
+    String? school,
+    String? degree,
+    String? startDate,
+    String? endDate,
+  }) {
+    return Education(
+      specialization: specialization ?? this.specialization,
+      school: school ?? this.school,
+      degree: degree ?? this.degree,
+      startDate: startDate ?? this.startDate,
+      endDate: endDate ?? this.endDate,
+    );
+  }
+
   factory Education.fromJson(Map<String, dynamic> json) {
     return Education(
       specialization: json['specialization'],

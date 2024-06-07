@@ -3,10 +3,13 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:job_finder_app/models/auth_token.dart';
+import 'package:job_finder_app/models/education.dart';
+import 'package:job_finder_app/models/experience.dart';
 import 'package:job_finder_app/models/jobseeker.dart';
 import 'package:job_finder_app/services/auth_service.dart';
 import 'package:job_finder_app/services/jobseeker_service.dart';
 import 'package:flutter/foundation.dart';
+import 'package:job_finder_app/ui/jobseeker/jobseeker_profile_pages/resume_upload_screen.dart';
 
 import '../../models/resume.dart';
 
@@ -133,6 +136,85 @@ class JobseekerManager extends ChangeNotifier {
       }
     } catch (error) {
       log('Lỗi trong job manager $error');
+    }
+  }
+
+  Future<void> addEducation(Education edu) async {
+    try {
+      final result = await _jobseekerService.addEducation(edu);
+      if (result != null) {
+        jobseeker.education.add(edu);
+        notifyListeners();
+      }
+    } catch (error) {
+      log('Lỗi trong hàm addEducation của job manager: $error');
+    }
+  }
+
+  Future<void> removeEducation(int index) async {
+    try {
+      final result = await _jobseekerService.removeEducation(index);
+      if (result) {
+        jobseeker.education.removeAt(index);
+        notifyListeners();
+      }
+    } catch (error) {
+      log('Lỗi trong hàm removeEducation của job manager: $error');
+    }
+  }
+
+  Future<void> updateEducation(int index, Education education) async {
+    try {
+      final result = await _jobseekerService.updateEducation(index, education);
+      if (result != null) {
+        jobseeker.education[index] = education;
+        notifyListeners();
+      }
+    } catch (error) {
+      log('Lỗi trong hàm updateEducation của job manager: $error');
+    }
+  }
+
+  Future<void> updateExperience(int index, Map<String, String> data) async {
+    try {
+      final result = await _jobseekerService.updateExperience(index, data);
+      if (result != null) {
+        jobseeker.experience[index] = Experience(
+            role: data['role']!,
+            company: data['company']!,
+            duration: data['from']! + data['to']!);
+        notifyListeners();
+      }
+    } catch (error) {
+      log('Lỗi trong hàm updateExperience của job manager: $error');
+    }
+  }
+
+  Future<void> changeEmail(String password, String email) async {
+    try {
+      final result = await _jobseekerService.changeEmail(password, email);
+      if (result != null) {
+        jobseeker.email = email;
+        notifyListeners();
+      }
+    } catch (error) {
+      log('Lỗi trong hàm changeEmail của job manager: $error');
+    }
+  }
+
+  Future<bool> changePassword(String oldPassword, String newPassword) async {
+    try {
+      final result =
+          await _jobseekerService.changePassword(oldPassword, newPassword);
+      if (result == true) {
+        log('JobManager: Đổi mật khẩu thành công');
+        return true;
+      } else {
+        return false;
+      }
+    } catch (error) {
+      log('Lỗi trong hàm changePassword của job manager: $error');
+      return false;
     }
   }
 }
