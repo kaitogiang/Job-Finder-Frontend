@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:job_finder_app/models/auth_token.dart';
+import 'package:job_finder_app/models/education.dart';
 import 'package:job_finder_app/models/experience.dart';
 import 'package:job_finder_app/models/resume.dart';
 import 'package:job_finder_app/services/node_service.dart';
@@ -151,6 +152,114 @@ class JobseekerService extends NodeService {
       }
     } catch (error) {
       log('job service: ${error}');
+      return false;
+    }
+  }
+
+  Future<List<Education>?> addEducation(Education edu) async {
+    try {
+      final result = await httpFetch(
+        '$databaseUrl/api/jobseeker/$userId/education',
+        method: HttpMethod.post,
+        headers: {'Content-Type': 'application/json; charset=UTF-8'},
+        body: jsonEncode(edu.toJson()),
+      );
+      List<dynamic> education = result['education'] as List<dynamic>;
+      //todo chuyển từng phần tử trong education thành đối tượng Education
+      List<Education> eduList =
+          education.map((e) => Education.fromJson(e)).toList();
+      return eduList;
+    } catch (error) {
+      log('job service: ${error}');
+      return null;
+    }
+  }
+
+  Future<bool> removeEducation(int index) async {
+    try {
+      final result = await httpFetch(
+        '$databaseUrl/api/jobseeker/$userId/education/$index',
+        method: HttpMethod.delete,
+      );
+      if (result != null) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (error) {
+      log('job service: ${error}');
+      return false;
+    }
+  }
+
+  Future<Education?> updateEducation(int index, Education edu) async {
+    try {
+      final result = await httpFetch(
+        '$databaseUrl/api/jobseeker/$userId/education/$index',
+        method: HttpMethod.patch,
+        headers: {'Content-Type': 'application/json; charset=UTF-8'},
+        body: jsonEncode(edu.toJson()),
+      );
+      List<dynamic> originalList = result['education'] as List<dynamic>;
+      List<Education> eduList =
+          originalList.map((e) => Education.fromJson(e)).toList();
+      return eduList[0];
+    } catch (error) {
+      log('job service: ${error}');
+      return null;
+    }
+  }
+
+  Future<Experience?> updateExperience(
+      int index, Map<String, String> data) async {
+    try {
+      final result = await httpFetch(
+        '$databaseUrl/api/jobseeker/$userId/experience/$index',
+        method: HttpMethod.patch,
+        headers: {'Content-Type': 'application/json; charset=UTF-8'},
+        body: jsonEncode(data),
+      );
+      List<dynamic> originalList = result['experience'] as List<dynamic>;
+      List<Experience> expList =
+          originalList.map((e) => Experience.fromJson(e)).toList();
+      return expList[0];
+    } catch (error) {
+      log('job service: ${error}');
+      return null;
+    }
+  }
+
+  Future<String?> changeEmail(String password, String email) async {
+    try {
+      final result = await httpFetch(
+        '$databaseUrl/api/jobseeker/$userId/change-email',
+        method: HttpMethod.patch,
+        headers: {'Content-Type': 'application/json; charset=UTF-8'},
+        body: jsonEncode({"password": password, "email": email}),
+      ) as Map<String, dynamic>;
+
+      if (result['newEmail'] != null) {
+        return result['newEmail'] as String;
+      }
+    } catch (error) {
+      log('Lỗi trong job service: ${error}');
+      return null;
+    }
+  }
+
+  Future<bool> changePassword(String oldPassword, String newPassword) async {
+    try {
+      final result = await httpFetch(
+        '$databaseUrl/api/jobseeker/$userId/change-password',
+        method: HttpMethod.patch,
+        headers: {'Content-Type': 'application/json; charset=UTF-8'},
+        body: jsonEncode(
+            {"oldPassword": oldPassword, "newPassword": newPassword}),
+      ) as Map<String, dynamic>;
+      final isChanged = result['isChanged'] as bool;
+      return isChanged;
+    } catch (error) {
+      log('Lỗi trong job service ${error}');
       return false;
     }
   }

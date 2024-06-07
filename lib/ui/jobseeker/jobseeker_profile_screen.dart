@@ -41,6 +41,17 @@ class JobseekerProfileScreen extends StatelessWidget {
             ),
           ),
           elevation: 0,
+          actions: [
+            IconButton(
+                icon: Icon(
+                  Icons.settings,
+                  color: theme.indicatorColor,
+                ),
+                onPressed: () {
+                  log('Vào cài đặt');
+                  context.goNamed('jobseeker-setting');
+                })
+          ],
         ),
         body: FutureBuilder(
             future: context.read<JobseekerManager>().fetchJobseekerInfo(),
@@ -333,6 +344,12 @@ class JobseekerProfileScreen extends StatelessWidget {
                                                     onEdit: () {
                                                       log('Xem trước file');
                                                       Navigator.pop(context);
+                                                      context.goNamed(
+                                                          'experience-addition',
+                                                          extra: jobseekerManager
+                                                                  .jobseeker
+                                                                  .experience[
+                                                              index]);
                                                     },
                                                   );
                                                 }),
@@ -351,7 +368,9 @@ class JobseekerProfileScreen extends StatelessWidget {
                         JobseekerInfoCard(
                           title: 'Học vấn của tôi',
                           iconButton: IconButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              context.goNamed('education-addition');
+                            },
                             icon: Icon(
                               Icons.add_circle,
                               color: theme.colorScheme.primary,
@@ -367,15 +386,43 @@ class JobseekerProfileScreen extends StatelessWidget {
                                     ),
                                   )
                                 : ListView.builder(
-                                    itemCount: 3,
+                                    itemCount: jobseekerManager
+                                        .jobseeker.education.length,
                                     physics: NeverScrollableScrollPhysics(),
                                     shrinkWrap: true,
                                     itemBuilder: (context, index) {
                                       return JobseekerEducationCard(
                                         //Đại diện cho một học vấn, những học vấn sẽ được liệt kê tại đây
-                                        edu: edu,
+                                        edu: jobseekerManager
+                                            .jobseeker.education[index],
                                         onCustomize: () {
-                                          log('Chỉnh sửa hoặc xóa học vấn');
+                                          showAdditionalScreen(
+                                              context: context,
+                                              title: 'Tùy chọn',
+                                              child:
+                                                  Builder(builder: (context) {
+                                                return _buildActionButton(
+                                                  context: context,
+                                                  onDelete: () async {
+                                                    log('Xóa bỏ kinh nghiệm');
+                                                    await context
+                                                        .read<
+                                                            JobseekerManager>()
+                                                        .removeEducation(index);
+                                                    Navigator.pop(context);
+                                                  },
+                                                  onEdit: () {
+                                                    log('Xem trước file');
+                                                    Navigator.pop(context);
+                                                    context.goNamed(
+                                                        'education-addition',
+                                                        extra: jobseekerManager
+                                                            .jobseeker
+                                                            .education[index]);
+                                                  },
+                                                );
+                                              }),
+                                              heightFactor: 0.3);
                                         },
                                       );
                                     },
@@ -440,6 +487,7 @@ class JobseekerProfileScreen extends StatelessWidget {
                         ElevatedButton(
                           onPressed: () {
                             log('Đăng xuất');
+                            context.read<AuthManager>().logout();
                           },
                           child: const Text('Đăng xuất'),
                           style: ElevatedButton.styleFrom(
@@ -453,7 +501,10 @@ class JobseekerProfileScreen extends StatelessWidget {
                             textStyle: textTheme.titleLarge!
                                 .copyWith(fontFamily: 'Lato'),
                           ),
-                        )
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
                       ],
                     ),
                   );

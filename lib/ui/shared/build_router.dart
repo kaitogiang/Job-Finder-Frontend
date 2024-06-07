@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:job_finder_app/models/education.dart';
+import 'package:job_finder_app/models/experience.dart';
 import 'package:job_finder_app/models/jobseeker.dart';
 import 'package:job_finder_app/models/resume.dart';
 import 'package:job_finder_app/ui/auth/auth_manager.dart';
+import 'package:job_finder_app/ui/jobseeker/jobseeker_profile_pages/education_addition_screen.dart';
 import 'package:job_finder_app/ui/jobseeker/jobseeker_profile_pages/experience_addition_screen.dart';
 import 'package:job_finder_app/ui/jobseeker/jobseeker_profile_pages/resume_upload_screen.dart';
 import 'package:job_finder_app/ui/jobseeker/jobseeker_profile_pages/skill_addition_screen.dart';
-import 'package:job_finder_app/ui/shared/loading_screen.dart';
-
+import 'package:job_finder_app/ui/shared/change_email_screen.dart';
+import 'package:job_finder_app/ui/shared/change_password_screen.dart';
+import 'package:job_finder_app/ui/shared/user_setting_screen.dart';
 import '../jobseeker/jobseeker_home.dart';
 import '../jobseeker/jobseeker_profile_pages/information_edit_screen.dart';
 import '../jobseeker/jobseeker_profile_screen.dart';
@@ -60,7 +64,7 @@ List<StatefulShellBranch> _buildJobseekerRoutes() {
         GoRoute(
             name: 'jobseeker-home',
             path: '/jobseeker-home',
-            builder: (context, state) => JobseekerHome()),
+            builder: (context, state) => ChangePasswordScreen()),
       ],
     ),
     //Nhánh tìm kiếm bài viết hoặc công ty....
@@ -126,8 +130,35 @@ List<StatefulShellBranch> _buildJobseekerRoutes() {
                 parentNavigatorKey: _rootNavigatorkey,
                 name: 'experience-addition',
                 path: 'experience-addition',
-                builder: (context, state) => ExperienceAdditionScreen(),
-              )
+                builder: (context, state) => ExperienceAdditionScreen(
+                    experience: state.extra as Experience?),
+              ),
+              GoRoute(
+                parentNavigatorKey: _rootNavigatorkey,
+                name: 'education-addition',
+                path: 'education-addition',
+                builder: (context, state) => EducationAdditionScreen(
+                    education: state.extra as Education?),
+              ),
+              GoRoute(
+                  parentNavigatorKey: _rootNavigatorkey,
+                  name: 'jobseeker-setting',
+                  path: 'jobseeker-setting',
+                  builder: (context, state) => UserSettingScreen(),
+                  routes: <RouteBase>[
+                    GoRoute(
+                      parentNavigatorKey: _rootNavigatorkey,
+                      name: 'change-email',
+                      path: 'change-email',
+                      builder: (context, state) => ChangeEmailScreen(),
+                    ),
+                    GoRoute(
+                      parentNavigatorKey: _rootNavigatorkey,
+                      name: 'change-password',
+                      path: 'change-password',
+                      builder: (context, state) => ChangePasswordScreen(),
+                    )
+                  ])
             ]),
       ],
     ),

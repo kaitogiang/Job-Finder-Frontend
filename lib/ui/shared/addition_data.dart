@@ -109,3 +109,16 @@ List<String> getJobseekerSkillHint() {
     "Solidity"
   ];
 }
+
+List<String> getDegree() {
+  return [
+    "Trung học",
+    "Trung cấp",
+    "Bằng liên kết",
+    "Cao đẳng",
+    "Cử nhân",
+    "Thạc sĩ",
+    "Tiến sĩ",
+    "Khác"
+  ];
+}

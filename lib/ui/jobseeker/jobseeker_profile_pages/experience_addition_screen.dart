@@ -35,6 +35,8 @@ class _ExperienceAdditionScreenState extends State<ExperienceAdditionScreen> {
 
   bool _isDoing = false;
   ValueNotifier<bool> isFull = ValueNotifier(false);
+  bool isEditScreen = false;
+  int expIndex = -1;
 
   @override
   void initState() {
@@ -42,6 +44,25 @@ class _ExperienceAdditionScreenState extends State<ExperienceAdditionScreen> {
     _companyController.addListener(_isValidForm);
     _fromController.addListener(_isValidForm);
     _toController.addListener(_isValidForm);
+    //Gán giá trị khởi đầu
+    if (widget.exp!.role.isNotEmpty &&
+        widget.exp!.company.isNotEmpty &&
+        widget.exp!.duration.isNotEmpty) {
+      _roleController.text = widget.exp!.role;
+      _companyController.text = widget.exp!.company;
+      String duration = widget.exp!.duration;
+      int index = duration.indexOf('-');
+      _fromController.text = duration.substring(0, index - 1);
+      _toController.text = duration.substring(index + 1);
+      isEditScreen = true;
+      expIndex = context
+          .read<JobseekerManager>()
+          .jobseeker
+          .experience
+          .indexOf(widget.exp!);
+    }
+    log('Chỉ số la $expIndex');
+
     super.initState();
   }
 
@@ -84,6 +105,30 @@ class _ExperienceAdditionScreenState extends State<ExperienceAdditionScreen> {
     }
   }
 
+  Future<void> _updateExperience() async {
+    //Lấy dữ liệu từ các trường
+    Map<String, String> data = {
+      'role': _roleController.text,
+      'company': _companyController.text,
+      'from': _fromController.text,
+      'to': _toController.text
+    };
+    try {
+      QuickAlert.show(
+          context: context,
+          type: QuickAlertType.loading,
+          text: 'Đang Chỉnh sửa kinh nghiệm');
+      //Gọi API thêm kinh nghiệm
+      await context
+          .read<JobseekerManager>()
+          .updateExperience(expIndex, data)
+          .whenComplete(() => Navigator.pop(context));
+      Navigator.pop(context);
+    } catch (error) {
+      log('Loi trong _addExperienece: exp_addiion_screen');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     Size deviceSize = MediaQuery.of(context).size;
@@ -92,7 +137,8 @@ class _ExperienceAdditionScreenState extends State<ExperienceAdditionScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Thêm kinh nghiệm'),
+        title:
+            Text(!isEditScreen ? 'Thêm kinh nghiệm' : 'Chỉnh sửa kinh nghiệm'),
       ),
       body: Form(
         child: Container(
@@ -193,7 +239,11 @@ class _ExperienceAdditionScreenState extends State<ExperienceAdditionScreen> {
                       valueListenable: isFull,
                       builder: (context, isValid, child) {
                         return ElevatedButton(
-                          onPressed: isValid == false ? null : _addExperience,
+                          onPressed: isValid == false
+                              ? null
+                              : (!isEditScreen)
+                                  ? _addExperience
+                                  : _updateExperience,
                           child: Text("LƯU"),
                           style: ElevatedButton.styleFrom(
                               disabledBackgroundColor: Colors.grey.shade300,
