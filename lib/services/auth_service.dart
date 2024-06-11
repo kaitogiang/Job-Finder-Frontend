@@ -62,8 +62,6 @@ class AuthService {
     }
   }
 
-  
-
   //Hàm đăng nhập vào ứng dụng
   Future<AuthToken> signIn(
       {String? email, String? password, bool isEmployer = false}) async {
@@ -82,12 +80,13 @@ class AuthService {
     final response = await http.get(uri);
     if (response.statusCode >= 200 && response.statusCode < 300) {
       final responseJson = json.decode(response.body) as Map<String, dynamic>;
-      final list = responseJson['skills'] as List<dynamic>;
-      log('Hàm fetchUserInfo auth_servie ' + list.toString());
-      list.forEach((element) {
-        String e = element as String;
-        log(e);
-      });
+      log('Dữ liệu fetch trong response: $responseJson');
+      // final list = responseJson['skills'] as List<dynamic>;
+      // log('Hàm fetchUserInfo auth_servie ' + list.toString());
+      // list.forEach((element) {
+      //   String e = element as String;
+      //   log(e);
+      // });
       //Trả về đối tượng tùy theo loại của chúng, khi lấy dữ liệu thì chỉ cần ép kiểu là được
       return isEmployer
           ? Employer.fromJson(responseJson)

@@ -2,7 +2,6 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:job_finder_app/ui/jobseeker/widgets/jobseeker_info_card.dart';
 
 import 'user_info_card.dart';
 
@@ -38,7 +37,7 @@ class UserSettingScreen extends StatelessWidget {
                   trailing: Icon(Icons.keyboard_arrow_right_outlined),
                   onTap: () {
                     log('Chuyến hướng tới đổi email');
-                    context.goNamed('change-email');
+                    context.pushNamed('change-email');
                   },
                 ),
                 ListTile(
@@ -47,7 +46,7 @@ class UserSettingScreen extends StatelessWidget {
                   trailing: Icon(Icons.keyboard_arrow_right_outlined),
                   onTap: () {
                     log('Chuyển hướng tới đổi mật khẩu');
-                    context.goNamed('change-password');
+                    context.pushNamed('change-password');
                   },
                 ),
               ],

@@ -12,7 +12,9 @@ class CombinedTextFormField extends StatefulWidget {
       this.onTap,
       this.validator,
       this.onSaved,
-      this.isEnable = true});
+      this.isEnable = true,
+      this.maxLines,
+      this.minLines});
   final String title;
   final TextEditingController? controller;
   final String hintText;
@@ -23,6 +25,8 @@ class CombinedTextFormField extends StatefulWidget {
   final String? Function(String?)? validator;
   final void Function(String?)? onSaved;
   final bool? isEnable;
+  final int? maxLines;
+  final int? minLines;
 
   @override
   State<CombinedTextFormField> createState() => _CombinedTextFormFieldState();
@@ -54,11 +58,15 @@ class _CombinedTextFormFieldState extends State<CombinedTextFormField> {
   TextFormField _buildFirstNameField() {
     return TextFormField(
       controller: widget.controller,
+      maxLines: widget.maxLines,
+      minLines: widget.minLines,
       onTap: widget.onTap,
       decoration: InputDecoration(
           hintText: widget.hintText,
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-          constraints: BoxConstraints.tight(Size.fromHeight(60)),
+          constraints: widget.keyboardType != TextInputType.multiline
+              ? BoxConstraints.tight(Size.fromHeight(60))
+              : null,
           enabled: widget.isEnable!),
       keyboardType: widget.keyboardType,
       readOnly: widget.isRead,

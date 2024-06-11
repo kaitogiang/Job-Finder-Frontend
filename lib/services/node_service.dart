@@ -74,6 +74,8 @@ abstract class NodeService {
     String uri, {
     required Map<String, String> fields,
     File? file,
+    List<File>? images, // List of images
+
     String? fileFieldName = 'avatar',
   }) async {
     log('Trong node servie, uri la $uri');
@@ -103,6 +105,25 @@ abstract class NodeService {
       );
 
       request.files.add(multipartFile);
+    }
+
+    if (images != null) {
+      images.forEach((image) async {
+        //Xác định loại của file tải lên
+        final mimeType =
+            lookupMimeType(image.path) ?? 'application/octet-stream';
+        final mimeTypeData = mimeType.split('/');
+
+        //Thêm file vào trong yêu cầu
+        final multipartFile = await http.MultipartFile.fromPath(
+          'images',
+          image.path,
+          contentType: MediaType(mimeTypeData[0], mimeTypeData[1]),
+          filename: basename(image.path),
+        );
+
+        request.files.add(multipartFile);
+      });
     }
 
     //Gửi yêu cầu cho server

@@ -3,6 +3,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:job_finder_app/services/auth_service.dart';
 import 'package:job_finder_app/ui/auth/auth_manager.dart';
 import 'package:job_finder_app/ui/auth/auth_screen.dart';
+import 'package:job_finder_app/ui/employer/company_manager.dart';
+import 'package:job_finder_app/ui/employer/employer_manager.dart';
 import 'package:job_finder_app/ui/jobseeker/jobseeker_manager.dart';
 import 'package:provider/provider.dart';
 
@@ -41,7 +43,26 @@ class MyApp extends StatelessWidget {
             jobseekerManager!.authToken = authManager.authToken;
             return jobseekerManager;
           },
-        )
+        ),
+        ChangeNotifierProxyProvider<AuthManager, EmployerManager>(
+          create: (context) =>
+              EmployerManager(context.read<AuthManager>().employer),
+          update: (context, authManager, employerManager) {
+            //TODO Khi authManager có báo hiệu thay đổi thì đọc lại authToken
+            //* cho JobseekerManager
+            employerManager!.authToken = authManager.authToken;
+            return employerManager;
+          },
+        ),
+        ChangeNotifierProxyProvider<AuthManager, CompanyManager>(
+          create: (context) => CompanyManager(),
+          update: (context, authManager, companyManager) {
+            //TODO Khi authManager có báo hiệu thay đổi thì đọc lại authToken
+            //* cho JobseekerManager
+            companyManager!.authToken = authManager.authToken;
+            return companyManager;
+          },
+        ),
       ],
       child: Consumer<AuthManager>(builder: (ctx, authManager, child) {
         return MaterialApp.router(

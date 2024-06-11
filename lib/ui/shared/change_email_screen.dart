@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:job_finder_app/models/experience.dart';
 import 'package:job_finder_app/ui/auth/auth_manager.dart';
+import 'package:job_finder_app/ui/employer/employer_manager.dart';
 import 'package:job_finder_app/ui/jobseeker/jobseeker_manager.dart';
 import 'package:job_finder_app/ui/shared/combined_text_form_field.dart';
 import 'package:job_finder_app/ui/shared/modal_bottom_sheet.dart';
@@ -111,11 +112,35 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
     if (_emailController.text.compareTo(_authenticateEmailController.text) !=
         0) {
       QuickAlert.show(
-        context: context,
-        type: QuickAlertType.error,
-        title: 'Lỗi',
-        text: 'Email chưa khớp, vui lòng nhập lại',
-      );
+          context: context,
+          type: QuickAlertType.error,
+          title: 'Lỗi',
+          text: 'Email chưa khớp, vui lòng nhập lại',
+          confirmBtnText: 'Tôi biết rồi');
+    } else {
+      try {
+        _formKey.currentState!.save();
+
+        await context
+            .read<EmployerManager>()
+            .changeEmail(password, email)
+            .whenComplete(() {
+          QuickAlert.show(
+              context: context,
+              type: QuickAlertType.success,
+              title: 'Thành công',
+              text: 'Bạn đã đổi email thành công');
+          clearAllField();
+        });
+      } catch (error) {
+        QuickAlert.show(
+          context: context,
+          type: QuickAlertType.error,
+          title: 'Không thể đổi email',
+          text: 'Email hoặc mật khẩu chưa chính xác',
+        );
+        log('Lỗi trong chagne email screen ${error}');
+      }
     }
   }
 

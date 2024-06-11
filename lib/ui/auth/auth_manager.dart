@@ -100,7 +100,7 @@ class AuthManager with ChangeNotifier {
       return false;
     }
 
-    _setAuthToken(savedToken, _isEmployer);
+    _setAuthToken(savedToken, savedToken.isEmployer);
     return true;
   }
 

@@ -49,7 +49,7 @@ class JobseekerProfileScreen extends StatelessWidget {
                 ),
                 onPressed: () {
                   log('Vào cài đặt');
-                  context.goNamed('jobseeker-setting');
+                  context.pushNamed('jobseeker-setting');
                 })
           ],
         ),
@@ -57,7 +57,7 @@ class JobseekerProfileScreen extends StatelessWidget {
             future: context.read<JobseekerManager>().fetchJobseekerInfo(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return LoadingScreen();
+                return const LoadingScreen();
               }
               return RefreshIndicator(
                 onRefresh: () =>
@@ -196,7 +196,7 @@ class JobseekerProfileScreen extends StatelessWidget {
                             onPressed: () {
                               log('Chỉnh sửa thông tin cá nhân');
                               // jobseekerManager.modifyFirstName('Thị Nó');
-                              context.goNamed('information-edit',
+                              context.pushNamed('information-edit',
                                   extra: jobseekerManager.jobseeker);
                             },
                             icon: Icon(
@@ -265,7 +265,8 @@ class JobseekerProfileScreen extends StatelessWidget {
                                     jobseekerManager.jobseeker.resume.isEmpty
                                         ? null
                                         : jobseekerManager.jobseeker.resume[0];
-                                context.goNamed('resume-upload', extra: resume);
+                                context.pushNamed('resume-upload',
+                                    extra: resume);
                               },
                               child: Text(
                                   jobseekerManager.jobseeker.resume.isEmpty
@@ -295,7 +296,7 @@ class JobseekerProfileScreen extends StatelessWidget {
                           iconButton: IconButton(
                             onPressed: () {
                               log('Thêm kinh nghiệm mới');
-                              context.goNamed('experience-addition');
+                              context.pushNamed('experience-addition');
                             },
                             icon: Icon(
                               Icons.add_circle,
@@ -344,7 +345,7 @@ class JobseekerProfileScreen extends StatelessWidget {
                                                     onEdit: () {
                                                       log('Xem trước file');
                                                       Navigator.pop(context);
-                                                      context.goNamed(
+                                                      context.pushNamed(
                                                           'experience-addition',
                                                           extra: jobseekerManager
                                                                   .jobseeker
@@ -369,7 +370,7 @@ class JobseekerProfileScreen extends StatelessWidget {
                           title: 'Học vấn của tôi',
                           iconButton: IconButton(
                             onPressed: () {
-                              context.goNamed('education-addition');
+                              context.pushNamed('education-addition');
                             },
                             icon: Icon(
                               Icons.add_circle,
@@ -414,7 +415,7 @@ class JobseekerProfileScreen extends StatelessWidget {
                                                   onEdit: () {
                                                     log('Xem trước file');
                                                     Navigator.pop(context);
-                                                    context.goNamed(
+                                                    context.pushNamed(
                                                         'education-addition',
                                                         extra: jobseekerManager
                                                             .jobseeker
@@ -438,7 +439,7 @@ class JobseekerProfileScreen extends StatelessWidget {
                           iconButton: IconButton(
                             onPressed: () {
                               log('Tùy chỉnh kỹ năng');
-                              context.goNamed('skill-addition');
+                              context.pushNamed('skill-addition');
                             },
                             icon: Icon(
                               Icons.edit,

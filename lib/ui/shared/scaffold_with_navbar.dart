@@ -20,8 +20,8 @@ class ScaffoldWithNavBar extends StatelessWidget {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: navigationShell.currentIndex,
         onTap: (index) => _onTap(context, index),
-        items: isEmployer
-          ? _buildEmployerNavItems() : _buildJobseekerNavItems(),
+        items:
+            isEmployer ? _buildEmployerNavItems() : _buildJobseekerNavItems(),
       ),
     );
   }
@@ -31,61 +31,34 @@ class ScaffoldWithNavBar extends StatelessWidget {
     //Hàm goBranch dùng để chuyển hướng tới một nhánh nào đó đã định nghĩa
     //theo chỉ số. Thứ tự các nhánh bắt đầu từ 0. Nhánh đầu tiên là 0,
     //thứ hai là 1, vv..vv
-    navigationShell.goBranch(
-      index,
-      initialLocation: index == navigationShell.currentIndex
-    );
+    navigationShell.goBranch(index,
+        initialLocation: index == navigationShell.currentIndex);
   }
 
   //Hàm build các mục cho người tìm việc
   List<BottomNavigationBarItem> _buildJobseekerNavItems() {
     return <BottomNavigationBarItem>[
+      BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Trang chủ'),
+      BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Tìm kiếm'),
       BottomNavigationBarItem(
-        icon: Icon(Icons.home),
-        label: 'Trang chủ'
-      ),
-      BottomNavigationBarItem(
-        icon: Icon(Icons.search),
-        label: 'Tìm kiếm'
-      ),
-      BottomNavigationBarItem(
-        icon: Icon(Icons.home_repair_service),
-        label: 'Công việc'
-      ),
-      BottomNavigationBarItem(
-        icon: Icon(Icons.business),
-        label: 'Công ty'
-      ),
-      BottomNavigationBarItem(
-        icon: Icon(Icons.person),
-        label: 'Tài khoản'
-      ),
+          icon: Icon(Icons.home_repair_service), label: 'Công việc'),
+      BottomNavigationBarItem(icon: Icon(Icons.business), label: 'Công ty'),
+      BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Tài khoản'),
     ];
   }
 
   //Hàm build các mục cho nhà tuyển dụng
   List<BottomNavigationBarItem> _buildEmployerNavItems() {
     return <BottomNavigationBarItem>[
-      BottomNavigationBarItem(
-        icon: Icon(Icons.home),
-        label: 'Bài đăng'
-      ),
-      BottomNavigationBarItem(
-        icon: Icon(Icons.search),
-        label: 'Ứng viên'
-      ),
-      BottomNavigationBarItem(
-        icon: Icon(Icons.home_repair_service),
-        label: 'Đã duyệt'
-      ),
-      BottomNavigationBarItem(
-        icon: Icon(Icons.business),
-        label: 'Công ty'
-      ),
-      BottomNavigationBarItem(
-        icon: Icon(Icons.person),
-        label: 'Tài khoản'
-      ),
+      const BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Bài đăng'),
+      const BottomNavigationBarItem(
+          icon: Icon(Icons.person_add_alt_rounded), label: 'Ứng viên'),
+      const BottomNavigationBarItem(
+          icon: Icon(Icons.home_repair_service), label: 'Đã duyệt'),
+      const BottomNavigationBarItem(
+          icon: Icon(Icons.business), label: 'Công ty'),
+      const BottomNavigationBarItem(
+          icon: Icon(Icons.person), label: 'Tài khoản'),
     ];
   }
 }

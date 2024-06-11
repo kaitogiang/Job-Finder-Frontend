@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:job_finder_app/models/experience.dart';
 import 'package:job_finder_app/ui/auth/auth_manager.dart';
+import 'package:job_finder_app/ui/employer/employer_manager.dart';
 import 'package:job_finder_app/ui/jobseeker/jobseeker_manager.dart';
 import 'package:job_finder_app/ui/shared/combined_text_form_field.dart';
 import 'package:job_finder_app/ui/shared/modal_bottom_sheet.dart';
@@ -115,11 +116,45 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
             .compareTo(_authenticatePasswordController.text) !=
         0) {
       QuickAlert.show(
-        context: context,
-        type: QuickAlertType.error,
-        title: 'Lỗi',
-        text: 'Mật khẩu chưa khớp, vui lòng nhập lại',
-      );
+          context: context,
+          type: QuickAlertType.error,
+          title: 'Lỗi',
+          text: 'Mật khẩu chưa khớp, vui lòng nhập lại',
+          confirmBtnText: 'Tôi biết rồi');
+    } else {
+      try {
+        _formKey.currentState!.save();
+        log('Oldpassword is: $oldPassword');
+        log('Newpassword is: $newPassword');
+        final isChanged = await context
+            .read<EmployerManager>()
+            .changePassword(oldPassword, newPassword);
+        if (isChanged) {
+          QuickAlert.show(
+              context: context,
+              type: QuickAlertType.success,
+              title: 'Thành công',
+              text: 'Bạn đã đổi mật khẩu thành công');
+          clearAllField();
+        } else {
+          QuickAlert.show(
+            context: context,
+            type: QuickAlertType.error,
+            title: 'Không thể đổi mật khẩu',
+            text: 'Mật khẩu chưa chính xác',
+            confirmBtnText: 'Tôi biết rồi',
+          );
+        }
+      } catch (error) {
+        QuickAlert.show(
+          context: context,
+          type: QuickAlertType.error,
+          title: 'Không thể đổi mật khẩu',
+          text: 'Mật khẩu chưa chính xác',
+          confirmBtnText: 'Tôi biết rồi',
+        );
+        log('Lỗi trong chagne email screen ${error}');
+      }
     }
   }
 

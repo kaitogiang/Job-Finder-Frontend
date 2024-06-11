@@ -142,17 +142,22 @@ class _LoginCardState extends State<LoginCard> {
         //Đăng nhập cho người tìm việc
         await context
             .read<AuthManager>()
-            .login(_authData['email']!, _authData['password']!, false);
+            .login(_authData['email']!, _authData['password']!, false)
+            .whenComplete(() => Navigator.pop(context));
       } else {
         await context
             .read<AuthManager>()
-            .login(_authData['email']!, _authData['password']!, true);
+            .login(_authData['email']!, _authData['password']!, true)
+            .whenComplete(() => Navigator.pop(context));
       }
     } catch (error) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(error.toString()),
-        ));
+        QuickAlert.show(
+            context: context,
+            type: QuickAlertType.error,
+            title: 'Không thể đăng nhập',
+            text: error.toString(),
+            confirmBtnText: 'Tôi biết rồi');
       }
     }
   }

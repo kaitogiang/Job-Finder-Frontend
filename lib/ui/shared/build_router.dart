@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:job_finder_app/models/company.dart';
 import 'package:job_finder_app/models/education.dart';
+import 'package:job_finder_app/models/employer.dart';
 import 'package:job_finder_app/models/experience.dart';
 import 'package:job_finder_app/models/jobseeker.dart';
 import 'package:job_finder_app/models/resume.dart';
 import 'package:job_finder_app/ui/auth/auth_manager.dart';
+import 'package:job_finder_app/ui/employer/company_edit_screen.dart';
+import 'package:job_finder_app/ui/employer/employer_profile_screen.dart';
 import 'package:job_finder_app/ui/jobseeker/jobseeker_profile_pages/education_addition_screen.dart';
 import 'package:job_finder_app/ui/jobseeker/jobseeker_profile_pages/experience_addition_screen.dart';
 import 'package:job_finder_app/ui/jobseeker/jobseeker_profile_pages/resume_upload_screen.dart';
@@ -12,6 +16,8 @@ import 'package:job_finder_app/ui/jobseeker/jobseeker_profile_pages/skill_additi
 import 'package:job_finder_app/ui/shared/change_email_screen.dart';
 import 'package:job_finder_app/ui/shared/change_password_screen.dart';
 import 'package:job_finder_app/ui/shared/user_setting_screen.dart';
+import '../employer/company_screen.dart';
+import '../employer/employer_edit_screen.dart';
 import '../jobseeker/jobseeker_home.dart';
 import '../jobseeker/jobseeker_profile_pages/information_edit_screen.dart';
 import '../jobseeker/jobseeker_profile_screen.dart';
@@ -51,7 +57,27 @@ GoRouter buildRouter(AuthManager authManager) {
             builder: (context, state, navigationShell) {
               return ScaffoldWithNavBar(navigationShell: navigationShell);
             },
-            branches: _buildEmployerRoutes())
+            branches: _buildEmployerRoutes()),
+        //Các route bên dưới là các route chung của cả hai người dùng
+        GoRoute(
+            parentNavigatorKey: _rootNavigatorkey,
+            name: 'jobseeker-setting',
+            path: '/jobseeker-setting',
+            builder: (context, state) => UserSettingScreen(),
+            routes: <RouteBase>[
+              GoRoute(
+                parentNavigatorKey: _rootNavigatorkey,
+                name: 'change-email',
+                path: 'change-email',
+                builder: (context, state) => ChangeEmailScreen(),
+              ),
+              GoRoute(
+                parentNavigatorKey: _rootNavigatorkey,
+                name: 'change-password',
+                path: 'change-password',
+                builder: (context, state) => ChangePasswordScreen(),
+              )
+            ])
       ]);
 }
 
@@ -140,25 +166,6 @@ List<StatefulShellBranch> _buildJobseekerRoutes() {
                 builder: (context, state) => EducationAdditionScreen(
                     education: state.extra as Education?),
               ),
-              GoRoute(
-                  parentNavigatorKey: _rootNavigatorkey,
-                  name: 'jobseeker-setting',
-                  path: 'jobseeker-setting',
-                  builder: (context, state) => UserSettingScreen(),
-                  routes: <RouteBase>[
-                    GoRoute(
-                      parentNavigatorKey: _rootNavigatorkey,
-                      name: 'change-email',
-                      path: 'change-email',
-                      builder: (context, state) => ChangeEmailScreen(),
-                    ),
-                    GoRoute(
-                      parentNavigatorKey: _rootNavigatorkey,
-                      name: 'change-password',
-                      path: 'change-password',
-                      builder: (context, state) => ChangePasswordScreen(),
-                    )
-                  ])
             ]),
       ],
     ),
@@ -175,8 +182,53 @@ List<StatefulShellBranch> _buildEmployerRoutes() {
       GoRoute(
           name: 'employer-home',
           path: '/employer-home',
-          builder: (context, state) => const SafeArea(child: EmployerHome()))
+          builder: (context, state) => CompanyScreen()),
     ]),
+    //Nhánh xem danh sách tất cả ứng viên cùng thông tin của họ
+    StatefulShellBranch(routes: <RouteBase>[
+      GoRoute(
+        name: 'jobseeker-list',
+        path: '/jobseeker-list',
+        builder: (context, state) => const SafeArea(child: EmployerHome()),
+      ),
+    ]),
+    //Nhánh xem những hồ sơ đã duyệt
+    StatefulShellBranch(routes: <RouteBase>[
+      GoRoute(
+        name: 'approved-resume',
+        path: '/approved-resume',
+        builder: (context, state) => const SafeArea(child: EmployerHome()),
+      ),
+    ]),
+    //Nhánh xem và tùy chỉnh thông tin công ty
+    StatefulShellBranch(routes: <RouteBase>[
+      GoRoute(
+          name: 'company-info',
+          path: '/company-info',
+          builder: (context, state) => const CompanyScreen(),
+          routes: <RouteBase>[
+            GoRoute(
+                name: 'company-edit',
+                path: 'company-edit',
+                builder: (context, state) =>
+                    CompanyEditScreen(state.extra as Company))
+          ]),
+    ]),
+    //Nhánh xem tài khoản cho nhà tuyển dụng
+    StatefulShellBranch(routes: <RouteBase>[
+      GoRoute(
+          name: 'employer-info',
+          path: '/employer-info',
+          builder: (context, state) => EmployerProfileScreen(),
+          routes: <RouteBase>[
+            GoRoute(
+              name: 'employer-edit',
+              path: 'employer-edit',
+              builder: (context, state) =>
+                  EmployerEditScreen(state.extra as Employer),
+            )
+          ])
+    ])
   ];
 
   return routes;
