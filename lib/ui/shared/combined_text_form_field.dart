@@ -13,8 +13,8 @@ class CombinedTextFormField extends StatefulWidget {
       this.validator,
       this.onSaved,
       this.isEnable = true,
-      this.maxLines,
-      this.minLines});
+      this.maxLines = 1,
+      this.minLines = 1});
   final String title;
   final TextEditingController? controller;
   final String hintText;

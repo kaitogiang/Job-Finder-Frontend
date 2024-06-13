@@ -1,27 +1,16 @@
 import 'dart:developer';
 
-import 'package:date_picker_plus/date_picker_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:job_finder_app/models/experience.dart';
 import 'package:job_finder_app/ui/auth/auth_manager.dart';
 import 'package:job_finder_app/ui/employer/employer_manager.dart';
 import 'package:job_finder_app/ui/jobseeker/jobseeker_manager.dart';
 import 'package:job_finder_app/ui/shared/combined_text_form_field.dart';
-import 'package:job_finder_app/ui/shared/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 import 'package:quickalert/quickalert.dart';
 
 class ChangeEmailScreen extends StatefulWidget {
-  ChangeEmailScreen({super.key, Experience? experience}) {
-    if (experience == null) {
-      exp = Experience(role: '', company: '', duration: '');
-    } else {
-      exp = experience;
-    }
-  }
-
-  Experience? exp;
+  ChangeEmailScreen({super.key});
 
   @override
   State<ChangeEmailScreen> createState() => _ChangeEmailScreenState();

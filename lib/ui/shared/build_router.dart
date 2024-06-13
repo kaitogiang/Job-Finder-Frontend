@@ -13,6 +13,8 @@ import 'package:job_finder_app/ui/jobseeker/jobseeker_profile_pages/education_ad
 import 'package:job_finder_app/ui/jobseeker/jobseeker_profile_pages/experience_addition_screen.dart';
 import 'package:job_finder_app/ui/jobseeker/jobseeker_profile_pages/resume_upload_screen.dart';
 import 'package:job_finder_app/ui/jobseeker/jobseeker_profile_pages/skill_addition_screen.dart';
+import 'package:job_finder_app/ui/jobseeker/search_job_screen.dart';
+import 'package:job_finder_app/ui/jobseeker/search_result_screen.dart';
 import 'package:job_finder_app/ui/shared/change_email_screen.dart';
 import 'package:job_finder_app/ui/shared/change_password_screen.dart';
 import 'package:job_finder_app/ui/shared/user_setting_screen.dart';
@@ -90,7 +92,7 @@ List<StatefulShellBranch> _buildJobseekerRoutes() {
         GoRoute(
             name: 'jobseeker-home',
             path: '/jobseeker-home',
-            builder: (context, state) => ChangePasswordScreen()),
+            builder: (context, state) => SearchResultScreen()),
       ],
     ),
     //Nhánh tìm kiếm bài viết hoặc công ty....
@@ -99,8 +101,15 @@ List<StatefulShellBranch> _buildJobseekerRoutes() {
         GoRoute(
             name: 'searching',
             path: '/searching',
-            builder: (context, state) =>
-                const SafeArea(child: JobseekerHome())),
+            builder: (context, state) => SearchJobScreen(),
+            routes: <RouteBase>[
+              GoRoute(
+                parentNavigatorKey: _rootNavigatorkey,
+                name: 'search-result',
+                path: 'search-result',
+                builder: (context, state) => SearchResultScreen(),
+              )
+            ]),
       ],
     ),
     //Nhánh xem công việc đã lưu, đã thích và đã nộp CV

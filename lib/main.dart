@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:job_finder_app/services/auth_service.dart';
 import 'package:job_finder_app/ui/auth/auth_manager.dart';
-import 'package:job_finder_app/ui/auth/auth_screen.dart';
 import 'package:job_finder_app/ui/employer/company_manager.dart';
 import 'package:job_finder_app/ui/employer/employer_manager.dart';
 import 'package:job_finder_app/ui/jobseeker/jobseeker_manager.dart';
