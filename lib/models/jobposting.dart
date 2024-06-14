@@ -43,6 +43,8 @@ class Jobposting {
 
   ValueNotifier<bool> get favorite => _isFavorite;
 
+  bool get isFavorite => _isFavorite.value;
+
   set isFavorite(bool value) => _isFavorite.value = value;
 
   factory Jobposting.fromJson(Map<String, dynamic> json) {

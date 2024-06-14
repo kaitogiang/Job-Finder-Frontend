@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:job_finder_app/ui/shared/jobposting_manager.dart';
+import 'package:provider/provider.dart';
 
 import '../../models/jobposting.dart';
 
@@ -55,8 +57,10 @@ class JobCard extends StatelessWidget {
                         !isFavorite ? Icons.favorite_border : Icons.favorite,
                         color: Colors.blue[400],
                       ),
-                      onPressed: () {
-                        jobposting.isFavorite = !isFavorite;
+                      onPressed: () async {
+                        await context
+                            .read<JobpostingManager>()
+                            .changeFavoriteStatus(jobposting);
                       },
                     );
                   }),

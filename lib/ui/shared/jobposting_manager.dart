@@ -39,4 +39,13 @@ class JobpostingManager extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<void> changeFavoriteStatus(Jobposting jobposting) async {
+    final savedState = jobposting.isFavorite;
+    final isSuccess = await _jobpostingService.changeFavoriteState(
+        !savedState, jobposting.id);
+    if (isSuccess) {
+      jobposting.isFavorite = !savedState;
+    }
+  }
 }
