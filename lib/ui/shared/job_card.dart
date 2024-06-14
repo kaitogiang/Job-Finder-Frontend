@@ -1,9 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+
+import '../../models/jobposting.dart';
 
 class JobCard extends StatelessWidget {
-  const JobCard({super.key});
+  const JobCard(this.jobposting, {super.key});
+
+  final Jobposting jobposting;
+
   @override
   Widget build(BuildContext context) {
+    List<String> chipData = [];
+    chipData.addAll(jobposting.level);
+    chipData.add(jobposting.jobType);
+    //todo Chuyển đổi chuỗi ngày sang đối tượng DateTime và sau đó chuyển định
+    //todo dạng sang dd-MM-yyyy
+    DateTime dateTime = DateTime.parse(jobposting.deadline);
+    String formatedDate = DateFormat('dd-MM-yyyy').format(dateTime);
+
     return Card(
       borderOnForeground: true,
       surfaceTintColor: Colors.blue[100],
@@ -21,42 +35,52 @@ class JobCard extends StatelessWidget {
                 width: 60,
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
-                    image: const DecorationImage(
-                        image: NetworkImage(
-                            'https://carelinelive.com/wp-content/uploads/2022/09/ideas-working-alzheimers-disease.jpg'),
+                    image: DecorationImage(
+                        image: NetworkImage(jobposting.company!.avatarLink),
                         fit: BoxFit.cover)),
               ),
               title: Text(
-                'Senior Java Developer sf asdfa ',
+                jobposting.title,
                 softWrap: true,
                 overflow: TextOverflow.ellipsis,
                 maxLines: 2,
               ),
-              subtitle: Text('TNHH TeachBase asdfas ',
+              subtitle: Text(jobposting.company!.companyName,
                   maxLines: 2, overflow: TextOverflow.ellipsis),
-              trailing: Icon(Icons.favorite_border),
+              trailing: ValueListenableBuilder(
+                  valueListenable: jobposting.favorite,
+                  builder: (context, isFavorite, child) {
+                    return IconButton(
+                      icon: Icon(
+                        !isFavorite ? Icons.favorite_border : Icons.favorite,
+                        color: Colors.blue[400],
+                      ),
+                      onPressed: () {
+                        jobposting.isFavorite = !isFavorite;
+                      },
+                    );
+                  }),
             ),
             ExtraLabel(
               icon: Icons.location_on,
-              label: 'Thành phố Hồ Chí Minh',
+              label: jobposting.workLocation,
             ),
             ExtraLabel(
               icon: Icons.attach_money_outlined,
-              label: '100.000.000 VNĐ',
+              label: jobposting.salary,
             ),
-            const Wrap(
+            Wrap(
               spacing: 8,
               direction: Axis.horizontal,
               runSpacing: 0,
-              children: [
-                ExtraInfoChip(label: 'Fresher'),
-                ExtraInfoChip(label: 'Middle'),
-                ExtraInfoChip(label: 'Full-time'),
-              ],
+              children: List<Widget>.generate(
+                chipData.length,
+                (index) => ExtraInfoChip(label: chipData[index]),
+              ),
             ),
             ExtraLabel(
               icon: Icons.timer,
-              label: 'Hạn chót: 31/7/2024',
+              label: 'Hạn chót: $formatedDate',
             )
           ],
         ),

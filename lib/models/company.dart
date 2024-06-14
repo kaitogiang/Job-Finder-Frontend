@@ -46,6 +46,8 @@ class Company {
 
   Map<String, String>? get policy => _policy;
 
+  String get avatarLink => '${dotenv.env['DATABASE_BASE_URL']}$avatar';
+
   factory Company.fromJson(Map<String, dynamic> json) {
     return Company(
       id: json['_id'],

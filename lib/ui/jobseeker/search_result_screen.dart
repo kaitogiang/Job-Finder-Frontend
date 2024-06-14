@@ -65,8 +65,8 @@ class SearchResultScreen extends StatelessWidget {
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
-                  children: List<Widget>.generate(10, (index) => JobCard()),
-                ),
+                    // children: List<Widget>.generate(10, (index) => JobCard()),
+                    ),
               ),
             )
           ],

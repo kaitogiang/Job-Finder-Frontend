@@ -289,8 +289,8 @@ class _SearchJobScreenState extends State<SearchJobScreen> {
             height: 10,
           ),
           Column(
-            children: List<Widget>.generate(5, (index) => JobCard()),
-          )
+              // children: List<Widget>.generate(5, (index) => JobCard()),
+              )
         ],
       ),
     );

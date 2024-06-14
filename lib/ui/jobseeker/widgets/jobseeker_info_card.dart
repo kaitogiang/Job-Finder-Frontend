@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 
 class JobseekerInfoCard extends StatelessWidget {
-  const JobseekerInfoCard({required this.title, this.iconButton, required this.children, super.key});
+  const JobseekerInfoCard(
+      {required this.title,
+      this.iconButton,
+      required this.children,
+      super.key});
 
   final List<Widget> children;
   final IconButton? iconButton;
   final String title;
-  
+
   @override
   Widget build(BuildContext context) {
     final deviceSize = MediaQuery.of(context).size;
@@ -18,20 +22,28 @@ class JobseekerInfoCard extends StatelessWidget {
       // height: 300,
       decoration: BoxDecoration(
         color: theme.colorScheme.background,
-        border: Border.all(color: theme.colorScheme.secondary),
         borderRadius: BorderRadius.circular(10),
         boxShadow: [
+          // BoxShadow(
+          //   color: Colors.grey.shade200,
+          //   spreadRadius: 4,
+          //   blurRadius: 2,
+          //   offset: const Offset(0, 0),
+          // )
           BoxShadow(
-            color: Colors.grey.shade200,
+            color: Colors.grey.withOpacity(0.1),
             spreadRadius: 4,
-            blurRadius: 2,
-            offset: const Offset(0, 0),
-          )
+            blurRadius: 1,
+            offset: const Offset(0, 0), // changes position of shadow
+          ),
         ],
       ),
       child: Column(
         children: [
-          if (iconButton == null) const SizedBox(height: 10,),
+          if (iconButton == null)
+            const SizedBox(
+              height: 10,
+            ),
           //Dòng đầu tiên tiêu đề và nút chỉnh sửa thông tin cá nhân
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -43,17 +55,21 @@ class JobseekerInfoCard extends StatelessWidget {
                     textTheme.titleLarge!.copyWith(fontWeight: FontWeight.bold),
               ),
               //Nút hành động
-              if(iconButton!=null) 
-              iconButton!
+              if (iconButton != null) iconButton!
             ],
           ),
-          if (iconButton == null) const SizedBox(height: 10,),
+          if (iconButton == null)
+            const SizedBox(
+              height: 10,
+            ),
           Divider(
             thickness: 1,
           ),
           //Các con được thêm vào
           ...children,
-          const SizedBox(height: 20,)
+          const SizedBox(
+            height: 20,
+          )
         ],
       ),
     );

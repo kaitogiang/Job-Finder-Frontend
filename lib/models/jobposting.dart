@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'company.dart';
 
 class Jobposting {
@@ -17,24 +19,31 @@ class Jobposting {
   String experience;
   Company? company;
   String createdAt;
+  ValueNotifier<bool> _isFavorite;
 
-  Jobposting(
-      {required this.id,
-      required this.title,
-      required this.description,
-      required this.requirements,
-      required this.skills,
-      required this.workLocation,
-      required this.workTime,
-      required this.level,
-      required this.benefit,
-      required this.deadline,
-      required this.jobType,
-      required this.salary,
-      required this.contractType,
-      required this.experience,
-      required this.createdAt,
-      required this.company});
+  Jobposting({
+    required this.id,
+    required this.title,
+    required this.description,
+    required this.requirements,
+    required this.skills,
+    required this.workLocation,
+    required this.workTime,
+    required this.level,
+    required this.benefit,
+    required this.deadline,
+    required this.jobType,
+    required this.salary,
+    required this.contractType,
+    required this.experience,
+    required this.createdAt,
+    required this.company,
+    bool? isFavorite = false,
+  }) : _isFavorite = ValueNotifier(isFavorite!);
+
+  ValueNotifier<bool> get favorite => _isFavorite;
+
+  set isFavorite(bool value) => _isFavorite.value = value;
 
   factory Jobposting.fromJson(Map<String, dynamic> json) {
     return Jobposting(
@@ -42,10 +51,10 @@ class Jobposting {
         title: json['title'],
         description: json['description'],
         requirements: json['requirements'],
-        skills: json['skills'],
+        skills: List<String>.from(json['skills']),
         workLocation: json['workLocation'],
         workTime: json['workTime'],
-        level: json['level'],
+        level: List<String>.from(json['level']),
         benefit: json['benefit'],
         deadline: json['deadline'],
         jobType: json['jobType'],
@@ -53,7 +62,7 @@ class Jobposting {
         contractType: json['contractType'],
         experience: json['experience'],
         createdAt: json['createdAt'],
-        company: Company.fromJson(json['company']));
+        company: Company.fromJson(json['company'] as Map<String, dynamic>));
   }
 
   Map<String, dynamic> toJson() {

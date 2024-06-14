@@ -4,6 +4,7 @@ import 'package:job_finder_app/ui/auth/auth_manager.dart';
 import 'package:job_finder_app/ui/employer/company_manager.dart';
 import 'package:job_finder_app/ui/employer/employer_manager.dart';
 import 'package:job_finder_app/ui/jobseeker/jobseeker_manager.dart';
+import 'package:job_finder_app/ui/shared/jobposting_manager.dart';
 import 'package:provider/provider.dart';
 
 import 'ui/shared/build_router.dart';
@@ -59,6 +60,15 @@ class MyApp extends StatelessWidget {
             //* cho JobseekerManager
             companyManager!.authToken = authManager.authToken;
             return companyManager;
+          },
+        ),
+        ChangeNotifierProxyProvider<AuthManager, JobpostingManager>(
+          create: (context) => JobpostingManager(),
+          update: (context, authManager, jobpostingManager) {
+            //TODO Khi authManager có báo hiệu thay đổi thì đọc lại authToken
+            //* cho JobseekerManager
+            jobpostingManager!.authToken = authManager.authToken;
+            return jobpostingManager;
           },
         ),
       ],

@@ -1,8 +1,6 @@
-import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
-import 'package:http/http.dart';
 import 'package:job_finder_app/models/auth_token.dart';
 import 'package:job_finder_app/models/company.dart';
 import 'package:job_finder_app/services/node_service.dart';

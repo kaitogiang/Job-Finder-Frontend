@@ -2,10 +2,13 @@ import 'dart:developer';
 
 import 'package:expandable_page_view/expandable_page_view.dart';
 import 'package:flutter/material.dart';
+import 'package:job_finder_app/models/jobposting.dart';
 
 import '../../shared/job_card.dart';
 
 class JobPageView extends StatefulWidget {
+  const JobPageView(this.random, {super.key});
+  final List<Jobposting>? random;
   @override
   State<JobPageView> createState() => _JobPageViewState();
 }
@@ -15,12 +18,29 @@ class _JobPageViewState extends State<JobPageView>
   late PageController _pageViewController;
   late TabController _tabController;
   int _currentPageIndex = 0;
-
+  int tabLength = 0;
+  List<Jobposting> list = [];
   @override
   void initState() {
     super.initState();
+    int randomLength;
+    if (widget.random != null) {
+      randomLength = widget.random!.length;
+      list = widget.random!;
+      log('Random length la: $randomLength');
+    } else {
+      randomLength = 0;
+    }
+    if (randomLength <= 3) {
+      tabLength = 1;
+    } else if (randomLength <= 6) {
+      tabLength = 2;
+    } else {
+      tabLength = 3;
+    }
+    log('Tab lengh: $tabLength');
     _pageViewController = PageController();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: tabLength, vsync: this);
   }
 
   @override
@@ -32,40 +52,36 @@ class _JobPageViewState extends State<JobPageView>
 
   @override
   Widget build(BuildContext context) {
-    final TextTheme textTheme = Theme.of(context).textTheme;
     return Stack(
       alignment: Alignment.bottomCenter,
       children: <Widget>[
         ConstrainedBox(
-          constraints: BoxConstraints(minHeight: 760),
+          constraints: const BoxConstraints(minHeight: 760),
           child: ExpandablePageView(
             controller: _pageViewController,
             onPageChanged: _handlePageViewChanged,
             children: <Widget>[
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  JobCard(),
-                  JobCard(),
-                  JobCard(),
-                ],
-              ),
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  JobCard(),
-                  JobCard(),
-                  // JobCard(),
-                ],
-              ),
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  JobCard(),
-                  // JobCard(),
-                  // JobCard(),
-                ],
-              ),
+              if (tabLength >= 1)
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: List<Widget>.generate(
+                      list.length >= 3 ? 3 : list.length,
+                      (index) => JobCard(list[index])),
+                ),
+              if (tabLength >= 2)
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: List<Widget>.generate(
+                      list.length >= 6 ? 3 : list.length - 3,
+                      (index) => JobCard(list[index + 3])),
+                ),
+              if (tabLength == 3)
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: List<Widget>.generate(
+                      list.length >= 9 ? 3 : list.length - 6,
+                      (index) => JobCard(list[index + 6])),
+                ),
             ],
           ),
         ),

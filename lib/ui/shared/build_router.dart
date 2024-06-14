@@ -92,7 +92,7 @@ List<StatefulShellBranch> _buildJobseekerRoutes() {
         GoRoute(
             name: 'jobseeker-home',
             path: '/jobseeker-home',
-            builder: (context, state) => SearchResultScreen()),
+            builder: (context, state) => JobseekerHome()),
       ],
     ),
     //Nhánh tìm kiếm bài viết hoặc công ty....
