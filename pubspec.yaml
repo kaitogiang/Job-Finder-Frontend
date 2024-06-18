@@ -28,6 +28,8 @@ dependencies:
   intl: ^0.17.0
   date_picker_plus: ^4.0.0
   expandable_page_view: ^1.0.17
+  shadow_overlay: ^1.0.5
+  photo_view: ^0.15.0
 
 dev_dependencies:
   flutter_test:

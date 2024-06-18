@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:job_finder_app/ui/shared/jobposting_manager.dart';
 import 'package:provider/provider.dart';
@@ -20,73 +21,76 @@ class JobCard extends StatelessWidget {
     DateTime dateTime = DateTime.parse(jobposting.deadline);
     String formatedDate = DateFormat('dd-MM-yyyy').format(dateTime);
 
-    return Card(
-      borderOnForeground: true,
-      surfaceTintColor: Colors.blue[100],
-      elevation: 5,
-      child: Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: Container(
-                height: 60,
-                width: 60,
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    image: DecorationImage(
-                        image: NetworkImage(jobposting.company!.avatarLink),
-                        fit: BoxFit.cover)),
+    return GestureDetector(
+      onTap: () => context.pushNamed('job-detail', extra: jobposting),
+      child: Card(
+        borderOnForeground: true,
+        surfaceTintColor: Colors.blue[100],
+        elevation: 5,
+        child: Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: Container(
+                  height: 60,
+                  width: 60,
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      image: DecorationImage(
+                          image: NetworkImage(jobposting.company!.avatarLink),
+                          fit: BoxFit.cover)),
+                ),
+                title: Text(
+                  jobposting.title,
+                  softWrap: true,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 2,
+                ),
+                subtitle: Text(jobposting.company!.companyName,
+                    maxLines: 2, overflow: TextOverflow.ellipsis),
+                trailing: ValueListenableBuilder(
+                    valueListenable: jobposting.favorite,
+                    builder: (context, isFavorite, child) {
+                      return IconButton(
+                        icon: Icon(
+                          !isFavorite ? Icons.favorite_border : Icons.favorite,
+                          color: Colors.blue[400],
+                        ),
+                        onPressed: () async {
+                          await context
+                              .read<JobpostingManager>()
+                              .changeFavoriteStatus(jobposting);
+                        },
+                      );
+                    }),
               ),
-              title: Text(
-                jobposting.title,
-                softWrap: true,
-                overflow: TextOverflow.ellipsis,
-                maxLines: 2,
+              ExtraLabel(
+                icon: Icons.location_on,
+                label: jobposting.workLocation,
               ),
-              subtitle: Text(jobposting.company!.companyName,
-                  maxLines: 2, overflow: TextOverflow.ellipsis),
-              trailing: ValueListenableBuilder(
-                  valueListenable: jobposting.favorite,
-                  builder: (context, isFavorite, child) {
-                    return IconButton(
-                      icon: Icon(
-                        !isFavorite ? Icons.favorite_border : Icons.favorite,
-                        color: Colors.blue[400],
-                      ),
-                      onPressed: () async {
-                        await context
-                            .read<JobpostingManager>()
-                            .changeFavoriteStatus(jobposting);
-                      },
-                    );
-                  }),
-            ),
-            ExtraLabel(
-              icon: Icons.location_on,
-              label: jobposting.workLocation,
-            ),
-            ExtraLabel(
-              icon: Icons.attach_money_outlined,
-              label: jobposting.salary,
-            ),
-            Wrap(
-              spacing: 8,
-              direction: Axis.horizontal,
-              runSpacing: 0,
-              children: List<Widget>.generate(
-                chipData.length,
-                (index) => ExtraInfoChip(label: chipData[index]),
+              ExtraLabel(
+                icon: Icons.attach_money_outlined,
+                label: jobposting.salary,
               ),
-            ),
-            ExtraLabel(
-              icon: Icons.timer,
-              label: 'Hạn chót: $formatedDate',
-            )
-          ],
+              Wrap(
+                spacing: 8,
+                direction: Axis.horizontal,
+                runSpacing: 0,
+                children: List<Widget>.generate(
+                  chipData.length,
+                  (index) => ExtraInfoChip(label: chipData[index]),
+                ),
+              ),
+              ExtraLabel(
+                icon: Icons.timer,
+                label: 'Hạn chót: $formatedDate',
+              )
+            ],
+          ),
         ),
       ),
     );

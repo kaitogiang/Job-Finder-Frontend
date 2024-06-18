@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:job_finder_app/ui/jobseeker/jobseeker_manager.dart';
 import 'package:job_finder_app/ui/jobseeker/widgets/job_page_view.dart';
 import 'package:job_finder_app/ui/shared/job_card.dart';
 import 'package:job_finder_app/ui/shared/jobposting_manager.dart';
@@ -57,7 +58,19 @@ class _JobseekerHomeState extends State<JobseekerHome> {
       'Trưởng nhóm'
     ];
 
-    ValueNotifier<int> _selectedLevelIndex = ValueNotifier(0);
+    List<FilterType> filteredList = [
+      FilterType.all,
+      FilterType.intern,
+      FilterType.fresher,
+      FilterType.junior,
+      FilterType.middle,
+      FilterType.senior,
+      FilterType.manager,
+      FilterType.leader,
+    ];
+
+    final ValueNotifier<int> _selectedLevelIndex = ValueNotifier(0);
+    String userName = context.read<JobseekerManager>().jobseeker.firstName;
 
     return Scaffold(
         appBar: AppBar(
@@ -70,7 +83,7 @@ class _JobseekerHomeState extends State<JobseekerHome> {
           title: ValueListenableBuilder(
               valueListenable: _isShowSearchAppbar,
               builder: (context, isShowSearch, child) {
-                return !isShowSearch ? Text('Hi, Huy') : SearchField();
+                return !isShowSearch ? Text('Hi, $userName') : SearchField();
               }),
           toolbarHeight: 70,
           flexibleSpace: Container(
@@ -174,11 +187,10 @@ class _JobseekerHomeState extends State<JobseekerHome> {
                                                 BorderRadius.circular(40)),
                                         onSelected: (value) {
                                           _selectedLevelIndex.value = index;
-                                          int len = context
+                                          context
                                               .read<JobpostingManager>()
-                                              .jobpostings
-                                              .length;
-                                          log('So luong phan tu la: $len');
+                                              .filterJobposting(
+                                                  filteredList[index]);
                                         },
                                       );
                                     }),
@@ -206,18 +218,34 @@ class _JobseekerHomeState extends State<JobseekerHome> {
                               textAlign: TextAlign.left,
                             ),
                           ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 10),
-                            child: ListView.builder(
-                              itemCount: jobpostingManager.jobpostings.length,
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemBuilder: (context, index) {
-                                return JobCard(
-                                    jobpostingManager.jobpostings[index]);
-                              },
-                            ),
-                          ),
+                          jobpostingManager.filteredPosts.isNotEmpty
+                              ? Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10),
+                                  child: ListView.builder(
+                                    itemCount:
+                                        jobpostingManager.filteredPosts.length,
+                                    shrinkWrap: true,
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    itemBuilder: (context, index) {
+                                      return JobCard(jobpostingManager
+                                          .filteredPosts[index]);
+                                    },
+                                  ),
+                                )
+                              : Center(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(
+                                      top: 10,
+                                    ),
+                                    child: Text(
+                                      'Chưa có công việc phù hợp',
+                                      style: textTheme.bodyLarge!
+                                          .copyWith(fontSize: 17),
+                                    ),
+                                  ),
+                                ),
                           const SizedBox(
                             height: 20,
                           )

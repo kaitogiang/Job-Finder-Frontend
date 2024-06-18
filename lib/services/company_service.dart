@@ -44,4 +44,20 @@ class CompanyService extends NodeService {
       return null;
     }
   }
+
+  Future<List<Company>> fetchAllCompanies() async {
+    try {
+      final response = await httpFetch(
+        '$databaseUrl/api/company/',
+        method: HttpMethod.get,
+      ) as List<dynamic>;
+      //? Chuyển mỗi phần tử trong response thì kiểu Map
+      List<Map<String, dynamic>> convertedResponse =
+          List<Map<String, dynamic>>.from(response);
+      return convertedResponse.map((e) => Company.fromJson(e)).toList();
+    } catch (error) {
+      log('Error in fetchAllCompanies - service: $error');
+      return [];
+    }
+  }
 }

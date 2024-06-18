@@ -72,4 +72,24 @@ class JobpostingService extends NodeService {
       return false;
     }
   }
+
+  Future<List<Jobposting>?> getCompanyJobposting(String companyId) async {
+    try {
+      final response = await httpFetch(
+        '$databaseUrl/api/jobposting/company/$companyId',
+        headers: headers,
+        method: HttpMethod.get,
+      ) as List<dynamic>;
+      List<Map<String, dynamic>> convertedResponse =
+          response.map((post) => post as Map<String, dynamic>).toList();
+      log('List<Map<String, dynamic la>>: ${convertedResponse.toString()}');
+      List<Jobposting> jobList =
+          convertedResponse.map((e) => Jobposting.fromJson(e)).toList();
+
+      return jobList;
+    } catch (error) {
+      log('Error in getCompanyJobposting - Jobposting Service: $error');
+      return null;
+    }
+  }
 }

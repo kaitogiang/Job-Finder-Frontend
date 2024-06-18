@@ -29,14 +29,16 @@ class ImageContainer extends StatelessWidget {
           width: width,
           height: height,
           decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(borderRadius),
-              image: DecorationImage(
-                  image: !isFileType && file == null
-                      ? NetworkImage(
-                          url,
-                        )
-                      : FileImage(file!) as ImageProvider,
-                  fit: BoxFit.cover)),
+            borderRadius: BorderRadius.circular(borderRadius),
+            image: DecorationImage(
+              image: !isFileType && file == null
+                  ? NetworkImage(
+                      url,
+                    )
+                  : FileImage(file!) as ImageProvider,
+              fit: BoxFit.cover,
+            ),
+          ),
         ),
         if (onDelete != null)
           IconButton(

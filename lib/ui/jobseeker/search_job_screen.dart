@@ -3,6 +3,9 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:job_finder_app/ui/shared/job_card.dart';
+import 'package:job_finder_app/ui/shared/jobposting_manager.dart';
+import 'package:provider/provider.dart';
+import 'package:quickalert/quickalert.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SearchJobScreen extends StatefulWidget {
@@ -58,6 +61,8 @@ class _SearchJobScreenState extends State<SearchJobScreen> {
     Size deviceSize = MediaQuery.of(context).size;
     ThemeData theme = Theme.of(context);
     TextTheme textTheme = theme.textTheme;
+    final suggestionJobposting =
+        context.watch<JobpostingManager>().randomJobposting;
 
     return Scaffold(
       appBar: AppBar(
@@ -117,10 +122,14 @@ class _SearchJobScreenState extends State<SearchJobScreen> {
                   ),
                   keyboardType: TextInputType.text,
                   textInputAction: TextInputAction.search,
-                  onFieldSubmitted: (value) {
+                  onFieldSubmitted: (value) async {
+                    if (value.isEmpty) {
+                      return;
+                    }
                     //todo Lưu từ khóa vào bộ nhớ điện thoại để hiển thị lịch sử
                     saveSearchKeyword(value);
 
+                    context.read<JobpostingManager>().search(value);
                     context.pushNamed('search-result');
                   },
                 ),
@@ -289,8 +298,9 @@ class _SearchJobScreenState extends State<SearchJobScreen> {
             height: 10,
           ),
           Column(
-              // children: List<Widget>.generate(5, (index) => JobCard()),
-              )
+            children: List<Widget>.generate(suggestionJobposting.length,
+                (index) => JobCard(suggestionJobposting[index])),
+          )
         ],
       ),
     );

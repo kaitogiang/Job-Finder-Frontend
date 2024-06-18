@@ -156,4 +156,9 @@ class Company {
       'welfarePolicy': policyInfo['welfarePolicy'] ?? ''
     };
   }
+
+  @override
+  String toString() {
+    return '$companyName $companyEmail $companyAddress $companyPhone ${_description.toString()}';
+  }
 }

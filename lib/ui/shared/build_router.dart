@@ -4,6 +4,7 @@ import 'package:job_finder_app/models/company.dart';
 import 'package:job_finder_app/models/education.dart';
 import 'package:job_finder_app/models/employer.dart';
 import 'package:job_finder_app/models/experience.dart';
+import 'package:job_finder_app/models/jobposting.dart';
 import 'package:job_finder_app/models/jobseeker.dart';
 import 'package:job_finder_app/models/resume.dart';
 import 'package:job_finder_app/ui/auth/auth_manager.dart';
@@ -13,13 +14,20 @@ import 'package:job_finder_app/ui/jobseeker/jobseeker_profile_pages/education_ad
 import 'package:job_finder_app/ui/jobseeker/jobseeker_profile_pages/experience_addition_screen.dart';
 import 'package:job_finder_app/ui/jobseeker/jobseeker_profile_pages/resume_upload_screen.dart';
 import 'package:job_finder_app/ui/jobseeker/jobseeker_profile_pages/skill_addition_screen.dart';
+import 'package:job_finder_app/ui/jobseeker/my_job_screen.dart';
 import 'package:job_finder_app/ui/jobseeker/search_job_screen.dart';
 import 'package:job_finder_app/ui/jobseeker/search_result_screen.dart';
 import 'package:job_finder_app/ui/shared/change_email_screen.dart';
 import 'package:job_finder_app/ui/shared/change_password_screen.dart';
+import 'package:job_finder_app/ui/shared/company_detail_screen.dart';
+import 'package:job_finder_app/ui/shared/image_fullscreen.dart';
+import 'package:job_finder_app/ui/shared/image_preview.dart';
+import 'package:job_finder_app/ui/shared/job_detail_screen.dart';
 import 'package:job_finder_app/ui/shared/user_setting_screen.dart';
+import 'package:path/path.dart';
 import '../employer/company_screen.dart';
 import '../employer/employer_edit_screen.dart';
+import '../jobseeker/company_list_screen.dart';
 import '../jobseeker/jobseeker_home.dart';
 import '../jobseeker/jobseeker_profile_pages/information_edit_screen.dart';
 import '../jobseeker/jobseeker_profile_screen.dart';
@@ -32,55 +40,84 @@ final _rootNavigatorkey = GlobalKey<NavigatorState>(debugLabel: 'root');
 
 GoRouter buildRouter(AuthManager authManager) {
   return GoRouter(
-      navigatorKey: _rootNavigatorkey,
-      initialLocation: authManager.isAuth
-          ? (authManager.isEmployer ? '/employer-home' : '/jobseeker-home')
-          : '/login',
-      routes: <RouteBase>[
-        GoRoute(
-            name: 'login',
-            path: '/login',
-            builder: (context, state) => FutureBuilder(
-                  future: authManager.tryAutoLogin(),
-                  builder: (ctx, snapshot) {
-                    return snapshot.connectionState == ConnectionState.waiting
-                        ? const SafeArea(child: SplashScreen())
-                        : const SafeArea(child: AuthScreen());
-                  },
-                )),
-        //Routes cho người tìm việc
-        StatefulShellRoute.indexedStack(
-            builder: (context, state, navigationShell) {
-              return ScaffoldWithNavBar(navigationShell: navigationShell);
-            },
-            branches: _buildJobseekerRoutes()),
-        //Routes cho nhà tuyển dụng
-        StatefulShellRoute.indexedStack(
-            builder: (context, state, navigationShell) {
-              return ScaffoldWithNavBar(navigationShell: navigationShell);
-            },
-            branches: _buildEmployerRoutes()),
-        //Các route bên dưới là các route chung của cả hai người dùng
-        GoRoute(
+    navigatorKey: _rootNavigatorkey,
+    initialLocation: authManager.isAuth
+        ? (authManager.isEmployer ? '/employer-home' : '/jobseeker-home')
+        : '/login',
+    routes: <RouteBase>[
+      GoRoute(
+          name: 'login',
+          path: '/login',
+          builder: (context, state) => FutureBuilder(
+                future: authManager.tryAutoLogin(),
+                builder: (ctx, snapshot) {
+                  return snapshot.connectionState == ConnectionState.waiting
+                      ? const SafeArea(child: SplashScreen())
+                      : const SafeArea(child: AuthScreen());
+                },
+              )),
+      //Routes cho người tìm việc
+      StatefulShellRoute.indexedStack(
+          builder: (context, state, navigationShell) {
+            return ScaffoldWithNavBar(navigationShell: navigationShell);
+          },
+          branches: _buildJobseekerRoutes()),
+      //Routes cho nhà tuyển dụng
+      StatefulShellRoute.indexedStack(
+          builder: (context, state, navigationShell) {
+            return ScaffoldWithNavBar(navigationShell: navigationShell);
+          },
+          branches: _buildEmployerRoutes()),
+      //Các route bên dưới là các route chung của cả hai người dùng
+      GoRoute(
+        parentNavigatorKey: _rootNavigatorkey,
+        name: 'jobseeker-setting',
+        path: '/jobseeker-setting',
+        builder: (context, state) => UserSettingScreen(),
+        routes: <RouteBase>[
+          GoRoute(
             parentNavigatorKey: _rootNavigatorkey,
-            name: 'jobseeker-setting',
-            path: '/jobseeker-setting',
-            builder: (context, state) => UserSettingScreen(),
-            routes: <RouteBase>[
-              GoRoute(
-                parentNavigatorKey: _rootNavigatorkey,
-                name: 'change-email',
-                path: 'change-email',
-                builder: (context, state) => ChangeEmailScreen(),
-              ),
-              GoRoute(
-                parentNavigatorKey: _rootNavigatorkey,
-                name: 'change-password',
-                path: 'change-password',
-                builder: (context, state) => ChangePasswordScreen(),
-              )
-            ])
-      ]);
+            name: 'change-email',
+            path: 'change-email',
+            builder: (context, state) => ChangeEmailScreen(),
+          ),
+          GoRoute(
+            parentNavigatorKey: _rootNavigatorkey,
+            name: 'change-password',
+            path: 'change-password',
+            builder: (context, state) => ChangePasswordScreen(),
+          )
+        ],
+      ),
+      GoRoute(
+        parentNavigatorKey: _rootNavigatorkey,
+        name: 'job-detail',
+        path: '/job-detail',
+        builder: (context, state) => JobDetailScreen(state.extra as Jobposting),
+      ),
+      //? Route xem chi tiết công ty
+      GoRoute(
+          parentNavigatorKey: _rootNavigatorkey,
+          name: 'company-detail',
+          path: '/company-detail',
+          builder: (context, state) =>
+              CompanyDetailScreen(state.extra as Company),
+          routes: [
+            GoRoute(
+              parentNavigatorKey: _rootNavigatorkey,
+              name: 'image-preview',
+              path: 'image-preview',
+              builder: (context, state) {
+                Map<String, dynamic> data = state.extra as Map<String, dynamic>;
+                List<String> images = data['images'] as List<String>;
+                int currentIndex = data['index'] as int;
+                return ImagePreview(gallaryItems: images, index: currentIndex);
+              },
+            ),
+          ]),
+      //Route dùng để xem image
+    ],
+  );
 }
 
 //Các routes con cho người tìm việc
@@ -101,13 +138,13 @@ List<StatefulShellBranch> _buildJobseekerRoutes() {
         GoRoute(
             name: 'searching',
             path: '/searching',
-            builder: (context, state) => SearchJobScreen(),
+            builder: (context, state) => const SearchJobScreen(),
             routes: <RouteBase>[
               GoRoute(
                 parentNavigatorKey: _rootNavigatorkey,
                 name: 'search-result',
                 path: 'search-result',
-                builder: (context, state) => SearchResultScreen(),
+                builder: (context, state) => const SearchResultScreen(),
               )
             ]),
       ],
@@ -118,8 +155,7 @@ List<StatefulShellBranch> _buildJobseekerRoutes() {
         GoRoute(
             name: 'saved-work',
             path: '/saved-work',
-            builder: (context, state) =>
-                const SafeArea(child: JobseekerHome())),
+            builder: (context, state) => const MyJobScreen()),
       ],
     ),
     //Nhánh xem danh sách tất cả công ty đã hợp tác
@@ -128,8 +164,7 @@ List<StatefulShellBranch> _buildJobseekerRoutes() {
         GoRoute(
             name: 'company',
             path: '/company',
-            builder: (context, state) =>
-                const SafeArea(child: JobseekerHome())),
+            builder: (context, state) => const CompanyListScreen()),
       ],
     ),
     //Nhánh xem tài khoản cùng các thông tin cá nhân

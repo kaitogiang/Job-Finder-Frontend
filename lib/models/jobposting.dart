@@ -84,4 +84,9 @@ class Jobposting {
       'experience': experience,
     };
   }
+
+  @override
+  String toString() {
+    return '$title $requirements $skills $workLocation $workTime $level $jobType $salary $contractType $experience $company';
+  }
 }
