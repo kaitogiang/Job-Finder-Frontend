@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -19,11 +18,18 @@ enum FilterType {
   leader,
 }
 
+enum TimeFilter {
+  all,
+  notExpired,
+  expired,
+}
+
 class JobpostingManager extends ChangeNotifier {
   List<Jobposting> _jobpostings = [];
   List<Jobposting> _filteredPosts = [];
   List<Jobposting> _searchResult = [];
   List<Jobposting> _companyPost = [];
+  List<Jobposting> _filteredCompanyPosts = [];
 
   bool _isLoading = false;
 
@@ -49,7 +55,24 @@ class JobpostingManager extends ChangeNotifier {
     return _jobpostings.where((job) => job.isFavorite).toList();
   }
 
-  List<Jobposting> get companyPosts => _jobpostings;
+  // List<Jobposting> get companyPosts => _jobpostings;
+  List<Jobposting> get companyPosts => _companyPost;
+
+  List<Jobposting> get filteredCompanyPosts => _filteredCompanyPosts;
+
+  List<Jobposting> get notExpiredCompanyPost {
+    return _companyPost.where((post) {
+      final deadline = DateTime.parse(post.deadline);
+      return deadline.isAfter(DateTime.now());
+    }).toList();
+  }
+
+  List<Jobposting> get expiredCompanyPost {
+    return _companyPost.where((post) {
+      final deadline = DateTime.parse(post.deadline);
+      return deadline.isBefore(DateTime.now());
+    }).toList();
+  }
 
   //todo Hàm xáo trộn để đưa ra gợi ý ngẫu nhiên
   List<Jobposting> get randomJobposting {
@@ -126,8 +149,18 @@ class JobpostingManager extends ChangeNotifier {
         await _jobpostingService.getCompanyJobposting(companyId);
     if (companyPosts != null) {
       _companyPost = companyPosts;
-      print('CompanyPost la: ${_companyPost.length}');
+      _filteredCompanyPosts = _companyPost;
       notifyListeners();
     }
+  }
+
+  void filterCompanyPosts(TimeFilter condition) {
+    List<Jobposting> filteredList = switch (condition) {
+      TimeFilter.all => _companyPost,
+      TimeFilter.notExpired => notExpiredCompanyPost,
+      TimeFilter.expired => expiredCompanyPost,
+    };
+    _filteredCompanyPosts = filteredList;
+    notifyListeners();
   }
 }

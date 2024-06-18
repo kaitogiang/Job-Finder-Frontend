@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -7,9 +9,10 @@ import 'package:provider/provider.dart';
 import '../../models/jobposting.dart';
 
 class JobCard extends StatelessWidget {
-  const JobCard(this.jobposting, {super.key});
+  const JobCard(this.jobposting, {super.key, this.isEmployer = false});
 
   final Jobposting jobposting;
+  final bool isEmployer;
 
   @override
   Widget build(BuildContext context) {
@@ -55,17 +58,26 @@ class JobCard extends StatelessWidget {
                 trailing: ValueListenableBuilder(
                     valueListenable: jobposting.favorite,
                     builder: (context, isFavorite, child) {
-                      return IconButton(
-                        icon: Icon(
-                          !isFavorite ? Icons.favorite_border : Icons.favorite,
-                          color: Colors.blue[400],
-                        ),
-                        onPressed: () async {
-                          await context
-                              .read<JobpostingManager>()
-                              .changeFavoriteStatus(jobposting);
-                        },
-                      );
+                      return !isEmployer
+                          ? IconButton(
+                              icon: Icon(
+                                !isFavorite
+                                    ? Icons.favorite_border
+                                    : Icons.favorite,
+                                color: Colors.blue[400],
+                              ),
+                              onPressed: () async {
+                                await context
+                                    .read<JobpostingManager>()
+                                    .changeFavoriteStatus(jobposting);
+                              },
+                            )
+                          : IconButton(
+                              onPressed: () {
+                                log('Menu cho employer');
+                              },
+                              icon: const Icon(Icons.more_vert),
+                            );
                     }),
               ),
               ExtraLabel(

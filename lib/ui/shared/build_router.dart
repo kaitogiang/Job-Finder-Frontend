@@ -9,6 +9,7 @@ import 'package:job_finder_app/models/jobseeker.dart';
 import 'package:job_finder_app/models/resume.dart';
 import 'package:job_finder_app/ui/auth/auth_manager.dart';
 import 'package:job_finder_app/ui/employer/company_edit_screen.dart';
+import 'package:job_finder_app/ui/employer/employer_jobposting.dart';
 import 'package:job_finder_app/ui/employer/employer_profile_screen.dart';
 import 'package:job_finder_app/ui/jobseeker/jobseeker_profile_pages/education_addition_screen.dart';
 import 'package:job_finder_app/ui/jobseeker/jobseeker_profile_pages/experience_addition_screen.dart';
@@ -27,6 +28,7 @@ import 'package:job_finder_app/ui/shared/user_setting_screen.dart';
 import 'package:path/path.dart';
 import '../employer/company_screen.dart';
 import '../employer/employer_edit_screen.dart';
+import '../employer/jobposting_creation_form.dart';
 import '../jobseeker/company_list_screen.dart';
 import '../jobseeker/jobseeker_home.dart';
 import '../jobseeker/jobseeker_profile_pages/information_edit_screen.dart';
@@ -97,25 +99,24 @@ GoRouter buildRouter(AuthManager authManager) {
       ),
       //? Route xem chi tiết công ty
       GoRoute(
-          parentNavigatorKey: _rootNavigatorkey,
-          name: 'company-detail',
-          path: '/company-detail',
-          builder: (context, state) =>
-              CompanyDetailScreen(state.extra as Company),
-          routes: [
-            GoRoute(
-              parentNavigatorKey: _rootNavigatorkey,
-              name: 'image-preview',
-              path: 'image-preview',
-              builder: (context, state) {
-                Map<String, dynamic> data = state.extra as Map<String, dynamic>;
-                List<String> images = data['images'] as List<String>;
-                int currentIndex = data['index'] as int;
-                return ImagePreview(gallaryItems: images, index: currentIndex);
-              },
-            ),
-          ]),
+        parentNavigatorKey: _rootNavigatorkey,
+        name: 'company-detail',
+        path: '/company-detail',
+        builder: (context, state) =>
+            CompanyDetailScreen(state.extra as Company),
+      ),
       //Route dùng để xem image
+      GoRoute(
+        parentNavigatorKey: _rootNavigatorkey,
+        name: 'image-preview',
+        path: '/image-preview',
+        builder: (context, state) {
+          Map<String, dynamic> data = state.extra as Map<String, dynamic>;
+          List<String> images = data['images'] as List<String>;
+          int currentIndex = data['index'] as int;
+          return ImagePreview(gallaryItems: images, index: currentIndex);
+        },
+      ),
     ],
   );
 }
@@ -226,7 +227,7 @@ List<StatefulShellBranch> _buildEmployerRoutes() {
       GoRoute(
           name: 'employer-home',
           path: '/employer-home',
-          builder: (context, state) => CompanyScreen()),
+          builder: (context, state) => const JobpostingCreationForm()),
     ]),
     //Nhánh xem danh sách tất cả ứng viên cùng thông tin của họ
     StatefulShellBranch(routes: <RouteBase>[
