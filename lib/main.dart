@@ -22,6 +22,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = ColorScheme.fromSeed(
         seedColor: Colors.blueAccent,
+        primary: Color(0xFF0C5FBF),
         secondary: Colors.grey.shade400,
         surface: Colors.white,
         background: Colors.white,
