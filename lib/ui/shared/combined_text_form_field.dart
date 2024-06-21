@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
 
 class CombinedTextFormField extends StatefulWidget {
-  const CombinedTextFormField(
-      {super.key,
-      required this.title,
-      this.controller,
-      required this.hintText,
-      required this.keyboardType,
-      this.isRead = false,
-      this.isPassword = false,
-      this.onTap,
-      this.validator,
-      this.onSaved,
-      this.isEnable = true,
-      this.maxLines = 1,
-      this.minLines = 1});
+  const CombinedTextFormField({
+    super.key,
+    required this.title,
+    this.controller,
+    required this.hintText,
+    required this.keyboardType,
+    this.isRead = false,
+    this.isPassword = false,
+    this.onTap,
+    this.validator,
+    this.onSaved,
+    this.isEnable = true,
+    this.maxLines = 1,
+    this.minLines = 1,
+    this.focusNode,
+  });
   final String title;
   final TextEditingController? controller;
   final String hintText;
@@ -27,6 +29,7 @@ class CombinedTextFormField extends StatefulWidget {
   final bool? isEnable;
   final int? maxLines;
   final int? minLines;
+  final FocusNode? focusNode;
 
   @override
   State<CombinedTextFormField> createState() => _CombinedTextFormFieldState();
@@ -58,6 +61,7 @@ class _CombinedTextFormFieldState extends State<CombinedTextFormField> {
   TextFormField _buildFirstNameField() {
     return TextFormField(
       controller: widget.controller,
+      focusNode: widget.focusNode,
       maxLines: widget.maxLines,
       minLines: widget.minLines,
       onTap: widget.onTap,

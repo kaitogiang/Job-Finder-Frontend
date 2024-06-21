@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_quill/flutter_quill.dart';
 import 'package:go_router/go_router.dart';
 import 'package:job_finder_app/models/company.dart';
 import 'package:job_finder_app/models/education.dart';
@@ -11,6 +12,9 @@ import 'package:job_finder_app/ui/auth/auth_manager.dart';
 import 'package:job_finder_app/ui/employer/company_edit_screen.dart';
 import 'package:job_finder_app/ui/employer/employer_jobposting.dart';
 import 'package:job_finder_app/ui/employer/employer_profile_screen.dart';
+import 'package:job_finder_app/ui/employer/level_addition_screen.dart';
+import 'package:job_finder_app/ui/employer/tech_addition_screen.dart';
+import 'package:job_finder_app/ui/employer/widgets/quill_editor_screen.dart';
 import 'package:job_finder_app/ui/jobseeker/jobseeker_profile_pages/education_addition_screen.dart';
 import 'package:job_finder_app/ui/jobseeker/jobseeker_profile_pages/experience_addition_screen.dart';
 import 'package:job_finder_app/ui/jobseeker/jobseeker_profile_pages/resume_upload_screen.dart';
@@ -227,7 +231,71 @@ List<StatefulShellBranch> _buildEmployerRoutes() {
       GoRoute(
           name: 'employer-home',
           path: '/employer-home',
-          builder: (context, state) => const JobpostingCreationForm()),
+          builder: (context, state) => const JobpostingCreationForm(),
+          routes: <RouteBase>[
+            GoRoute(
+                parentNavigatorKey: _rootNavigatorkey,
+                name: 'jobposting-creation',
+                path: 'jobposting-creation',
+                builder: (context, state) => const JobpostingCreationForm(),
+                routes: <RouteBase>[
+                  GoRoute(
+                    parentNavigatorKey: _rootNavigatorkey,
+                    name: 'quill-editor',
+                    path: 'quill-editor',
+                    builder: (context, state) {
+                      Map<String, dynamic> data =
+                          state.extra as Map<String, dynamic>;
+                      String title = data['title'] as String;
+                      String subtitle = data['subtitle'] as String;
+                      Document document = data['document'] as Document;
+                      void Function(Document)? onSaved =
+                          data['onSaved'] as Function(Document);
+
+                      return QuillEditorScreen(
+                        title: title,
+                        subtitle: subtitle,
+                        document: document,
+                        onSaved: onSaved,
+                      );
+                    },
+                  ),
+                  //?Trang hiển thị nhập công nghệ yêu cầu
+                  GoRoute(
+                    parentNavigatorKey: _rootNavigatorkey,
+                    name: 'tech-addition',
+                    path: 'tech-addition',
+                    builder: (context, state) {
+                      Map<String, dynamic> data =
+                          state.extra as Map<String, dynamic>;
+                      void Function(List<String>) onSaved =
+                          data['onSaved'] as Function(List<String>);
+                      List<String>? techList =
+                          data['techList'] as List<String>?;
+
+                      return TechAdditionScreen(
+                        onSaved: onSaved,
+                        techList: techList,
+                      );
+                    },
+                  ),
+                  //?Trang hiển thị thêm trình độ
+                  GoRoute(
+                      parentNavigatorKey: _rootNavigatorkey,
+                      name: 'level-addition',
+                      path: 'level-addition',
+                      builder: (context, state) {
+                        Map<String, dynamic> data =
+                            state.extra as Map<String, dynamic>;
+                        List<String>? level = data['level'] as List<String>?;
+                        void Function(List<String>) onSaved = data['onSaved'];
+                        return LevelAdditionScreen(
+                          existingLevel: level,
+                          onSaved: onSaved,
+                        );
+                      })
+                ])
+          ]),
     ]),
     //Nhánh xem danh sách tất cả ứng viên cùng thông tin của họ
     StatefulShellBranch(routes: <RouteBase>[

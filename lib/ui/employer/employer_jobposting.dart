@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:job_finder_app/ui/auth/auth_manager.dart';
 import 'package:job_finder_app/ui/shared/job_card.dart';
 import 'package:job_finder_app/ui/shared/jobposting_manager.dart';
@@ -89,7 +90,9 @@ class EmployerJobposting extends StatelessWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          context.pushNamed('jobposting-creation');
+        },
         backgroundColor: Colors.blueAccent,
         child: const Icon(
           Icons.add,
