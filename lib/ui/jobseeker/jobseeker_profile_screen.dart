@@ -509,22 +509,28 @@ class JobseekerProfileScreen extends StatelessWidget {
                             height: 20,
                           ),
                           //Hiển thị nút đăng xuất ở cuối cùng
-                          ElevatedButton(
-                            onPressed: () {
-                              log('Đăng xuất');
-                              context.read<AuthManager>().logout();
-                            },
-                            child: const Text('Đăng xuất'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.grey.shade300,
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 15),
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                elevation: 3,
+                                fixedSize: Size(deviceSize.width, 50),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                backgroundColor: Colors.grey.shade300,
                               ),
-                              foregroundColor: theme.colorScheme.onSecondary,
-                              fixedSize: Size(deviceSize.width - 30, 50),
-                              textStyle: textTheme.titleLarge!
-                                  .copyWith(fontFamily: 'Lato'),
+                              onPressed: () {
+                                log('Đăng xuất');
+                                context.read<AuthManager>().logout();
+                              },
+                              child: Text(
+                                'Đăng xuất',
+                                style: theme.textTheme.titleMedium!.copyWith(
+                                  fontSize: 18,
+                                  color: Colors.grey.shade700,
+                                ),
+                              ),
                             ),
                           ),
                           const SizedBox(

@@ -163,4 +163,12 @@ class JobpostingManager extends ChangeNotifier {
     _filteredCompanyPosts = filteredList;
     notifyListeners();
   }
+
+  Future<void> createJobposting(Jobposting job) async {
+    final newJob = await _jobpostingService.createJobposting(job);
+    if (newJob != null) {
+      _companyPost.add(newJob);
+      notifyListeners();
+    }
+  }
 }

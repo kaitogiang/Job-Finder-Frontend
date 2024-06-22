@@ -1,13 +1,18 @@
 import 'dart:developer';
 
 import 'package:date_picker_plus/date_picker_plus.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:job_finder_app/models/jobposting.dart';
 import 'package:job_finder_app/ui/shared/combined_text_form_field.dart';
+import 'package:job_finder_app/ui/shared/jobposting_manager.dart';
+import 'package:provider/provider.dart';
+import 'package:quickalert/quickalert.dart';
 
 import '../shared/modal_bottom_sheet.dart';
 import '../shared/utils.dart';
@@ -21,6 +26,9 @@ class JobpostingCreationForm extends StatefulWidget {
 }
 
 class _JobpostingCreationFormState extends State<JobpostingCreationForm> {
+  //?SCrollController
+  final ScrollController _scrollController = ScrollController();
+
   //? Định nghĩa các controllers cho các trường
   final QuillController _descController = QuillController.basic();
   final QuillController _reqController = QuillController.basic();
@@ -29,6 +37,8 @@ class _JobpostingCreationFormState extends State<JobpostingCreationForm> {
   final TextEditingController _experienceController = TextEditingController();
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _workTimeController = TextEditingController();
+  final TextEditingController _salaryController = TextEditingController();
+  final TextEditingController _contractTypeController = TextEditingController();
 
   ValueNotifier<bool> _isShowDesc = ValueNotifier(false);
   ValueNotifier<bool> _isShowReq = ValueNotifier(false);
@@ -40,9 +50,11 @@ class _JobpostingCreationFormState extends State<JobpostingCreationForm> {
   ValueNotifier<String> _selectedExperience = ValueNotifier('');
   ValueNotifier<DateTime?> _selectedDeadline = ValueNotifier(null);
   ValueNotifier<bool> _isFullField = ValueNotifier(false);
+  ValueNotifier<String> _selectedContractType = ValueNotifier('');
 
   FocusNode titleFocus = FocusNode();
   FocusNode workTimeFocus = FocusNode();
+  FocusNode salaryFocus = FocusNode();
 
   final TextEditingController searchController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
@@ -83,6 +95,21 @@ class _JobpostingCreationFormState extends State<JobpostingCreationForm> {
     'Trên 10 năm'
   ];
 
+  final List<String> validContractTypes = [
+    "permanent",
+    "fixed-term",
+    "temporary",
+    "contract",
+    "freelance",
+    "internship",
+    "apprenticeship",
+    "part-time",
+    "full-time",
+    "project-based",
+    "consultant",
+    "probationary"
+  ];
+
   @override
   void initState() {
     _descController.readOnly = true;
@@ -101,6 +128,8 @@ class _JobpostingCreationFormState extends State<JobpostingCreationForm> {
     _workTimeController.addListener(checkFullField);
     _jobtypeController.addListener(checkFullField);
     _experienceController.addListener(checkFullField);
+    _salaryController.addListener(checkFullField);
+    _contractTypeController.addListener(checkFullField);
 
     _selectedDeadline.addListener(checkFullField);
     _selectedJobType.addListener(checkFullField);
@@ -224,17 +253,76 @@ class _JobpostingCreationFormState extends State<JobpostingCreationForm> {
 
   Future<void> _savePost() async {
     String title = _titleController.text;
-    String desc = _descController.document.toDelta().toJson().toString();
-    String req = _reqController.document.toDelta().toJson().toString();
-    String benifit = _beniController.document.toDelta().toJson().toString();
-    String tech = _techList.value.join(',');
-    String level = _levelList.value.join(',');
+    Document desc = _descController.document;
+    Document req = _reqController.document;
+    Document benifit = _beniController.document;
+    List<String> tech = _techList.value;
+    List<String> level = _levelList.value;
+    String salary = _salaryController.text;
+    String contractType = _contractTypeController.text;
     String address = addressController.text;
     String workTime = _workTimeController.text;
     String experience = _experienceController.text;
     String jobType = _jobtypeController.text;
-    DateTime? deadline = _selectedDeadline.value;
+    String deadline = _selectedDeadline.value!.toIso8601String();
     log('Title: $title, description: $desc, requirement: $req, benifit: $benifit, technoligy: $tech, level: $level, address: $address, worktime: $workTime, experience: $experience, jobtype: $jobType, address: $address, dealine: $deadline');
+    //todo: Thực hiện lưu dữ liệu vào bảng công việc
+    Jobposting job = Jobposting(
+      id: '',
+      title: title,
+      description: desc,
+      requirements: req,
+      benefit: benifit,
+      skills: tech,
+      level: level,
+      workLocation: address,
+      workTime: workTime,
+      experience: experience,
+      jobType: jobType,
+      contractType: contractType,
+      salary: salary,
+      deadline: deadline,
+      company: null,
+      createdAt: '',
+    );
+    try {
+      await context.read<JobpostingManager>().createJobposting(job);
+      clearAllFields();
+      QuickAlert.show(
+          context: context,
+          type: QuickAlertType.success,
+          title: 'Thành công',
+          text: 'Bài tuyển dụng đã được tạo thành công',
+          confirmBtnText: 'Đồng ý');
+    } catch (error) {
+      log('Error in Job creation form: $error');
+    }
+  }
+
+  void clearAllFields() {
+    _titleController.text = '';
+    _descController.document = Document();
+    _reqController.document = Document();
+    _beniController.document = Document();
+    _techList.value = [];
+    _levelList.value = [];
+    _salaryController.text = '';
+    addressController.text = '';
+    _workTimeController.text = '';
+    _jobtypeController.text = jobtypeList[0];
+    _selectedJobType.value = jobtypeList[0];
+    _experienceController.text = experienceOptions[0];
+    _selectedExperience.value = experienceOptions[0];
+    _contractTypeController.text = validContractTypes[0];
+    _selectedContractType.value = validContractTypes[0];
+    addressController.text = '';
+    _selectedDeadline.value = null;
+    //? Clear xong thì quay về đầu màn hình
+    _scrollController.jumpTo(0.0);
+    //?Loại bỏ các FocusNode
+    titleFocus.unfocus();
+    salaryFocus.unfocus();
+    workTimeFocus.unfocus();
   }
 
   @override
@@ -283,6 +371,7 @@ class _JobpostingCreationFormState extends State<JobpostingCreationForm> {
       body: Padding(
         padding: const EdgeInsets.all(10.0),
         child: SingleChildScrollView(
+          controller: _scrollController,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -316,6 +405,7 @@ class _JobpostingCreationFormState extends State<JobpostingCreationForm> {
                                   extra: descParams);
                               titleFocus.unfocus();
                               workTimeFocus.unfocus();
+                              salaryFocus.unfocus();
                             },
                             decoration: InputDecoration(
                               border: OutlineInputBorder(
@@ -355,6 +445,7 @@ class _JobpostingCreationFormState extends State<JobpostingCreationForm> {
                                               extra: descParams);
                                           titleFocus.unfocus();
                                           workTimeFocus.unfocus();
+                                          salaryFocus.unfocus();
                                         },
                                       ),
                                     ),
@@ -386,6 +477,7 @@ class _JobpostingCreationFormState extends State<JobpostingCreationForm> {
                             context.pushNamed('quill-editor', extra: reqParams);
                             titleFocus.unfocus();
                             workTimeFocus.unfocus();
+                            salaryFocus.unfocus();
                           },
                           decoration: InputDecoration(
                             border: OutlineInputBorder(
@@ -426,6 +518,7 @@ class _JobpostingCreationFormState extends State<JobpostingCreationForm> {
                                             extra: reqParams);
                                         titleFocus.unfocus();
                                         workTimeFocus.unfocus();
+                                        salaryFocus.unfocus();
                                       },
                                     ),
                                   ),
@@ -459,6 +552,7 @@ class _JobpostingCreationFormState extends State<JobpostingCreationForm> {
                                 extra: benifitParams);
                             titleFocus.unfocus();
                             workTimeFocus.unfocus();
+                            salaryFocus.unfocus();
                           },
                           decoration: InputDecoration(
                             border: OutlineInputBorder(
@@ -498,6 +592,7 @@ class _JobpostingCreationFormState extends State<JobpostingCreationForm> {
                                             extra: benifitParams);
                                         titleFocus.unfocus();
                                         workTimeFocus.unfocus();
+                                        salaryFocus.unfocus();
                                       },
                                     ),
                                   ),
@@ -507,6 +602,9 @@ class _JobpostingCreationFormState extends State<JobpostingCreationForm> {
                           ),
                         );
                 },
+              ),
+              const SizedBox(
+                height: 10,
               ),
               //? Công nghệ yêu cầu
               Text(
@@ -593,6 +691,7 @@ class _JobpostingCreationFormState extends State<JobpostingCreationForm> {
                                 context.pushNamed('tech-addition', extra: data);
                                 titleFocus.unfocus();
                                 workTimeFocus.unfocus();
+                                salaryFocus.unfocus();
                               },
                               label: Text(isEmptyList ? 'Thêm' : 'Chỉnh sửa'),
                               icon: Icon(
@@ -692,6 +791,7 @@ class _JobpostingCreationFormState extends State<JobpostingCreationForm> {
                                     extra: data);
                                 titleFocus.unfocus();
                                 workTimeFocus.unfocus();
+                                salaryFocus.unfocus();
                               },
                               label: Text(isEmptyList ? 'Thêm' : 'Chỉnh sữa'),
                               icon: Icon(
@@ -701,6 +801,17 @@ class _JobpostingCreationFormState extends State<JobpostingCreationForm> {
                         ),
                       );
                     }),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              //? Mức lương
+              CombinedTextFormField(
+                title: 'Mức lương',
+                hintText: 'Nhập vào mức lương',
+                keyboardType: TextInputType.text,
+                controller: _salaryController,
+                focusNode: salaryFocus,
               ),
               const SizedBox(
                 height: 10,
@@ -741,12 +852,11 @@ class _JobpostingCreationFormState extends State<JobpostingCreationForm> {
                 initialSelection: jobtypeList[0],
                 controller: _jobtypeController,
                 requestFocusOnTap: false,
-                // enableSearch: false,
-                // enableFilter: true,
                 onSelected: (value) {
                   _selectedJobType.value = value!;
                   titleFocus.unfocus();
                   workTimeFocus.unfocus();
+                  salaryFocus.unfocus();
                 },
                 inputDecorationTheme: InputDecorationTheme(
                     border: OutlineInputBorder(
@@ -784,6 +894,7 @@ class _JobpostingCreationFormState extends State<JobpostingCreationForm> {
                   _selectedExperience.value = value!;
                   titleFocus.unfocus();
                   workTimeFocus.unfocus();
+                  salaryFocus.unfocus();
                 },
                 width: 280,
                 inputDecorationTheme: InputDecorationTheme(
@@ -797,6 +908,44 @@ class _JobpostingCreationFormState extends State<JobpostingCreationForm> {
                     label: value,
                   );
                 }).toList(),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              Text(
+                'Loại hợp đồng',
+                style: textTheme.titleMedium!.copyWith(
+                  fontSize: 17,
+                ),
+              ),
+              const SizedBox(
+                height: 5,
+              ),
+              DropdownMenu<String>(
+                initialSelection: validContractTypes[0],
+                controller: _contractTypeController,
+                requestFocusOnTap: false,
+                onSelected: (value) {
+                  _selectedContractType.value = value!;
+                  titleFocus.unfocus();
+                  workTimeFocus.unfocus();
+                  salaryFocus.unfocus();
+                },
+                width: 280,
+                inputDecorationTheme: InputDecorationTheme(
+                    border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                )),
+                dropdownMenuEntries:
+                    validContractTypes.map<DropdownMenuEntry<String>>((value) {
+                  return DropdownMenuEntry<String>(
+                    value: value,
+                    label: value,
+                  );
+                }).toList(),
+              ),
+              const SizedBox(
+                height: 10,
               ),
               //? Hạn chót nộp hồ sơ
               Text(
@@ -868,6 +1017,8 @@ class _JobpostingCreationFormState extends State<JobpostingCreationForm> {
                               onPressed: () async {
                                 titleFocus.unfocus();
                                 workTimeFocus.unfocus();
+                                salaryFocus.unfocus();
+
                                 await showAdditionalScreen(
                                   context: context,
                                   title: 'Hạn chót ứng tuyển',

@@ -6,6 +6,7 @@ import 'package:http/http.dart';
 import 'package:job_finder_app/models/auth_token.dart';
 import 'package:job_finder_app/models/jobposting.dart';
 import 'package:job_finder_app/services/node_service.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 
 class JobpostingService extends NodeService {
   JobpostingService([AuthToken? authToken]) : super(authToken);
@@ -25,25 +26,29 @@ class JobpostingService extends NodeService {
         method: HttpMethod.get,
       ) as List<dynamic>;
       //todo Phải chuyển mỗi phần tử thành chuỗi thì mới ép kiểu được
-      List<String> favoritePosts = favorteResponse
-          .map(
-            (e) => e as String,
-          )
-          .toList();
+      List<String> favoritePosts = favorteResponse.isNotEmpty
+          ? favorteResponse
+              .map(
+                (e) => e as String,
+              )
+              .toList()
+          : [];
       //? Danh sách tất cả các bài tuyển dụng
       List<Map<String, dynamic>> list =
           response.map((e) => e as Map<String, dynamic>).toList();
       //todo Kết hợp lại với favorite, chuyển đổi thuộc tính isFavorite của từng
       //todo phần tử nếu nó có trong danh sách favoritePosts
-      List<Jobposting> jobpostingList =
-          list.map((e) => Jobposting.fromJson(e)).toList();
-      //todo kiểm tra xem bài viết có trong favoritePost không
-      for (Jobposting post in jobpostingList) {
-        if (favoritePosts.contains(post.id)) {
-          post.isFavorite = true;
+      if (favoritePosts.isNotEmpty) {
+        List<Jobposting> jobpostingList =
+            list.map((e) => Jobposting.fromJson(e)).toList();
+        //todo kiểm tra xem bài viết có trong favoritePost không
+        for (Jobposting post in jobpostingList) {
+          if (favoritePosts.contains(post.id)) {
+            post.isFavorite = true;
+          }
         }
+        return jobpostingList;
       }
-      return jobpostingList;
     } catch (error) {
       log('Error in fetchJobpostingList - Job service: $error');
       return null;
@@ -89,6 +94,26 @@ class JobpostingService extends NodeService {
       return jobList;
     } catch (error) {
       log('Error in getCompanyJobposting - Jobposting Service: $error');
+      return null;
+    }
+  }
+
+  Future<Jobposting?> createJobposting(Jobposting job) async {
+    Map<String, dynamic> decodedToken = JwtDecoder.decode(token!);
+    try {
+      await httpFetch(
+        '$databaseUrl/api/jobposting/create',
+        headers: headers,
+        method: HttpMethod.post,
+        body: jsonEncode({
+          ...job.toJson(),
+          'companyId': decodedToken['companyId'],
+        }),
+      );
+
+      return job;
+    } catch (error) {
+      log('Error in createJobposting - Jobposting Service: $error');
       return null;
     }
   }

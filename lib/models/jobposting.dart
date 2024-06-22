@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_quill/flutter_quill.dart';
 
 import 'company.dart';
 
 class Jobposting {
   final String id;
   String title;
-  String description;
-  String requirements;
+  Document description;
+  Document requirements;
   List<String> skills;
   String workLocation;
   String workTime;
   List<String> level;
-  String benefit;
+  Document benefit;
   String deadline;
   String jobType;
   String salary;
@@ -51,13 +52,13 @@ class Jobposting {
     return Jobposting(
         id: json['_id'],
         title: json['title'],
-        description: json['description'],
-        requirements: json['requirements'],
+        description: Document.fromJson(json['description']),
+        requirements: Document.fromJson(json['requirements']),
         skills: List<String>.from(json['skills']),
         workLocation: json['workLocation'],
         workTime: json['workTime'],
         level: List<String>.from(json['level']),
-        benefit: json['benefit'],
+        benefit: Document.fromJson(json['benefit']),
         deadline: json['deadline'],
         jobType: json['jobType'],
         salary: json['salary'],
@@ -70,13 +71,13 @@ class Jobposting {
   Map<String, dynamic> toJson() {
     return {
       'title': title,
-      'description': description,
-      'requirements': requirements,
+      'description': description.toDelta().toJson(),
+      'requirements': requirements.toDelta().toJson(),
       'skills': skills,
       'workLocation': workLocation,
       'workTime': workTime,
       'level': level,
-      'benefit': benefit,
+      'benefit': benefit.toDelta().toJson(),
       'deadline': deadline,
       'jobType': jobType,
       'salary': salary,

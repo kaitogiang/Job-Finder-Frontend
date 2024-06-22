@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_quill/flutter_quill.dart';
 import 'package:intl/intl.dart';
 import 'package:job_finder_app/models/jobposting.dart';
 import 'package:job_finder_app/ui/shared/jobposting_manager.dart';
@@ -278,6 +279,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                         child: ContentSection(
                           title: 'Mô tả công việc',
                           content: jobposting.description,
+                          isDecorated: true,
                         ),
                       ),
                       Row(
@@ -306,22 +308,25 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                     ContentSection(
                       title: 'Mô tả công việc',
                       content: jobposting.description,
+                      isDecorated: true,
                     ),
                     const SizedBox(
                       height: 10,
                     ),
-                    //? Hiển thị yêu cầu công việc
+                    // //? Hiển thị yêu cầu công việc
                     ContentSection(
                       title: 'Yêu cầu công việc',
                       content: jobposting.requirements,
+                      isDecorated: true,
                     ),
                     const SizedBox(
                       height: 10,
                     ),
-                    //? Hiển thị phúc lợi
+                    // //? Hiển thị phúc lợi
                     ContentSection(
                       title: 'Phúc lợi dành cho bạn',
                       content: jobposting.benefit,
+                      isDecorated: true,
                     ),
                     const SizedBox(
                       height: 10,
@@ -541,15 +546,39 @@ class SectionSeperator extends StatelessWidget {
   }
 }
 
-class ContentSection extends StatelessWidget {
+class ContentSection extends StatefulWidget {
   const ContentSection({
     super.key,
     required this.title,
     required this.content,
+    this.isDecorated = false,
   });
 
   final String title;
-  final String content;
+  final dynamic content;
+  final bool isDecorated;
+
+  @override
+  State<ContentSection> createState() => _ContentSectionState();
+}
+
+class _ContentSectionState extends State<ContentSection> {
+  final _controller = QuillController.basic();
+
+  @override
+  void initState() {
+    _controller.readOnly = true;
+    if (widget.isDecorated) {
+      Document document = widget.content as Document;
+      _controller.document = Document.fromDelta(document.toDelta());
+    }
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -568,7 +597,7 @@ class ContentSection extends StatelessWidget {
               width: 4,
             ),
             Text(
-              title,
+              widget.title,
               style: theme.textTheme.titleLarge!.copyWith(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -582,12 +611,19 @@ class ContentSection extends StatelessWidget {
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 7),
-          child: Text(
-            content,
-            style: theme.textTheme.bodyLarge,
-            softWrap: true,
-            textAlign: TextAlign.justify,
-          ),
+          child: !widget.isDecorated
+              ? Text(
+                  widget.content as String,
+                  style: theme.textTheme.bodyLarge,
+                  softWrap: true,
+                  textAlign: TextAlign.justify,
+                )
+              : QuillEditor.basic(
+                  configurations: QuillEditorConfigurations(
+                    controller: _controller,
+                    showCursor: false,
+                  ),
+                ),
         ),
       ],
     );

@@ -231,7 +231,7 @@ List<StatefulShellBranch> _buildEmployerRoutes() {
       GoRoute(
           name: 'employer-home',
           path: '/employer-home',
-          builder: (context, state) => const JobpostingCreationForm(),
+          builder: (context, state) => const EmployerJobposting(),
           routes: <RouteBase>[
             GoRoute(
                 parentNavigatorKey: _rootNavigatorkey,
