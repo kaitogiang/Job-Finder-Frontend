@@ -19,13 +19,16 @@ import '../shared/utils.dart';
 import '../shared/vietname_provinces.dart';
 
 class JobpostingCreationForm extends StatefulWidget {
-  const JobpostingCreationForm({super.key});
+  const JobpostingCreationForm({this.jobposting, super.key});
 
+  final Jobposting? jobposting;
   @override
   State<JobpostingCreationForm> createState() => _JobpostingCreationFormState();
 }
 
 class _JobpostingCreationFormState extends State<JobpostingCreationForm> {
+  Jobposting? editedJob;
+
   //?SCrollController
   final ScrollController _scrollController = ScrollController();
 
@@ -112,6 +115,46 @@ class _JobpostingCreationFormState extends State<JobpostingCreationForm> {
 
   @override
   void initState() {
+    editedJob = widget.jobposting ??
+        Jobposting(
+            id: '',
+            title: '',
+            description: Document(),
+            requirements: Document(),
+            skills: [],
+            workLocation: '',
+            workTime: '',
+            level: [],
+            benefit: Document(),
+            deadline: '',
+            jobType: '',
+            salary: '',
+            contractType: '',
+            experience: '',
+            createdAt: '',
+            company: null);
+    //Đặt giá trị ban đầu nếu jobposting không null
+    if (widget.jobposting != null) {
+      _titleController.text = editedJob!.title;
+      _descController.document =
+          Document.fromDelta(editedJob!.description.toDelta());
+      _isShowDesc.value = true;
+      _reqController.document =
+          Document.fromDelta(editedJob!.requirements.toDelta());
+      _isShowReq.value = true;
+      _beniController.document =
+          Document.fromDelta(editedJob!.benefit.toDelta());
+      _isShowBeni.value = true;
+      _techList.value = editedJob!.skills;
+      _levelList.value = editedJob!.level;
+      _salaryController.text = editedJob!.salary;
+      addressController.text = editedJob!.workLocation;
+      _workTimeController.text = editedJob!.workTime;
+      // _jobtypeController.text = editedJob!.jobType;
+      // _experienceController.text = editedJob!.experience;
+      // _contractTypeController.text = editedJob!.contractType;
+      _selectedDeadline.value = DateTime.parse(editedJob!.deadline);
+    }
     _descController.readOnly = true;
     //todo Quan sát người dùng đã nhập dữ liệu vào chưa, nếu chưa nhập thì hiển thị
     //todo TextFormField thường
@@ -267,8 +310,7 @@ class _JobpostingCreationFormState extends State<JobpostingCreationForm> {
     String deadline = _selectedDeadline.value!.toIso8601String();
     log('Title: $title, description: $desc, requirement: $req, benifit: $benifit, technoligy: $tech, level: $level, address: $address, worktime: $workTime, experience: $experience, jobtype: $jobType, address: $address, dealine: $deadline');
     //todo: Thực hiện lưu dữ liệu vào bảng công việc
-    Jobposting job = Jobposting(
-      id: '',
+    editedJob = editedJob?.copyWith(
       title: title,
       description: desc,
       requirements: req,
@@ -283,16 +325,40 @@ class _JobpostingCreationFormState extends State<JobpostingCreationForm> {
       salary: salary,
       deadline: deadline,
       company: null,
-      createdAt: '',
     );
+    // Jobposting job = Jobposting(
+    //   id: '',
+    //   title: title,
+    //   description: desc,
+    //   requirements: req,
+    //   benefit: benifit,
+    //   skills: tech,
+    //   level: level,
+    //   workLocation: address,
+    //   workTime: workTime,
+    //   experience: experience,
+    //   jobType: jobType,
+    //   contractType: contractType,
+    //   salary: salary,
+    //   deadline: deadline,
+    //   company: null,
+    //   createdAt: '',
+    // );
     try {
-      await context.read<JobpostingManager>().createJobposting(job);
-      clearAllFields();
+      if (widget.jobposting == null) {
+        await context.read<JobpostingManager>().createJobposting(editedJob!);
+        clearAllFields();
+      } else {
+        await context.read<JobpostingManager>().updateJobposting(editedJob!);
+      }
+
       QuickAlert.show(
           context: context,
           type: QuickAlertType.success,
           title: 'Thành công',
-          text: 'Bài tuyển dụng đã được tạo thành công',
+          text: widget.jobposting == null
+              ? 'Bài tuyển dụng đã được tạo thành công'
+              : 'Cập nhật bài tuyển dụng thành công',
           confirmBtnText: 'Đồng ý');
     } catch (error) {
       log('Error in Job creation form: $error');
@@ -347,9 +413,9 @@ class _JobpostingCreationFormState extends State<JobpostingCreationForm> {
       appBar: AppBar(
         elevation: 0,
         centerTitle: true,
-        title: const Text(
-          'Tạo bài đăng',
-          style: TextStyle(
+        title: Text(
+          widget.jobposting == null ? 'Tạo bài đăng' : 'Cập nhật bài đăng',
+          style: const TextStyle(
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -849,7 +915,9 @@ class _JobpostingCreationFormState extends State<JobpostingCreationForm> {
                 height: 5,
               ),
               DropdownMenu<String>(
-                initialSelection: jobtypeList[0],
+                initialSelection: editedJob!.jobType.isEmpty
+                    ? jobtypeList[0]
+                    : editedJob!.jobType,
                 controller: _jobtypeController,
                 requestFocusOnTap: false,
                 onSelected: (value) {
@@ -884,7 +952,9 @@ class _JobpostingCreationFormState extends State<JobpostingCreationForm> {
                 height: 5,
               ),
               DropdownMenu<String>(
-                initialSelection: experienceOptions[0],
+                initialSelection: editedJob!.experience.isEmpty
+                    ? experienceOptions[0]
+                    : editedJob!.experience,
                 controller: _experienceController,
                 requestFocusOnTap: false,
                 // enableSearch: false,
@@ -922,7 +992,9 @@ class _JobpostingCreationFormState extends State<JobpostingCreationForm> {
                 height: 5,
               ),
               DropdownMenu<String>(
-                initialSelection: validContractTypes[0],
+                initialSelection: editedJob!.contractType.isEmpty
+                    ? validContractTypes[0]
+                    : editedJob!.contractType,
                 controller: _contractTypeController,
                 requestFocusOnTap: false,
                 onSelected: (value) {
@@ -989,8 +1061,8 @@ class _JobpostingCreationFormState extends State<JobpostingCreationForm> {
                             if (selectedDeadline != null)
                               Row(
                                 children: [
-                                  Icon(
-                                    Icons.timer,
+                                  const Icon(
+                                    Icons.timer_sharp,
                                     color: Colors.blue,
                                   ),
                                   const SizedBox(
@@ -1119,7 +1191,7 @@ class _JobpostingCreationFormState extends State<JobpostingCreationForm> {
                           ),
                           onPressed: !isFull ? null : _savePost,
                           child: Text(
-                            'Đăng bài',
+                            widget.jobposting == null ? 'Đăng bài' : 'Cập nhật',
                             style: theme.textTheme.titleMedium!.copyWith(
                               fontSize: 18,
                               color: !isFull ? Colors.grey : Colors.white,

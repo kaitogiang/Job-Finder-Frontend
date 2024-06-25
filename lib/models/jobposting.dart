@@ -68,6 +68,43 @@ class Jobposting {
         company: Company.fromJson(json['company'] as Map<String, dynamic>));
   }
 
+  Jobposting copyWith({
+    String? title,
+    Document? description,
+    Document? requirements,
+    List<String>? skills,
+    String? workLocation,
+    String? workTime,
+    List<String>? level,
+    Document? benefit,
+    String? deadline,
+    String? jobType,
+    String? salary,
+    String? contractType,
+    String? experience,
+    Company? company,
+    bool? isFavorite,
+  }) {
+    return Jobposting(
+        id: id,
+        title: title ?? this.title,
+        description: description ?? this.description,
+        requirements: requirements ?? this.requirements,
+        skills: skills ?? this.skills,
+        workLocation: workLocation ?? this.workLocation,
+        workTime: workTime ?? this.workTime,
+        level: level ?? this.level,
+        benefit: benefit ?? this.benefit,
+        deadline: deadline ?? this.deadline,
+        jobType: jobType ?? this.jobType,
+        salary: salary ?? this.salary,
+        contractType: contractType ?? this.contractType,
+        experience: experience ?? this.experience,
+        company: company ?? this.company,
+        isFavorite: isFavorite ?? this.isFavorite,
+        createdAt: '');
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'title': title,

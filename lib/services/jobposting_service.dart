@@ -117,4 +117,35 @@ class JobpostingService extends NodeService {
       return null;
     }
   }
+
+  Future<Jobposting?> updatePost(Jobposting updatedPost) async {
+    try {
+      final response = await httpFetch(
+        '$databaseUrl/api/jobposting/${updatedPost.id}',
+        headers: headers,
+        method: HttpMethod.patch,
+        body: jsonEncode(updatedPost.toJson()),
+      ) as Map<String, dynamic>;
+      Jobposting editedJob =
+          Jobposting.fromJson(response['updatedPost'] as Map<String, dynamic>);
+      return editedJob;
+    } catch (error) {
+      log('Error in updatePost - jobposting service: $error');
+      return null;
+    }
+  }
+
+  Future<bool> deletePost(String id) async {
+    try {
+      final response = await httpFetch(
+        '$databaseUrl/api/jobposting/$id',
+        headers: headers,
+        method: HttpMethod.delete,
+      );
+      return true;
+    } catch (error) {
+      log('Error in deletePost - jobposting service: $error');
+      return false;
+    }
+  }
 }

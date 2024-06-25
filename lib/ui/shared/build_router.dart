@@ -9,10 +9,12 @@ import 'package:job_finder_app/models/jobposting.dart';
 import 'package:job_finder_app/models/jobseeker.dart';
 import 'package:job_finder_app/models/resume.dart';
 import 'package:job_finder_app/ui/auth/auth_manager.dart';
+import 'package:job_finder_app/ui/employer/application_detail_screen.dart';
 import 'package:job_finder_app/ui/employer/company_edit_screen.dart';
 import 'package:job_finder_app/ui/employer/employer_jobposting.dart';
 import 'package:job_finder_app/ui/employer/employer_profile_screen.dart';
 import 'package:job_finder_app/ui/employer/level_addition_screen.dart';
+import 'package:job_finder_app/ui/employer/submitted_application_screen.dart';
 import 'package:job_finder_app/ui/employer/tech_addition_screen.dart';
 import 'package:job_finder_app/ui/employer/widgets/quill_editor_screen.dart';
 import 'package:job_finder_app/ui/jobseeker/jobseeker_profile_pages/education_addition_screen.dart';
@@ -28,6 +30,7 @@ import 'package:job_finder_app/ui/shared/company_detail_screen.dart';
 import 'package:job_finder_app/ui/shared/image_fullscreen.dart';
 import 'package:job_finder_app/ui/shared/image_preview.dart';
 import 'package:job_finder_app/ui/shared/job_detail_screen.dart';
+import 'package:job_finder_app/ui/shared/jobseeker_detail_screen.dart';
 import 'package:job_finder_app/ui/shared/user_setting_screen.dart';
 import 'package:path/path.dart';
 import '../employer/company_screen.dart';
@@ -231,13 +234,15 @@ List<StatefulShellBranch> _buildEmployerRoutes() {
       GoRoute(
           name: 'employer-home',
           path: '/employer-home',
-          builder: (context, state) => const EmployerJobposting(),
+          builder: (context, state) => const JobseekerDetailScreen(),
           routes: <RouteBase>[
             GoRoute(
                 parentNavigatorKey: _rootNavigatorkey,
                 name: 'jobposting-creation',
                 path: 'jobposting-creation',
-                builder: (context, state) => const JobpostingCreationForm(),
+                builder: (context, state) => JobpostingCreationForm(
+                      jobposting: state.extra as Jobposting?,
+                    ),
                 routes: <RouteBase>[
                   GoRoute(
                     parentNavigatorKey: _rootNavigatorkey,

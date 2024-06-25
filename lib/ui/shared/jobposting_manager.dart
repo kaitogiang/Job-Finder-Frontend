@@ -171,4 +171,21 @@ class JobpostingManager extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<void> updateJobposting(Jobposting editedJob) async {
+    final updatedJob = await _jobpostingService.updatePost(editedJob);
+    if (updatedJob != null) {
+      int index = companyPosts.indexWhere((job) => job.id == editedJob.id);
+      _companyPost[index] = updatedJob;
+      notifyListeners();
+    }
+  }
+
+  Future<void> deleteJobposting(String id) async {
+    final isDeleted = await _jobpostingService.deletePost(id);
+    if (isDeleted) {
+      _companyPost.removeWhere((job) => job.id == id);
+      notifyListeners();
+    }
+  }
 }

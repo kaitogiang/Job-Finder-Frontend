@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:job_finder_app/ui/auth/auth_manager.dart';
+import 'package:job_finder_app/ui/employer/application_manager.dart';
 import 'package:job_finder_app/ui/employer/company_manager.dart';
 import 'package:job_finder_app/ui/employer/employer_manager.dart';
 import 'package:job_finder_app/ui/jobseeker/jobseeker_manager.dart';
@@ -72,6 +73,15 @@ class MyApp extends StatelessWidget {
             return jobpostingManager;
           },
         ),
+        ChangeNotifierProxyProvider<AuthManager, ApplicationManager>(
+          create: (context) => ApplicationManager(),
+          update: (context, authManager, applicationManager) {
+            //TODO Khi authManager có báo hiệu thay đổi thì đọc lại authToken
+            //* cho JobseekerManager
+            applicationManager!.authToken = authManager.authToken;
+            return applicationManager;
+          },
+        )
       ],
       child: Consumer<AuthManager>(builder: (ctx, authManager, child) {
         return MaterialApp.router(

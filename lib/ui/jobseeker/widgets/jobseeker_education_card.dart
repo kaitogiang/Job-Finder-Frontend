@@ -1,18 +1,21 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 
 import '../../../models/education.dart';
 
 class JobseekerEducationCard extends StatelessWidget {
   const JobseekerEducationCard(
-      {super.key, required this.edu, required this.onCustomize});
+      {super.key, required this.edu, this.onCustomize});
 
   final Education edu;
-  final void Function() onCustomize;
+  final void Function()? onCustomize;
 
   @override
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
     TextTheme textTheme = theme.textTheme;
+    log('Gia tri bool');
     return Container(
       margin: EdgeInsets.only(top: 10),
       width: double.maxFinite,
@@ -99,10 +102,11 @@ class JobseekerEducationCard extends StatelessWidget {
             ),
           ),
           //Nút tùy chỉnh kinh nghiệm gồm chỉnh sửa, xóa
-          IconButton(
-            onPressed: onCustomize,
-            icon: Icon(Icons.more_vert),
-          )
+          if (onCustomize != null)
+            IconButton(
+              onPressed: onCustomize,
+              icon: Icon(Icons.more_vert),
+            )
         ],
       ),
     );

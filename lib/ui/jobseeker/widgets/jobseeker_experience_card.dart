@@ -3,14 +3,11 @@ import 'package:flutter/material.dart';
 import '../../../models/experience.dart';
 
 class JobseekerExperienceCard extends StatelessWidget {
-  const JobseekerExperienceCard({
-    super.key,
-    required this.exp,
-    required this.onCustomize
-  });
+  const JobseekerExperienceCard(
+      {super.key, required this.exp, this.onCustomize});
 
   final Experience exp;
-  final void Function() onCustomize;
+  final void Function()? onCustomize;
 
   @override
   Widget build(BuildContext context) {
@@ -33,13 +30,14 @@ class JobseekerExperienceCard extends StatelessWidget {
             children: <Widget>[
               Text(
                 exp.role,
-                style: textTheme.titleMedium!
-                    .copyWith(fontSize: 20),
+                style: textTheme.titleMedium!.copyWith(fontSize: 20),
               ),
               RichText(
                 text: TextSpan(
                     children: [
-                      WidgetSpan(child: Icon(Icons.business, color: Colors.grey.shade700)),
+                      WidgetSpan(
+                          child: Icon(Icons.business,
+                              color: Colors.grey.shade700)),
                       WidgetSpan(
                           child: const SizedBox(
                         width: 10,
@@ -55,7 +53,8 @@ class JobseekerExperienceCard extends StatelessWidget {
                 text: TextSpan(
                     children: [
                       WidgetSpan(
-                          child: Icon(Icons.work_history, color: Colors.grey.shade700)),
+                          child: Icon(Icons.work_history,
+                              color: Colors.grey.shade700)),
                       WidgetSpan(
                           child: const SizedBox(
                         width: 10,
@@ -70,10 +69,11 @@ class JobseekerExperienceCard extends StatelessWidget {
             ],
           ),
           //Nút tùy chỉnh kinh nghiệm gồm chỉnh sửa, xóa
-          IconButton(
-            onPressed: onCustomize,
-            icon: Icon(Icons.more_vert),
-          )
+          if (onCustomize != null)
+            IconButton(
+              onPressed: onCustomize,
+              icon: Icon(Icons.more_vert),
+            )
         ],
       ),
     );

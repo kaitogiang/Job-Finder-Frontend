@@ -5,8 +5,10 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:job_finder_app/ui/shared/jobposting_manager.dart';
 import 'package:provider/provider.dart';
+import 'package:quickalert/quickalert.dart';
 
 import '../../models/jobposting.dart';
+import 'modal_bottom_sheet.dart';
 
 class JobCard extends StatelessWidget {
   const JobCard(this.jobposting, {super.key, this.isEmployer = false});
@@ -25,7 +27,9 @@ class JobCard extends StatelessWidget {
     String formatedDate = DateFormat('dd-MM-yyyy').format(dateTime);
 
     return GestureDetector(
-      onTap: () => context.pushNamed('job-detail', extra: jobposting),
+      onTap: !isEmployer
+          ? () => context.pushNamed('job-detail', extra: jobposting)
+          : null,
       child: Card(
         borderOnForeground: true,
         surfaceTintColor: Colors.blue[100],
@@ -75,6 +79,61 @@ class JobCard extends StatelessWidget {
                           : IconButton(
                               onPressed: () {
                                 log('Menu cho employer');
+                                showAdditionalScreen(
+                                    context: context,
+                                    title: 'Tùy chọn',
+                                    child: Builder(builder: (context) {
+                                      return _buildActionButton(
+                                        context: context,
+                                        onDelete: () async {
+                                          log('Xóa bỏ kinh nghiệm');
+                                          final isAgreed = await QuickAlert.show(
+                                              context: context,
+                                              type: QuickAlertType.confirm,
+                                              title: 'Xác nhận xóa?',
+                                              text: 'Bạn chắc chắn muốn xóa bài đăng này?',
+                                              cancelBtnText: 'Không',
+                                              confirmBtnText: 'Có',
+                                              onCancelBtnTap: () {
+                                                Navigator.of(context,
+                                                        rootNavigator: true)
+                                                    .pop(false);
+                                              },
+                                              onConfirmBtnTap: () {
+                                                Navigator.of(context,
+                                                        rootNavigator: true)
+                                                    .pop(true);
+                                              }) as bool;
+                                          if (isAgreed) {
+                                            log('Xóa nhe bồ');
+                                            await context
+                                                .read<JobpostingManager>()
+                                                .deleteJobposting(
+                                                    jobposting.id);
+                                            await QuickAlert.show(
+                                                context: context,
+                                                type: QuickAlertType.success,
+                                                title: 'Thành công',
+                                                text: 'Xóa bài đăng thành công',
+                                                autoCloseDuration:
+                                                    const Duration(seconds: 2),
+                                                confirmBtnText: 'Tôi đã biết');
+                                          } else {
+                                            log('Thôi đừng mà');
+                                          }
+
+                                          Navigator.pop(context);
+                                        },
+                                        onEdit: () {
+                                          log('Xem trước file');
+                                          Navigator.pop(context);
+                                          context.pushNamed(
+                                              'jobposting-creation',
+                                              extra: jobposting);
+                                        },
+                                      );
+                                    }),
+                                    heightFactor: 0.3);
                               },
                               icon: const Icon(Icons.more_vert),
                             );
@@ -104,6 +163,37 @@ class JobCard extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Container _buildActionButton({
+    required BuildContext context,
+    void Function()? onDelete,
+    void Function()? onEdit,
+  }) {
+    return Container(
+      child: ListView(
+        shrinkWrap: true,
+        children: [
+          ListTile(
+            title: Text(
+              'Xóa bỏ',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            leading: Icon(Icons.delete),
+            onTap: onDelete,
+          ),
+          Divider(),
+          ListTile(
+            title: Text(
+              'Chỉnh sửa',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            leading: Icon(Icons.preview),
+            onTap: onEdit,
+          ),
+        ],
       ),
     );
   }
