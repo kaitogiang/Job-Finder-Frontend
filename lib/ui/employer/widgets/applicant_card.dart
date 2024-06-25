@@ -17,10 +17,11 @@ class ApplicantCard extends StatelessWidget {
   const ApplicantCard({
     super.key,
     this.status = ApplicationStatus.pending,
+    this.isRead = false,
   });
 
   final ApplicationStatus status;
-
+  final bool isRead;
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
@@ -153,13 +154,15 @@ class ApplicantCard extends StatelessWidget {
                             confirmBtnText: 'Tôi biết rồi');
                       }
                     },
-                    onUpdate: () {
-                      log('Cập nhật trạng thái cho ứng viên này');
-                      _showMyDialog(context, 'Nguyễn Văn Tèo');
-                    },
+                    onUpdate: !isRead
+                        ? () {
+                            log('Cập nhật trạng thái cho ứng viên này');
+                            _showMyDialog(context, 'Nguyễn Văn Tèo');
+                          }
+                        : null,
                   );
                 }),
-                heightFactor: 0.4);
+                heightFactor: !isRead ? 0.4 : 0.3);
           },
           child: Text('Tùy chọn'),
         ),
@@ -331,14 +334,15 @@ class ApplicantCard extends StatelessWidget {
             onTap: onDownload,
           ),
           Divider(),
-          ListTile(
-            title: Text(
-              'Cập nhật trạng thái',
-              style: Theme.of(context).textTheme.titleMedium,
+          if (onUpdate != null)
+            ListTile(
+              title: Text(
+                'Cập nhật trạng thái',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              leading: Icon(Icons.update),
+              onTap: onUpdate,
             ),
-            leading: Icon(Icons.update),
-            onTap: onUpdate,
-          ),
         ],
       ),
     );

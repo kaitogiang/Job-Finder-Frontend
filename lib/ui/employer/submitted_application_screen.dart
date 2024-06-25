@@ -1,8 +1,13 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:job_finder_app/ui/employer/widgets/applicant_card.dart';
+import 'package:job_finder_app/ui/shared/enums.dart';
 
-import '../shared/modal_bottom_sheet.dart';
+enum PostStatus {
+  pending,
+  done,
+}
 
 class SubmittedApplicationScreen extends StatelessWidget {
   const SubmittedApplicationScreen({super.key});
@@ -64,12 +69,8 @@ class SubmittedApplicationScreen extends StatelessWidget {
         body: TabBarView(
           children: [
             ReceivedApplicationList(),
-            const Center(
-              child: Text('Danh sách đã chấp nhận'),
-            ),
-            const Center(
-              child: Text('Danh sách đã từ chối'),
-            ),
+            const AcceptedApplicationList(),
+            RejectedApplicationList(),
           ],
         ),
       ),
@@ -77,6 +78,7 @@ class SubmittedApplicationScreen extends StatelessWidget {
   }
 }
 
+//Tab Đã nhận
 class ReceivedApplicationList extends StatelessWidget {
   const ReceivedApplicationList({
     super.key,
@@ -125,7 +127,7 @@ class ReceivedApplicationList extends StatelessWidget {
             height: 10,
           ),
           const PostApplicationCard(
-            status: ApplicationStatus.pending,
+            status: PostStatus.pending,
           )
         ],
       ),
@@ -139,7 +141,7 @@ class PostApplicationCard extends StatelessWidget {
     required this.status,
   });
 
-  final ApplicationStatus status;
+  final PostStatus status;
 
   @override
   Widget build(BuildContext context) {
@@ -171,7 +173,7 @@ class PostApplicationCard extends StatelessWidget {
               ),
               leading: ClipRRect(
                 borderRadius: BorderRadius.circular(10),
-                child: status == ApplicationStatus.pending
+                child: status == PostStatus.pending
                     ? Icon(
                         Icons.pending_actions,
                         color: theme.primaryColor,
@@ -187,7 +189,7 @@ class PostApplicationCard extends StatelessWidget {
                 onPressed: () {
                   log('Chuyển hướng tới trang xem chi tiết bài đăng');
                 },
-                icon: status == ApplicationStatus.pending
+                icon: status == PostStatus.pending
                     ? Icon(
                         Icons.remove_red_eye_outlined,
                         color: theme.primaryColor,
@@ -212,7 +214,7 @@ class PostApplicationCard extends StatelessWidget {
                         alignment: PlaceholderAlignment.middle,
                         child: Icon(
                           Icons.timer,
-                          color: status == ApplicationStatus.pending
+                          color: status == PostStatus.pending
                               ? theme.primaryColor
                               : Colors.green,
                         )),
@@ -244,15 +246,6 @@ class PostApplicationCard extends StatelessWidget {
       child: ListView(
         shrinkWrap: true,
         children: [
-          // ListTile(
-          //   title: Text(
-          //     'Xóa bỏ',
-          //     style: Theme.of(context).textTheme.titleMedium,
-          //   ),
-          //   leading: Icon(Icons.delete),
-          //   onTap: onDelete,
-          // ),
-          // const Divider(),
           ListTile(
             title: Text(
               'Xem bài đăng',
@@ -267,11 +260,6 @@ class PostApplicationCard extends StatelessWidget {
   }
 }
 
-enum ApplicationStatus {
-  pending,
-  done,
-}
-
 //? Nút trạng thái
 class PostApplicationStatus extends StatelessWidget {
   const PostApplicationStatus({
@@ -279,22 +267,22 @@ class PostApplicationStatus extends StatelessWidget {
     required this.status,
   });
 
-  final ApplicationStatus status;
+  final PostStatus status;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     String statusText = switch (status) {
-      ApplicationStatus.pending => 'Đang xử lý',
-      ApplicationStatus.done => 'Đã xong'
+      PostStatus.pending => 'Đang xử lý',
+      PostStatus.done => 'Đã xong'
     };
     Color? statusColor = switch (status) {
-      ApplicationStatus.pending => theme.primaryColor,
-      ApplicationStatus.done => Colors.green
+      PostStatus.pending => theme.primaryColor,
+      PostStatus.done => Colors.green
     };
     Color? backgroud = switch (status) {
-      ApplicationStatus.pending => Colors.blue[50],
-      ApplicationStatus.done => Colors.green[50],
+      PostStatus.pending => Colors.blue[50],
+      PostStatus.done => Colors.green[50],
     };
     return Container(
       margin: const EdgeInsets.only(
@@ -348,6 +336,114 @@ class DateLine extends StatelessWidget {
         ),
         const Expanded(child: Divider()),
       ],
+    );
+  }
+}
+
+class AcceptedApplicationList extends StatelessWidget {
+  const AcceptedApplicationList({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Column(
+        children: [
+          //? Tiêu đề nhắc nhở chức năng
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.info,
+                color: theme.primaryColor,
+              ),
+              const SizedBox(
+                width: 7,
+              ),
+              const Expanded(
+                child: Text(
+                  'Danh sách tất cả những ứng viên được chấp nhận',
+                  textAlign: TextAlign.justify,
+                ),
+              ),
+            ],
+          ),
+          //todo Danh sách tất cả các ứng viên được chấp nhận
+          const SizedBox(
+            height: 10,
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: 5,
+              itemBuilder: (context, index) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: ApplicantCard(
+                    status: ApplicationStatus.accepted,
+                    isRead: true,
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class RejectedApplicationList extends StatelessWidget {
+  const RejectedApplicationList({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Column(
+        children: [
+          //? Tiêu đề nhắc nhở chức năng
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.info,
+                color: theme.primaryColor,
+              ),
+              const SizedBox(
+                width: 7,
+              ),
+              const Expanded(
+                child: Text(
+                  'Danh sách tất cả những ứng viên chưa đủ yêu cầu',
+                  textAlign: TextAlign.justify,
+                ),
+              ),
+            ],
+          ),
+          //todo Danh sách tất cả các ứng viên được chấp nhận
+          const SizedBox(
+            height: 10,
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: 5,
+              itemBuilder: (context, index) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: ApplicantCard(
+                    status: ApplicationStatus.rejected,
+                    isRead: true,
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -28,7 +28,7 @@ class _JobseekerDetailScreenState extends State<JobseekerDetailScreen> {
   void initState() {
     // TODO: implement initState
     _scrollController.addListener(() {
-      if (_scrollController.offset > 164) {
+      if (_scrollController.offset > 253) {
         isShowNameTitle.value = true;
       } else {
         isShowNameTitle.value = false;
@@ -82,12 +82,13 @@ class _JobseekerDetailScreenState extends State<JobseekerDetailScreen> {
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                         ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     );
                   }),
               flexibleSpace: FlexibleSpaceBar(
                 background: Container(
-                  padding: EdgeInsets.only(
+                  padding: const EdgeInsets.only(
                     top: 60,
                     bottom: 20,
                     left: 20,
@@ -135,6 +136,7 @@ class _JobseekerDetailScreenState extends State<JobseekerDetailScreen> {
                         height: 10,
                       ),
                       RichText(
+                        overflow: TextOverflow.ellipsis,
                         text: TextSpan(children: [
                           WidgetSpan(
                             alignment: PlaceholderAlignment.middle,
@@ -182,6 +184,7 @@ class _JobseekerDetailScreenState extends State<JobseekerDetailScreen> {
                         height: 10,
                       ),
                       RichText(
+                        overflow: TextOverflow.ellipsis,
                         text: TextSpan(children: [
                           WidgetSpan(
                             alignment: PlaceholderAlignment.middle,
@@ -254,7 +257,7 @@ class _JobseekerDetailScreenState extends State<JobseekerDetailScreen> {
                 ),
               ),
             ),
-            ColorDivider(),
+            const ColorDivider(),
             SliverToBoxAdapter(
               child: Container(
                 width: deviceSize.width,
@@ -293,7 +296,7 @@ class _JobseekerDetailScreenState extends State<JobseekerDetailScreen> {
                 ),
               ),
             ),
-            ColorDivider(),
+            const ColorDivider(),
             SliverToBoxAdapter(
               child: Container(
                 width: deviceSize.width,
@@ -339,7 +342,7 @@ class _JobseekerDetailScreenState extends State<JobseekerDetailScreen> {
                 ),
               ),
             ),
-            ColorDivider(),
+            const ColorDivider(),
             SliverToBoxAdapter(
               child: Container(
                 width: deviceSize.width,
@@ -376,10 +379,14 @@ class _JobseekerDetailScreenState extends State<JobseekerDetailScreen> {
                             heightFactor: 0.25);
                       },
                     ),
+                    const SizedBox(
+                      height: 10,
+                    ),
                   ],
                 ),
               ),
             ),
+            const ColorDivider(),
           ],
         ),
       ),
@@ -402,7 +409,7 @@ class _JobseekerDetailScreenState extends State<JobseekerDetailScreen> {
             leading: Icon(Icons.download),
             onTap: onDownload,
           ),
-          Divider(),
+          const Divider(),
         ],
       ),
     );

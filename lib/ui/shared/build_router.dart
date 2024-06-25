@@ -234,7 +234,7 @@ List<StatefulShellBranch> _buildEmployerRoutes() {
       GoRoute(
           name: 'employer-home',
           path: '/employer-home',
-          builder: (context, state) => const JobseekerDetailScreen(),
+          builder: (context, state) => const SubmittedApplicationScreen(),
           routes: <RouteBase>[
             GoRoute(
                 parentNavigatorKey: _rootNavigatorkey,
