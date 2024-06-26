@@ -53,8 +53,8 @@ class ScaffoldWithNavBar extends StatelessWidget {
       const BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Bài đăng'),
       const BottomNavigationBarItem(
           icon: Icon(Icons.person_add_alt_rounded), label: 'Ứng viên'),
-      const BottomNavigationBarItem(
-          icon: Icon(Icons.home_repair_service), label: 'Đã duyệt'),
+      // const BottomNavigationBarItem(
+      //     icon: Icon(Icons.home_repair_service), label: 'Đã duyệt'),
       const BottomNavigationBarItem(
           icon: Icon(Icons.business), label: 'Công ty'),
       const BottomNavigationBarItem(

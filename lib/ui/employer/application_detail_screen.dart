@@ -1,16 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
+import 'package:job_finder_app/models/application_storage.dart';
+import 'package:job_finder_app/ui/employer/application_manager.dart';
+import 'package:provider/provider.dart';
 
 import '../shared/enums.dart';
 import 'widgets/applicant_card.dart';
 
 class ApplicationDetailScreen extends StatelessWidget {
-  const ApplicationDetailScreen({super.key});
+  const ApplicationDetailScreen(
+      {super.key, required this.applicationStorageId});
+
+  final String applicationStorageId;
 
   @override
   Widget build(BuildContext context) {
+    final applicationStorage = context
+        .watch<ApplicationManager>()
+        .applicationStorageById(applicationStorageId);
     final deviceSize = MediaQuery.of(context).size;
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
+    final applicationList = applicationStorage.applications;
+    final jobposting = applicationStorage.jobposting;
+    //todo khởi tạo dữ liệu
+    final title = jobposting.title;
+    final deadline =
+        DateFormat("dd-MM-yyyy").format(applicationStorage.deadlineDate);
+    final recievedNumber = applicationStorage.applicationNumber;
+    final passNumber = applicationStorage.passApplicationNumber;
+    final failNumber = applicationStorage.failApplicationNumber;
+
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -46,7 +67,7 @@ class ApplicationDetailScreen extends StatelessWidget {
               color: theme.indicatorColor,
               child: ListTile(
                 title: Text(
-                  'Senior Front End Developer',
+                  title,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: textTheme.titleMedium,
@@ -69,13 +90,15 @@ class ApplicationDetailScreen extends StatelessWidget {
                       width: 7,
                     )),
                     TextSpan(
-                      text: '30-6-2024',
+                      text: deadline,
                       style: textTheme.bodyLarge,
                     )
                   ]),
                 ),
                 trailing: TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    context.pushNamed('job-detail', extra: jobposting);
+                  },
                   child: Text('Chi tiết'),
                 ),
               ),
@@ -108,7 +131,7 @@ class ApplicationDetailScreen extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          '25',
+                          '$recievedNumber',
                           style: textTheme.bodyLarge!.copyWith(
                             color: theme.primaryColor,
                           ),
@@ -138,7 +161,7 @@ class ApplicationDetailScreen extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          '10',
+                          '$passNumber',
                           style: textTheme.bodyLarge!.copyWith(
                             color: Colors.green,
                           ),
@@ -169,7 +192,7 @@ class ApplicationDetailScreen extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          '3',
+                          '$failNumber',
                           style: textTheme.bodyLarge!.copyWith(
                             color: Colors.red,
                           ),
@@ -185,20 +208,33 @@ class ApplicationDetailScreen extends StatelessWidget {
             ),
             //? Hiển thị danh sách ứng viên
             Expanded(
-              child: ListView.builder(
-                itemCount: 5,
-                itemBuilder: (context, index) {
-                  return Column(
-                    children: [
-                      ApplicantCard(
-                        status: ApplicationStatus.pending,
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                    ],
-                  );
-                },
+              child: RefreshIndicator(
+                onRefresh: () => context
+                    .read<ApplicationManager>()
+                    .fetchApplicationStorage(),
+                child: ListView.builder(
+                  itemCount: applicationList.length,
+                  itemBuilder: (context, index) {
+                    final mapStatus = {
+                      0: ApplicationStatus.pending,
+                      1: ApplicationStatus.accepted,
+                      2: ApplicationStatus.rejected,
+                    };
+                    ApplicationStatus status =
+                        mapStatus[applicationList[index].status]!;
+                    return Column(
+                      children: [
+                        ApplicantCard(
+                          status: status,
+                          application: applicationList[index],
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                      ],
+                    );
+                  },
+                ),
               ),
             )
           ],

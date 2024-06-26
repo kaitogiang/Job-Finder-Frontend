@@ -1,13 +1,18 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter_file_downloader/flutter_file_downloader.dart';
+import 'package:job_finder_app/models/application_storage.dart';
 import 'package:job_finder_app/models/auth_token.dart';
 import 'package:job_finder_app/services/node_service.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:http/http.dart' as http;
+
+import '../models/jobseeker.dart';
 
 class ApplicationService extends NodeService {
   ApplicationService([AuthToken? authToken]) : super(authToken);
@@ -54,28 +59,103 @@ class ApplicationService extends NodeService {
     }
   }
 
-  // Future<void> downloadFile(String url, String filename) async {
-  //   try {
-  //     final completeUrl = '$databaseUrl/$url';
+  Future<List<ApplicationStorage>?> getAllPostApplicationList() async {
+    Map<String, dynamic> decodedToken = JwtDecoder.decode(token!);
+    String companyId = decodedToken['companyId'];
+    log('CompanyId la: $companyId');
+    try {
+      final response = await httpFetch(
+        '$databaseUrl/api/application/company/$companyId',
+        method: HttpMethod.get,
+        headers: headers,
+      ) as List<dynamic>;
+      //todo Chuyển đổi mỗi phần tử dynamic trong List<dynamic> thành Map<String, dynamic>
+      List<Map<String, dynamic>> responseMapList =
+          List<Map<String, dynamic>>.from(response);
+      //todo chuyển đổi phần tử Map thành ApplicationStorage
+      List<ApplicationStorage> applicationStorageList =
+          responseMapList.map((e) => ApplicationStorage.fromJson(e)).toList();
+      return applicationStorageList;
+    } catch (error) {
+      log('Error in application service - getAllPostApplicationList: $error');
+      return null;
+    }
+  }
 
-  //     final response = await http.head(Uri.parse(completeUrl));
-  //     if (response.statusCode == 200) {
-  //       FileDownloader.downloadFile(
-  //         url:
-  //             'http://192.168.1.104:3000/pdfs/jobseeker-1717601317184-737476261.pdf',
-  //         onProgress: (fileName, progress) {
-  //           log('FILE has progress $progress');
-  //         },
-  //         onDownloadCompleted: (path) {
-  //           log('File được tải tại thư mục Download');
-  //         },
-  //         onDownloadError: (errorMessage) {
-  //           log('Download ERROR: $errorMessage');
-  //         },
-  //       );
-  //     }
-  //   } catch (error) {
-  //     log('Error in application service: $error');
-  //   }
-  // }
+  Future<bool> applyApplication(
+      String jobpostingId, String jobseekerId, String employerEmail) async {
+    try {
+      await httpFetch(
+        '$databaseUrl/api/application/',
+        method: HttpMethod.post,
+        headers: headers,
+        body: jsonEncode({
+          "jobId": jobpostingId,
+          "jobseekerId": jobseekerId,
+          "employerEmail": employerEmail,
+        }),
+      );
+      return true;
+    } catch (error) {
+      log('Error in application service: $error');
+      return false;
+    }
+  }
+
+  //?Hàm chấp nhận một hồ sơ cụ thể
+  Future<bool> acceptApplication(
+      String jobpostingId, String jobseekerId) async {
+    try {
+      await httpFetch(
+        '$databaseUrl/api/jobposting/$jobpostingId',
+        method: HttpMethod.post,
+        headers: headers,
+        body: jsonEncode({
+          "jobseekerId": jobseekerId,
+          "status": 1,
+        }),
+      );
+      return true;
+    } catch (error) {
+      log('Error in application service: $error');
+      return false;
+    }
+  }
+
+  //?Hàm từ chối một hồ sơ cụ thể
+  Future<bool> rejectApplication(
+      String jobpostingId, String jobseekerId) async {
+    try {
+      await httpFetch(
+        '$databaseUrl/api/jobposting/$jobpostingId',
+        method: HttpMethod.post,
+        headers: headers,
+        body: jsonEncode({
+          "jobseekerId": jobseekerId,
+          "status": 2,
+        }),
+      );
+      return true;
+    } catch (error) {
+      log('Error in application service: $error');
+      return false;
+    }
+  }
+
+  Future<Jobseeker?> fetchJobseekerById(String id) async {
+    try {
+      final response = await httpFetch(
+        '$databaseUrl/api/jobseeker/$id',
+        headers: {'Content-Type': 'application/json; charset=UTF-8'},
+        method: HttpMethod.get,
+      ) as Map<String, dynamic>;
+
+      final jobseeker = Jobseeker.fromJson(response);
+
+      return jobseeker;
+    } catch (error) {
+      log('job service - fetchJobseekerById: ${error}');
+      return null;
+    }
+  }
 }

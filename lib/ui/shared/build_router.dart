@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:go_router/go_router.dart';
+import 'package:job_finder_app/models/application_storage.dart';
 import 'package:job_finder_app/models/company.dart';
 import 'package:job_finder_app/models/education.dart';
 import 'package:job_finder_app/models/employer.dart';
@@ -33,6 +34,7 @@ import 'package:job_finder_app/ui/shared/job_detail_screen.dart';
 import 'package:job_finder_app/ui/shared/jobseeker_detail_screen.dart';
 import 'package:job_finder_app/ui/shared/user_setting_screen.dart';
 import 'package:path/path.dart';
+import '../../models/application.dart';
 import '../employer/company_screen.dart';
 import '../employer/employer_edit_screen.dart';
 import '../employer/jobposting_creation_form.dart';
@@ -124,6 +126,15 @@ GoRouter buildRouter(AuthManager authManager) {
           return ImagePreview(gallaryItems: images, index: currentIndex);
         },
       ),
+      //?Xem chi tiết về ứng viên
+      GoRoute(
+        parentNavigatorKey: _rootNavigatorkey,
+        name: 'jobseeker-detail',
+        path: '/jobseeker-detail',
+        builder: (context, state) => JobseekerDetailScreen(
+          jobseekerId: state.extra as String,
+        ),
+      )
     ],
   );
 }
@@ -305,19 +316,27 @@ List<StatefulShellBranch> _buildEmployerRoutes() {
     //Nhánh xem danh sách tất cả ứng viên cùng thông tin của họ
     StatefulShellBranch(routes: <RouteBase>[
       GoRoute(
-        name: 'jobseeker-list',
-        path: '/jobseeker-list',
-        builder: (context, state) => const SafeArea(child: EmployerHome()),
-      ),
+          name: 'application-list',
+          path: '/application-list',
+          builder: (context, state) => const SubmittedApplicationScreen(),
+          routes: <RouteBase>[
+            GoRoute(
+              name: 'application-detail',
+              path: 'application-detail',
+              builder: (context, state) => ApplicationDetailScreen(
+                applicationStorageId: state.extra as String,
+              ),
+            )
+          ]),
     ]),
     //Nhánh xem những hồ sơ đã duyệt
-    StatefulShellBranch(routes: <RouteBase>[
-      GoRoute(
-        name: 'approved-resume',
-        path: '/approved-resume',
-        builder: (context, state) => const SafeArea(child: EmployerHome()),
-      ),
-    ]),
+    // StatefulShellBranch(routes: <RouteBase>[
+    //   GoRoute(
+    //     name: 'approved-resume',
+    //     path: '/approved-resume',
+    //     builder: (context, state) => const SafeArea(child: EmployerHome()),
+    //   ),
+    // ]),
     //Nhánh xem và tùy chỉnh thông tin công ty
     StatefulShellBranch(routes: <RouteBase>[
       GoRoute(

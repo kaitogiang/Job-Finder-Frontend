@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 
@@ -49,6 +51,7 @@ class Jobposting {
   set isFavorite(bool value) => _isFavorite.value = value;
 
   factory Jobposting.fromJson(Map<String, dynamic> json) {
+    log('Phia sau lệnh chuyển Document');
     return Jobposting(
         id: json['_id'],
         title: json['title'],

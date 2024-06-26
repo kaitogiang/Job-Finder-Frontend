@@ -8,6 +8,7 @@ import 'package:job_finder_app/ui/employer/application_manager.dart';
 import 'package:provider/provider.dart';
 import 'package:quickalert/quickalert.dart';
 
+import '../../../models/application.dart';
 import '../../shared/enums.dart';
 import '../../shared/modal_bottom_sheet.dart';
 import 'status_card.dart';
@@ -17,14 +18,19 @@ class ApplicantCard extends StatelessWidget {
   const ApplicantCard({
     super.key,
     this.status = ApplicationStatus.pending,
+    required this.application,
     this.isRead = false,
   });
 
   final ApplicationStatus status;
+  final Application application;
   final bool isRead;
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final name = application.name;
+    final email = application.email;
+    final phone = application.phone;
 
     return Container(
       decoration: BoxDecoration(
@@ -46,7 +52,7 @@ class ApplicantCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             //?Thẻ hiển thị trạng thái của hồ sơ
-            Expanded(child: Text('Nguyễn Văn 1')),
+            Expanded(child: Text(name)),
           ],
         ),
         subtitle: Column(
@@ -68,7 +74,7 @@ class ApplicantCard extends StatelessWidget {
                   ),
                 ),
                 TextSpan(
-                  text: 'vannguye1@gmail.com',
+                  text: email,
                   style: textTheme.bodyMedium,
                 ),
               ]),
@@ -91,7 +97,7 @@ class ApplicantCard extends StatelessWidget {
                   ),
                 ),
                 TextSpan(
-                  text: '093829239',
+                  text: phone,
                   style: textTheme.bodyMedium,
                 ),
                 const WidgetSpan(
@@ -120,22 +126,8 @@ class ApplicantCard extends StatelessWidget {
                     context: context,
                     onPreview: () async {
                       log('Xem chi tiết profile');
-                      // final isAgreed = await QuickAlert.show(
-                      //     context: context,
-                      //     type: QuickAlertType.confirm,
-                      //     title: 'Xác nhận xóa?',
-                      //     text: 'Bạn chắc chắn muốn xóa bài đăng này?',
-                      //     cancelBtnText: 'Không',
-                      //     confirmBtnText: 'Có',
-                      //     onCancelBtnTap: () {
-                      //       Navigator.of(context, rootNavigator: true)
-                      //           .pop(false);
-                      //     },
-                      //     onConfirmBtnTap: () {
-                      //       Navigator.of(context, rootNavigator: true)
-                      //           .pop(true);
-                      //     }) as bool;
-
+                      context.pushNamed('jobseeker-detail',
+                          extra: application.jobseekerId);
                       Navigator.pop(context);
                     },
                     onDownload: () async {
