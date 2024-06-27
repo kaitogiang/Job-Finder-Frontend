@@ -36,6 +36,7 @@ class ApplicationService extends NodeService {
         } else {
           log('Error in application service: $response');
         }
+        return null;
       }
     } catch (error) {
       log('Error in application service: $error');
@@ -107,7 +108,7 @@ class ApplicationService extends NodeService {
       String jobpostingId, String jobseekerId) async {
     try {
       await httpFetch(
-        '$databaseUrl/api/jobposting/$jobpostingId',
+        '$databaseUrl/api/application/jobposting/$jobpostingId',
         method: HttpMethod.post,
         headers: headers,
         body: jsonEncode({
@@ -127,7 +128,7 @@ class ApplicationService extends NodeService {
       String jobpostingId, String jobseekerId) async {
     try {
       await httpFetch(
-        '$databaseUrl/api/jobposting/$jobpostingId',
+        '$databaseUrl/api/application/jobposting/$jobpostingId',
         method: HttpMethod.post,
         headers: headers,
         body: jsonEncode({

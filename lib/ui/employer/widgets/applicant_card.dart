@@ -1,8 +1,7 @@
 import 'dart:developer';
-
+import 'dart:math' as math;
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_file_downloader/flutter_file_downloader.dart';
 import 'package:go_router/go_router.dart';
 import 'package:job_finder_app/ui/employer/application_manager.dart';
 import 'package:provider/provider.dart';
@@ -20,18 +19,19 @@ class ApplicantCard extends StatelessWidget {
     this.status = ApplicationStatus.pending,
     required this.application,
     this.isRead = false,
+    this.jobpostingId,
   });
 
   final ApplicationStatus status;
   final Application application;
   final bool isRead;
+  final String? jobpostingId;
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final name = application.name;
     final email = application.email;
     final phone = application.phone;
-
     return Container(
       decoration: BoxDecoration(
         border: Border.all(
@@ -132,11 +132,17 @@ class ApplicantCard extends StatelessWidget {
                     },
                     onDownload: () async {
                       log('Tải xuống CV');
+                      bool isAllowedToSendNotification =
+                          await AwesomeNotifications().isNotificationAllowed();
+                      if (!isAllowedToSendNotification) {
+                        AwesomeNotifications()
+                            .requestPermissionToSendNotifications();
+                      }
+                      log('Path la: ${application.resume}');
                       final path = await context
                           .read<ApplicationManager>()
-                          .downloadFile(
-                              'pdfs/jobseeker-1717601317184-737476261.pdf',
-                              'MyCV.pdf');
+                          .downloadFile(application.resume,
+                              'CV_${name}_${DateTime.now().millisecond}${DateTime.now().minute}.pdf');
                       if (path != null) {
                         QuickAlert.show(
                             context: context,
@@ -145,11 +151,23 @@ class ApplicantCard extends StatelessWidget {
                             text: 'File được tải xuống tại $path',
                             confirmBtnText: 'Tôi biết rồi');
                       }
+
+                      int random = math.Random(10).nextInt(1000);
+                      AwesomeNotifications().createNotification(
+                        content: NotificationContent(
+                          id: random,
+                          channelKey: 'basic_channel',
+                          actionType: ActionType.Default,
+                          title: 'Tải xuống thành công',
+                          body:
+                              'Tại xuống tại thư mục /storage/emulated/0/Download/, nhấn vào để mở',
+                        ),
+                      );
                     },
                     onUpdate: !isRead
                         ? () {
                             log('Cập nhật trạng thái cho ứng viên này');
-                            _showMyDialog(context, 'Nguyễn Văn Tèo');
+                            _showMyDialog(context, application);
                           }
                         : null,
                   );
@@ -162,7 +180,8 @@ class ApplicantCard extends StatelessWidget {
     );
   }
 
-  Future<void> _showMyDialog(context, name) async {
+  Future<void> _showMyDialog(
+      BuildContext context, Application application) async {
     final textTheme = Theme.of(context).textTheme;
     return showDialog<void>(
       context: context,
@@ -184,7 +203,9 @@ class ApplicantCard extends StatelessWidget {
                 style: textTheme.bodyLarge!
                     .copyWith(color: Colors.red, fontWeight: FontWeight.bold),
               ),
-              TextSpan(text: ' hồ sơ của $name?', style: textTheme.bodyLarge)
+              TextSpan(
+                  text: ' hồ sơ của ${application.name}?',
+                  style: textTheme.bodyLarge)
             ]),
           ),
           actions: <Widget>[
@@ -210,7 +231,7 @@ class ApplicantCard extends StatelessWidget {
                           context: context,
                           type: QuickAlertType.confirm,
                           title: 'Xác nhận từ chối hồ sơ',
-                          text: 'Bạn đã chắc chắn từ chối $name?',
+                          text: 'Bạn đã chắc chắn từ chối ${application.name}?',
                           cancelBtnText: 'Không',
                           confirmBtnText: 'Có',
                           onCancelBtnTap: () {
@@ -225,6 +246,9 @@ class ApplicantCard extends StatelessWidget {
                             Navigator.popUntil(
                                 context, (route) => route.isCurrent);
                           } else {
+                            await context
+                                .read<ApplicationManager>()
+                                .rejectApplication(jobpostingId!, application);
                             Navigator.popUntil(
                                 context, (route) => route.isFirst);
                           }
@@ -250,13 +274,13 @@ class ApplicantCard extends StatelessWidget {
                           context: context,
                           type: QuickAlertType.confirm,
                           title: 'Xác nhận chấp nhận hồ sơ',
-                          text: 'Bạn đã chắc chắn nhận $name?',
+                          text: 'Bạn đã chắc chắn nhận ${application.name}?',
                           cancelBtnText: 'Không',
                           confirmBtnText: 'Có',
                           onCancelBtnTap: () {
                             Navigator.pop(context, true);
                           },
-                          onConfirmBtnTap: () {
+                          onConfirmBtnTap: () async {
                             Navigator.pop(context, false);
                           },
                         ) as bool;
@@ -266,6 +290,9 @@ class ApplicantCard extends StatelessWidget {
                             Navigator.popUntil(
                                 context, (route) => route.isCurrent);
                           } else {
+                            await context
+                                .read<ApplicationManager>()
+                                .approveApplication(application, jobpostingId!);
                             Navigator.popUntil(
                                 context, (route) => route.isFirst);
                           }

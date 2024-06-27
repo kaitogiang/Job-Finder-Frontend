@@ -14,6 +14,12 @@ enum PostStatus {
   done,
 }
 
+enum PostCardType {
+  all,
+  approved,
+  rejected,
+}
+
 class SubmittedApplicationScreen extends StatelessWidget {
   const SubmittedApplicationScreen({super.key});
 
@@ -82,7 +88,7 @@ class SubmittedApplicationScreen extends StatelessWidget {
               body: TabBarView(
                 children: [
                   ReceivedApplicationList(),
-                  const AcceptedApplicationList(),
+                  AcceptedApplicationList(),
                   RejectedApplicationList(),
                 ],
               ),
@@ -181,15 +187,19 @@ class PostApplicationCard extends StatelessWidget {
   const PostApplicationCard({
     super.key,
     required this.applicationStorage,
+    this.type = PostCardType.all,
   });
 
   final ApplicationStorage applicationStorage;
+  final PostCardType type;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final title = applicationStorage.jobposting.title;
     final sentApplications = applicationStorage.applicationNumber;
+    final approvedApplication = applicationStorage.passApplicationNumber;
+    final rejectedApplication = applicationStorage.failApplicationNumber;
     final consideredApplications =
         applicationStorage.consideredApplicationNumber;
     final isCompleted = applicationStorage.isCompletedApplications;
@@ -208,21 +218,36 @@ class PostApplicationCard extends StatelessWidget {
         child: GestureDetector(
           onTap: () {
             log('Chuyển hướng tới application detail');
-            context.pushNamed('application-detail',
-                extra: applicationStorage.id);
+            if (type == PostCardType.all) {
+              context.pushNamed('application-detail',
+                  extra: applicationStorage.id);
+            } else if (type == PostCardType.approved) {
+              context.pushNamed('approved-application',
+                  extra: applicationStorage.id);
+            } else {
+              context.pushNamed('rejected-application',
+                  extra: applicationStorage.id);
+            }
           },
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ListTile(
                 title: Text(title),
-                subtitle: Row(children: [
-                  Text('Đã nộp: $sentApplications'),
-                  const SizedBox(
-                    width: 10,
-                  ),
-                  Text('Đã duyệt: $consideredApplications'),
-                ]),
+                subtitle:
+                    //! Nếu là loại đang chờ xử lý
+                    type == PostCardType.all
+                        ? Row(children: [
+                            Text('Đã nộp: $sentApplications'),
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            Text('Đã duyệt: $consideredApplications'),
+                          ])
+                        //! Nếu là loại đã chấp nhận
+                        : type == PostCardType.approved
+                            ? Text('Đã chấp nhận: $approvedApplication')
+                            : Text('Đã từ chối: $rejectedApplication'),
                 contentPadding: const EdgeInsets.only(
                   left: 10,
                 ),
@@ -410,46 +435,58 @@ class AcceptedApplicationList extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.all(10.0),
-      child: Column(
-        children: [
-          //? Tiêu đề nhắc nhở chức năng
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
+      child: RefreshIndicator(
+        onRefresh: () =>
+            context.read<ApplicationManager>().fetchApplicationStorage(),
+        child: Consumer<ApplicationManager>(
+            builder: (context, applicationManager, child) {
+          final applicationStorage = applicationManager.applicationStorage;
+          return ListView(
             children: [
-              Icon(
-                Icons.info,
-                color: theme.primaryColor,
+              //? Tiêu đề nhắc nhở chức năng
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.info,
+                    color: theme.primaryColor,
+                  ),
+                  const SizedBox(
+                    width: 7,
+                  ),
+                  const Expanded(
+                    child: Text(
+                      'Danh sách tất cả những ứng viên được chấp nhận',
+                      textAlign: TextAlign.justify,
+                    ),
+                  ),
+                ],
               ),
+              //todo Danh sách tất cả các ứng viên được chấp nhận
               const SizedBox(
-                width: 7,
+                height: 10,
               ),
-              const Expanded(
-                child: Text(
-                  'Danh sách tất cả những ứng viên được chấp nhận',
-                  textAlign: TextAlign.justify,
-                ),
+              ListView.builder(
+                itemCount: applicationStorage.length,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemBuilder: (context, index) {
+                  return Column(
+                    children: [
+                      PostApplicationCard(
+                        applicationStorage: applicationStorage[index],
+                        type: PostCardType.approved,
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                    ],
+                  );
+                },
               ),
             ],
-          ),
-          //todo Danh sách tất cả các ứng viên được chấp nhận
-          const SizedBox(
-            height: 10,
-          ),
-          // Expanded(
-          //   child: ListView.builder(
-          //     itemCount: 5,
-          //     itemBuilder: (context, index) {
-          //       return Padding(
-          //         padding: const EdgeInsets.only(bottom: 10),
-          //         child: ApplicantCard(
-          //           status: ApplicationStatus.accepted,
-          //           isRead: true,
-          //         ),
-          //       );
-          //     },
-          //   ),
-          // ),
-        ],
+          );
+        }),
       ),
     );
   }
@@ -464,47 +501,55 @@ class RejectedApplicationList extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.all(10.0),
-      child: Column(
-        children: [
-          //? Tiêu đề nhắc nhở chức năng
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.info,
-                color: theme.primaryColor,
-              ),
-              const SizedBox(
-                width: 7,
-              ),
-              const Expanded(
-                child: Text(
-                  'Danh sách tất cả những ứng viên chưa đủ yêu cầu',
-                  textAlign: TextAlign.justify,
+      child: Consumer<ApplicationManager>(
+          builder: (context, applicationManager, child) {
+        final applicationStorage = applicationManager.applicationStorage;
+        return ListView(
+          children: [
+            //? Tiêu đề nhắc nhở chức năng
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.info,
+                  color: theme.primaryColor,
                 ),
-              ),
-            ],
-          ),
-          //todo Danh sách tất cả các ứng viên được chấp nhận
-          const SizedBox(
-            height: 10,
-          ),
-          // Expanded(
-          //   child: ListView.builder(
-          //     itemCount: 5,
-          //     itemBuilder: (context, index) {
-          //       return Padding(
-          //         padding: const EdgeInsets.only(bottom: 10),
-          //         child: ApplicantCard(
-          //           status: ApplicationStatus.rejected,
-          //           isRead: true,
-          //         ),
-          //       );
-          //     },
-          //   ),
-          // ),
-        ],
-      ),
+                const SizedBox(
+                  width: 7,
+                ),
+                const Expanded(
+                  child: Text(
+                    'Danh sách tất cả những ứng viên chưa đủ yêu cầu',
+                    textAlign: TextAlign.justify,
+                  ),
+                ),
+              ],
+            ),
+            //todo Danh sách tất cả các ứng viên được chấp nhận
+            const SizedBox(
+              height: 10,
+            ),
+            ListView.builder(
+              itemCount: applicationStorage.length,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemBuilder: (context, index) {
+                return Column(
+                  children: [
+                    PostApplicationCard(
+                      applicationStorage: applicationStorage[index],
+                      type: PostCardType.rejected,
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                  ],
+                );
+              },
+            ),
+          ],
+        );
+      }),
     );
   }
 }

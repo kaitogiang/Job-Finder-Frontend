@@ -23,6 +23,7 @@ class ApplicationDetailScreen extends StatelessWidget {
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
     final applicationList = applicationStorage.applications;
+    context.read<ApplicationManager>().sortApplicationsList(applicationList);
     final jobposting = applicationStorage.jobposting;
     //todo khởi tạo dữ liệu
     final title = jobposting.title;
@@ -227,6 +228,7 @@ class ApplicationDetailScreen extends StatelessWidget {
                         ApplicantCard(
                           status: status,
                           application: applicationList[index],
+                          jobpostingId: applicationStorage.jobposting.id,
                         ),
                         const SizedBox(
                           height: 10,

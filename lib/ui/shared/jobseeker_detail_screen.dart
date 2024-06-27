@@ -1,5 +1,7 @@
 import 'dart:developer';
+import 'dart:math' as math;
 
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:job_finder_app/models/education.dart';
 import 'package:job_finder_app/models/resume.dart';
@@ -10,10 +12,12 @@ import 'package:job_finder_app/ui/jobseeker/widgets/jobseeker_education_card.dar
 import 'package:job_finder_app/ui/jobseeker/widgets/jobseeker_experience_card.dart';
 import 'package:job_finder_app/ui/jobseeker/widgets/resume_infor_card.dart';
 import 'package:provider/provider.dart';
+import 'package:quickalert/quickalert.dart';
 
 import '../../models/experience.dart';
 import '../../models/jobseeker.dart';
 import 'modal_bottom_sheet.dart';
+import 'notification_controller.dart';
 
 class JobseekerDetailScreen extends StatefulWidget {
   const JobseekerDetailScreen({required this.jobseekerId, super.key});
@@ -39,6 +43,16 @@ class _JobseekerDetailScreenState extends State<JobseekerDetailScreen> {
         isShowNameTitle.value = false;
       }
     });
+
+    AwesomeNotifications().setListeners(
+      onActionReceivedMethod: NotificationController.onActionReceivedMethod,
+      onNotificationCreatedMethod:
+          NotificationController.onNotificationCreatedMethod,
+      onNotificationDisplayedMethod:
+          NotificationController.onNotificationDisplayedMethod,
+      onDismissActionReceivedMethod:
+          NotificationController.onDismissActionReceivedMethod,
+    );
     super.initState();
   }
 
@@ -346,8 +360,42 @@ class _JobseekerDetailScreenState extends State<JobseekerDetailScreen> {
                                       context: context,
                                       onDownload: () async {
                                         log('Tải xuống tài liệu');
+                                        bool isAllowedToSendNotification =
+                                            await AwesomeNotifications()
+                                                .isNotificationAllowed();
+                                        if (!isAllowedToSendNotification) {
+                                          AwesomeNotifications()
+                                              .requestPermissionToSendNotifications();
+                                        }
+                                        DateTime.now().toIso8601String();
+                                        final path = await context
+                                            .read<ApplicationManager>()
+                                            .downloadFile(
+                                                jobseeker.resume[0].url,
+                                                jobseeker.resume[0].fileName);
+                                        if (path != null) {
+                                          QuickAlert.show(
+                                              context: context,
+                                              type: QuickAlertType.info,
+                                              title: 'Tải xuống thành công',
+                                              text:
+                                                  'File được tải xuống tại $path',
+                                              confirmBtnText: 'Tôi biết rồi');
+                                        }
 
-                                        Navigator.pop(context);
+                                        int random =
+                                            math.Random(10).nextInt(1000);
+                                        AwesomeNotifications()
+                                            .createNotification(
+                                          content: NotificationContent(
+                                            id: random,
+                                            channelKey: 'basic_channel',
+                                            actionType: ActionType.Default,
+                                            title: 'Tải xuống thành công',
+                                            body:
+                                                'Tại xuống tại thư mục /storage/emulated/0/Download/, nhấn vào để mở',
+                                          ),
+                                        );
                                       },
                                     );
                                   }),

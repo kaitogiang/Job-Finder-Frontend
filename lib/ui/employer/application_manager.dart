@@ -23,6 +23,9 @@ class ApplicationManager extends ChangeNotifier {
 
   List<ApplicationStorage> get applicationStorage => _applicationStorage;
 
+  ApplicationStorage getApplicationStorageById(String id) =>
+      _applicationStorage.firstWhere((app) => app.id == id);
+
   ApplicationStorage applicationStorageById(String id) =>
       _applicationStorage.firstWhere((app) => app.id == id);
 
@@ -38,6 +41,10 @@ class ApplicationManager extends ChangeNotifier {
       log('Error in Application Manager - downloadFile $error');
       return null;
     }
+  }
+
+  void sortApplicationsList(List<Application> list) {
+    list.sort((a, b) => a.status.compareTo(b.status));
   }
 
   //? Hàm nạp tất cả các nơi chứa hồ sơ ứng tuyển của từng bài viết
@@ -107,5 +114,19 @@ class ApplicationManager extends ChangeNotifier {
       return jobseeker;
     }
     return null;
+  }
+
+  Future<void> approveApplication(
+      Application application, String jobpostingId) async {
+    try {
+      final result = await _applicationService.acceptApplication(
+          jobpostingId, application.jobseekerId);
+      if (result) {
+        application.status = 1;
+        notifyListeners();
+      }
+    } catch (error) {
+      log('Error in Application Manager - approveApplication $error');
+    }
   }
 }

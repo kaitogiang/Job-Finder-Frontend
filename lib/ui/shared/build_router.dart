@@ -15,6 +15,7 @@ import 'package:job_finder_app/ui/employer/company_edit_screen.dart';
 import 'package:job_finder_app/ui/employer/employer_jobposting.dart';
 import 'package:job_finder_app/ui/employer/employer_profile_screen.dart';
 import 'package:job_finder_app/ui/employer/level_addition_screen.dart';
+import 'package:job_finder_app/ui/employer/rejected_application_screen.dart';
 import 'package:job_finder_app/ui/employer/submitted_application_screen.dart';
 import 'package:job_finder_app/ui/employer/tech_addition_screen.dart';
 import 'package:job_finder_app/ui/employer/widgets/quill_editor_screen.dart';
@@ -35,6 +36,7 @@ import 'package:job_finder_app/ui/shared/jobseeker_detail_screen.dart';
 import 'package:job_finder_app/ui/shared/user_setting_screen.dart';
 import 'package:path/path.dart';
 import '../../models/application.dart';
+import '../employer/approved_application_screen.dart';
 import '../employer/company_screen.dart';
 import '../employer/employer_edit_screen.dart';
 import '../employer/jobposting_creation_form.dart';
@@ -245,7 +247,7 @@ List<StatefulShellBranch> _buildEmployerRoutes() {
       GoRoute(
           name: 'employer-home',
           path: '/employer-home',
-          builder: (context, state) => const SubmittedApplicationScreen(),
+          builder: (context, state) => const EmployerJobposting(),
           routes: <RouteBase>[
             GoRoute(
                 parentNavigatorKey: _rootNavigatorkey,
@@ -321,12 +323,29 @@ List<StatefulShellBranch> _buildEmployerRoutes() {
           builder: (context, state) => const SubmittedApplicationScreen(),
           routes: <RouteBase>[
             GoRoute(
+              parentNavigatorKey: _rootNavigatorkey,
               name: 'application-detail',
               path: 'application-detail',
               builder: (context, state) => ApplicationDetailScreen(
                 applicationStorageId: state.extra as String,
               ),
-            )
+            ),
+            GoRoute(
+              parentNavigatorKey: _rootNavigatorkey,
+              name: 'approved-application',
+              path: 'approved-application',
+              builder: (context, state) => ApprovedApplicationScreen(
+                applicationStorageId: state.extra as String,
+              ),
+            ),
+            GoRoute(
+              parentNavigatorKey: _rootNavigatorkey,
+              name: 'rejected-application',
+              path: 'rejected-application',
+              builder: (context, state) => RejectedApplicationScreen(
+                applicationStorageId: state.extra as String,
+              ),
+            ),
           ]),
     ]),
     //Nhánh xem những hồ sơ đã duyệt

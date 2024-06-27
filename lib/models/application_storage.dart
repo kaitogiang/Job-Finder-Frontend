@@ -24,6 +24,12 @@ class ApplicationStorage {
 
   DateTime get deadlineDate => DateTime.parse(deadline);
 
+  List<Application> get approvedApplications =>
+      applications.where((app) => app.status == 1).toList();
+
+  List<Application> get rejectedApplications =>
+      applications.where((app) => app.status == 2).toList();
+
   int get applicationNumber => applications.length;
 
   int get passApplicationNumber =>
