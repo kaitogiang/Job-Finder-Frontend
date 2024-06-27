@@ -12,6 +12,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:http/http.dart' as http;
 
+import '../models/employer.dart';
 import '../models/jobseeker.dart';
 
 class ApplicationService extends NodeService {
@@ -84,7 +85,7 @@ class ApplicationService extends NodeService {
   }
 
   Future<bool> applyApplication(
-      String jobpostingId, String jobseekerId, String employerEmail) async {
+      String jobpostingId, String employerEmail) async {
     try {
       await httpFetch(
         '$databaseUrl/api/application/',
@@ -92,7 +93,7 @@ class ApplicationService extends NodeService {
         headers: headers,
         body: jsonEncode({
           "jobId": jobpostingId,
-          "jobseekerId": jobseekerId,
+          "jobseekerId": userId,
           "employerEmail": employerEmail,
         }),
       );
@@ -156,6 +157,40 @@ class ApplicationService extends NodeService {
       return jobseeker;
     } catch (error) {
       log('job service - fetchJobseekerById: ${error}');
+      return null;
+    }
+  }
+
+  Future<List<ApplicationStorage>?> fetchJobseekerApplication() async {
+    try {
+      final response = await httpFetch(
+        '$databaseUrl/api/application/jobseeker/$userId',
+        headers: {'Content-Type': 'application/json; charset=UTF-8'},
+        method: HttpMethod.get,
+      ) as List<dynamic>;
+      List<Map<String, dynamic>> responseMap =
+          List<Map<String, dynamic>>.from(response);
+
+      List<ApplicationStorage> applicationStorageList =
+          responseMap.map((e) => ApplicationStorage.fromJson(e)).toList();
+      return applicationStorageList;
+    } catch (error) {
+      log('job service - fetchJobseekerApplication: ${error}');
+      return null;
+    }
+  }
+
+  Future<Employer?> getEmployerByCompanyId(String companyId) async {
+    try {
+      final response = await httpFetch(
+        '$databaseUrl/api/application/company/$companyId/employer',
+        headers: {'Content-Type': 'application/json; charset=UTF-8'},
+        method: HttpMethod.get,
+      ) as Map<String, dynamic>;
+      final employer = Employer.fromJson(response);
+      return employer;
+    } catch (error) {
+      log('job service - getEmployerByCompanyId: ${error}');
       return null;
     }
   }

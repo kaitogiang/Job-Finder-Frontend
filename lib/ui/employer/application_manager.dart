@@ -6,10 +6,12 @@ import 'package:job_finder_app/services/application_service.dart';
 
 import '../../models/application_storage.dart';
 import '../../models/auth_token.dart';
+import '../../models/employer.dart';
 import '../../models/jobseeker.dart';
 
 class ApplicationManager extends ChangeNotifier {
   List<ApplicationStorage> _applicationStorage = [];
+  List<ApplicationStorage> _userApplicationStorage = [];
 
   final ApplicationService _applicationService;
 
@@ -22,6 +24,12 @@ class ApplicationManager extends ChangeNotifier {
   }
 
   List<ApplicationStorage> get applicationStorage => _applicationStorage;
+
+  List<ApplicationStorage> get userApplicationStorage {
+    _userApplicationStorage.sort((a, b) =>
+        a.applications.first.status.compareTo(b.applications.first.status));
+    return _userApplicationStorage;
+  }
 
   ApplicationStorage getApplicationStorageById(String id) =>
       _applicationStorage.firstWhere((app) => app.id == id);
@@ -60,13 +68,32 @@ class ApplicationManager extends ChangeNotifier {
     }
   }
 
+  //?Hàm nạp tất cả hồ sơ đã nộp của người dùng
+  Future<void> fetchJobseekerApplication() async {
+    try {
+      final result = await _applicationService.fetchJobseekerApplication();
+      if (result != null) {
+        _userApplicationStorage = result;
+        notifyListeners();
+      }
+    } catch (error) {
+      log('Error in Application Manager - fetchJobseekerApplication $error');
+    }
+  }
+
   //? Hàm ứng tuyển vào công việc
   Future<bool> applyApplication(
-      String jobpostingId, String jobseekerId, String employerEmail) async {
+      String jobpostingId, String employerEmail) async {
     try {
       final result = await _applicationService.applyApplication(
-          jobpostingId, jobseekerId, employerEmail);
+          jobpostingId, employerEmail);
       if (result) {
+        final applicationStorage =
+            await _applicationService.fetchJobseekerApplication();
+        if (applicationStorage != null) {
+          _userApplicationStorage = applicationStorage;
+          notifyListeners();
+        }
         return true;
       } else {
         return false;
@@ -127,6 +154,20 @@ class ApplicationManager extends ChangeNotifier {
       }
     } catch (error) {
       log('Error in Application Manager - approveApplication $error');
+    }
+  }
+
+  Future<Employer?> getEmployerByCompanyId(String companyId) async {
+    try {
+      final employer =
+          await _applicationService.getEmployerByCompanyId(companyId);
+      if (employer != null) {
+        return employer;
+      }
+      return null;
+    } catch (error) {
+      log('Error in Application Manager - getEmployerByCompanyId $error');
+      return null;
     }
   }
 }

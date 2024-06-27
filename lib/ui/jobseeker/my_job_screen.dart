@@ -1,6 +1,8 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:job_finder_app/models/application_storage.dart';
+import 'package:job_finder_app/ui/employer/application_manager.dart';
 import 'package:job_finder_app/ui/shared/job_card.dart';
 import 'package:job_finder_app/ui/shared/jobposting_manager.dart';
 import 'package:provider/provider.dart';
@@ -139,34 +141,40 @@ class SentApplicationScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      child: const SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            JobStatusCard(
-              status: 2,
+    return FutureBuilder(
+        future: context.read<ApplicationManager>().fetchJobseekerApplication(),
+        builder: (context, snaptshot) {
+          if (snaptshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+          final userApplicationStorage =
+              context.watch<ApplicationManager>().userApplicationStorage;
+          return Container(
+            padding: const EdgeInsets.all(10),
+            child: RefreshIndicator(
+              onRefresh: () => context
+                  .read<ApplicationManager>()
+                  .fetchJobseekerApplication(),
+              child: ListView.builder(
+                itemCount: userApplicationStorage.length,
+                itemBuilder: (context, index) {
+                  return Padding(
+                    padding: const EdgeInsets.only(
+                      bottom: 10,
+                    ),
+                    child: JobStatusCard(
+                      applicationStorage: userApplicationStorage[index],
+                      status:
+                          userApplicationStorage[index].applications[0].status,
+                    ),
+                  );
+                },
+              ),
             ),
-            JobStatusCard(
-              status: 0,
-            ),
-            JobStatusCard(
-              status: 0,
-            ),
-            JobStatusCard(
-              status: 0,
-            ),
-            JobStatusCard(
-              status: 0,
-            ),
-            JobStatusCard(
-              status: 1,
-            ),
-          ],
-        ),
-      ),
-    );
+          );
+        });
   }
 }
 
@@ -174,14 +182,18 @@ class JobStatusCard extends StatelessWidget {
   const JobStatusCard({
     super.key,
     required this.status,
+    required this.applicationStorage,
   });
   final int status; //0 đã gửi, 1 đã chấp nhận, 2 đã từ chối
-
+  final ApplicationStorage applicationStorage;
   @override
   Widget build(BuildContext context) {
     final deviceSize = MediaQuery.of(context).size;
     final textTheme = Theme.of(context).textTheme;
-
+    final title = applicationStorage.jobposting.title;
+    final companyName = applicationStorage.jobposting.company!.companyName;
+    final salary = applicationStorage.jobposting.salary;
+    final avatarLink = applicationStorage.jobposting.company!.avatarLink;
     return SizedBox(
       width: deviceSize.width,
       child: Card(
@@ -206,8 +218,8 @@ class JobStatusCard extends StatelessWidget {
                   //? Hiển thị ảnh đại diện của công ty
                   ClipRRect(
                     borderRadius: BorderRadius.circular(10),
-                    child: Image.asset(
-                      'assets/images/job_background.jpg',
+                    child: Image.network(
+                      avatarLink,
                       width: 70,
                       height: 70,
                       fit: BoxFit.cover,
@@ -223,7 +235,7 @@ class JobStatusCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         Text(
-                          'Senior UI Designer',
+                          title,
                           style: textTheme.titleLarge!.copyWith(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -231,7 +243,7 @@ class JobStatusCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                         Text(
-                          'Công ty TNHH Lego Vĩnh Cữu',
+                          companyName,
                           style: textTheme.bodyLarge!.copyWith(
                             fontWeight: FontWeight.bold,
                             color: Colors.grey.shade600,
@@ -239,7 +251,7 @@ class JobStatusCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                         Text(
-                          '100 - 250 Triệu',
+                          salary,
                           style: textTheme.bodyLarge!.copyWith(
                             color: Colors.grey.shade600,
                             fontWeight: FontWeight.bold,

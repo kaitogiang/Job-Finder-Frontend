@@ -1,11 +1,17 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:intl/intl.dart';
 import 'package:job_finder_app/models/jobposting.dart';
+import 'package:job_finder_app/ui/employer/application_manager.dart';
+import 'package:job_finder_app/ui/employer/employer_manager.dart';
 import 'package:job_finder_app/ui/shared/jobposting_manager.dart';
 import 'package:provider/provider.dart';
+import 'package:quickalert/quickalert.dart';
 import 'package:shadow_overlay/shadow_overlay.dart';
 
+import '../../models/employer.dart';
 import '../jobseeker/widgets/company_card.dart';
 
 class JobDetailScreen extends StatefulWidget {
@@ -63,7 +69,49 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                     ),
                     backgroundColor: theme.primaryColor,
                   ),
-                  onPressed: () {},
+                  onPressed: () async {
+                    final isApply = await QuickAlert.show(
+                      context: context,
+                      type: QuickAlertType.confirm,
+                      title:
+                          'Bạn có chắc chắn muốn ứng tuyển vào công việc này?',
+                      text:
+                          'Bạn chỉ được ứng tuyển vào công việc này một lần duy nhất',
+                      cancelBtnText: 'Không',
+                      confirmBtnText: 'Có',
+                      onCancelBtnTap: () => Navigator.of(context).pop(false),
+                      onConfirmBtnTap: () => Navigator.of(context).pop(true),
+                    ) as bool;
+                    if (isApply) {
+                      log('Apply liền luôn bạn ơi');
+                      Employer? employer = await context
+                          .read<ApplicationManager>()
+                          .getEmployerByCompanyId(jobposting.company!.id);
+                      final result = await context
+                          .read<ApplicationManager>()
+                          .applyApplication(jobposting.id, employer!.email);
+                      if (result) {
+                        QuickAlert.show(
+                          context: context,
+                          type: QuickAlertType.success,
+                          title: 'Ứng tuyển thành công',
+                          text:
+                              'Bạn đã ứng tuyển vào công việc này, hãy theo dõi thông báo khi có kết quả',
+                          confirmBtnText: 'Tôi biết rồi',
+                        );
+                      } else {
+                        QuickAlert.show(
+                          context: context,
+                          type: QuickAlertType.error,
+                          title: 'Ứng tuyển thất bại',
+                          text: 'Bạn không thể ứng tuyển vào vị trí này!',
+                          confirmBtnText: 'Tôi biết rồi',
+                        );
+                      }
+                    } else {
+                      log('Thôi để bữa khác');
+                    }
+                  },
                   child: Text(
                     'Ứng tuyển ngay',
                     style: theme.textTheme.titleMedium!.copyWith(
