@@ -89,6 +89,8 @@ class FavoriteJobpostingScreen extends StatelessWidget {
               child: CircularProgressIndicator(),
             );
           }
+          final favorite = context.read<JobpostingManager>().favoriteJob;
+          log('Favorite trong My_job_screen: ${favorite.length}');
           return RefreshIndicator(
             onRefresh: () =>
                 context.read<JobpostingManager>().fetchJobposting(),

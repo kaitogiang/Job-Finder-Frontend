@@ -64,17 +64,31 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
       try {
         _formKey.currentState!.save();
 
-        await context
+        final result = await context
             .read<JobseekerManager>()
             .changeEmail(password, email)
             .whenComplete(() {
+          // QuickAlert.show(
+          //     context: context,
+          //     type: QuickAlertType.success,
+          //     title: 'Thành công',
+          //     text: 'Bạn đã đổi email thành công');
+          clearAllField();
+        });
+        if (result) {
           QuickAlert.show(
               context: context,
               type: QuickAlertType.success,
               title: 'Thành công',
               text: 'Bạn đã đổi email thành công');
-          clearAllField();
-        });
+        } else {
+          QuickAlert.show(
+            context: context,
+            type: QuickAlertType.error,
+            title: 'Không thể đổi email',
+            text: 'Email hoặc mật khẩu chưa chính xác',
+          );
+        }
       } catch (error) {
         QuickAlert.show(
           context: context,
@@ -109,17 +123,26 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
       try {
         _formKey.currentState!.save();
 
-        await context
+        final result = await context
             .read<EmployerManager>()
             .changeEmail(password, email)
             .whenComplete(() {
+          clearAllField();
+        });
+        if (result) {
           QuickAlert.show(
               context: context,
               type: QuickAlertType.success,
               title: 'Thành công',
               text: 'Bạn đã đổi email thành công');
-          clearAllField();
-        });
+        } else {
+          QuickAlert.show(
+            context: context,
+            type: QuickAlertType.error,
+            title: 'Không thể đổi email',
+            text: 'Email hoặc mật khẩu chưa chính xác',
+          );
+        }
       } catch (error) {
         QuickAlert.show(
           context: context,

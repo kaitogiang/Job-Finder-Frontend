@@ -191,15 +191,18 @@ class JobseekerManager extends ChangeNotifier {
     }
   }
 
-  Future<void> changeEmail(String password, String email) async {
+  Future<bool> changeEmail(String password, String email) async {
     try {
       final result = await _jobseekerService.changeEmail(password, email);
       if (result != null) {
         jobseeker.email = email;
         notifyListeners();
+        return true;
       }
+      return false;
     } catch (error) {
       log('Lỗi trong hàm changeEmail của job manager: $error');
+      return false;
     }
   }
 

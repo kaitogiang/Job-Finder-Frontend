@@ -1,5 +1,5 @@
 import 'dart:math';
-
+import 'dart:developer' as dp;
 import 'package:flutter/material.dart';
 import 'package:job_finder_app/models/auth_token.dart';
 import 'package:job_finder_app/services/jobposting_service.dart';
@@ -91,6 +91,7 @@ class JobpostingManager extends ChangeNotifier {
   Future<void> fetchJobposting() async {
     final jobpostings = await _jobpostingService.fetchJobpostingList();
     if (jobpostings != null) {
+      dp.log('Trong Jobmanager, da nap: ${jobpostings.length}');
       _jobpostings = jobpostings;
       _filteredPosts = _jobpostings;
       notifyListeners();

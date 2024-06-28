@@ -55,6 +55,7 @@ class _ExperienceAdditionScreenState extends State<ExperienceAdditionScreen> {
       _fromController.text = duration.substring(0, index - 1);
       _toController.text = duration.substring(index + 1);
       isEditScreen = true;
+      _isDoing = widget.exp!.duration.contains('Hiện nay');
       expIndex = context
           .read<JobseekerManager>()
           .jobseeker

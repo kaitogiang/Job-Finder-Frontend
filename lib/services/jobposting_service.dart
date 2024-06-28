@@ -25,6 +25,7 @@ class JobpostingService extends NodeService {
         headers: headers,
         method: HttpMethod.get,
       ) as List<dynamic>;
+
       //todo Phải chuyển mỗi phần tử thành chuỗi thì mới ép kiểu được
       List<String> favoritePosts = favorteResponse.isNotEmpty
           ? favorteResponse
@@ -33,6 +34,8 @@ class JobpostingService extends NodeService {
               )
               .toList()
           : [];
+      log('List<Jobposting> đã nạp: ${response.length}');
+      log('Favorite hien tai la: ${favoritePosts.length}');
       //? Danh sách tất cả các bài tuyển dụng
       List<Map<String, dynamic>> list =
           response.map((e) => e as Map<String, dynamic>).toList();
@@ -47,6 +50,10 @@ class JobpostingService extends NodeService {
             post.isFavorite = true;
           }
         }
+        return jobpostingList;
+      } else {
+        List<Jobposting> jobpostingList =
+            list.map((e) => Jobposting.fromJson(e)).toList();
         return jobpostingList;
       }
     } catch (error) {

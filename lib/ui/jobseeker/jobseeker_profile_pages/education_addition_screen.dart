@@ -75,6 +75,8 @@ class _EducationAdditionScreenState extends State<EducationAdditionScreen> {
       _specController.text = widget.edu!.specialization;
       _fromController.text = widget.edu!.startDate;
       _toController.text = widget.edu!.endDate;
+      _selectedDegree.value = degrees.indexOf(widget.edu!.degree);
+      _isDoing = widget.edu!.endDate == 'Hiện nay';
     }
     super.initState();
   }

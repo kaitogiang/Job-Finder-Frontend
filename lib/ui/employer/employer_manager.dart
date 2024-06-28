@@ -37,16 +37,18 @@ class EmployerManager extends ChangeNotifier {
     }
   }
 
-  Future<void> changeEmail(String password, String email) async {
+  Future<bool> changeEmail(String password, String email) async {
     try {
       final result = await _employerService.changeEmail(password, email);
       if (result != null) {
         _employer.email = email;
         notifyListeners();
+        return true;
       }
+      return false;
     } catch (error) {
       log('Error in changeEmail - EmployerService: $error');
-      return null;
+      return false;
     }
   }
 
