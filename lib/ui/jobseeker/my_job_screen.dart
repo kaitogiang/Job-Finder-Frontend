@@ -159,21 +159,50 @@ class SentApplicationScreen extends StatelessWidget {
               onRefresh: () => context
                   .read<ApplicationManager>()
                   .fetchJobseekerApplication(),
-              child: ListView.builder(
-                itemCount: userApplicationStorage.length,
-                itemBuilder: (context, index) {
-                  return Padding(
-                    padding: const EdgeInsets.only(
-                      bottom: 10,
+              child: userApplicationStorage.isNotEmpty
+                  ? ListView.builder(
+                      itemCount: userApplicationStorage.length,
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.only(
+                            bottom: 10,
+                          ),
+                          child: JobStatusCard(
+                            applicationStorage: userApplicationStorage[index],
+                            status: userApplicationStorage[index]
+                                .applications[0]
+                                .status,
+                          ),
+                        );
+                      },
+                    )
+                  : FractionallySizedBox(
+                      widthFactor: 1,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          FractionallySizedBox(
+                            widthFactor: 0.5,
+                            child: Image.asset(
+                              'assets/images/apply_job.png',
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          Text(
+                            'Bạn chưa ứng tuyển bất kỳ công việc nào',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium!
+                                .copyWith(
+                                  fontSize: 18,
+                                ),
+                          )
+                        ],
+                      ),
                     ),
-                    child: JobStatusCard(
-                      applicationStorage: userApplicationStorage[index],
-                      status:
-                          userApplicationStorage[index].applications[0].status,
-                    ),
-                  );
-                },
-              ),
             ),
           );
         });

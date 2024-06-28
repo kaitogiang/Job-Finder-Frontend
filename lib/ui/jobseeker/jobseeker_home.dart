@@ -213,7 +213,7 @@ class _JobseekerHomeState extends State<JobseekerHome> {
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 12),
                             child: Text(
-                              'Tất cả việc làm',
+                              'Tất cả việc làm (${jobpostingManager.filteredPosts.length})',
                               style: textTheme.titleMedium!.copyWith(
                                   fontWeight: FontWeight.bold, fontSize: 22),
                               textAlign: TextAlign.left,

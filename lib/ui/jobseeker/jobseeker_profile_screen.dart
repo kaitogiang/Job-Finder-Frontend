@@ -290,13 +290,10 @@ class JobseekerProfileScreen extends StatelessWidget {
                                   context.pushNamed('resume-upload',
                                       extra: resume);
                                 },
-                                child: Text(
-                                    jobseekerManager.jobseeker.resume.isEmpty
-                                        ? 'Tải lên CV'
-                                        : 'Chỉnh sửa CV'),
                                 style: ElevatedButton.styleFrom(
                                   side: BorderSide(
                                       color: theme.colorScheme.primary),
+                                  backgroundColor: theme.indicatorColor,
                                   elevation: 0,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10),
@@ -306,6 +303,10 @@ class JobseekerProfileScreen extends StatelessWidget {
                                   textStyle: textTheme.titleLarge!.copyWith(
                                       fontFamily: 'Lato', fontSize: 20),
                                 ),
+                                child: Text(
+                                    jobseekerManager.jobseeker.resume.isEmpty
+                                        ? 'Tải lên CV'
+                                        : 'Chỉnh sửa CV'),
                               )
                             ],
                           ),
