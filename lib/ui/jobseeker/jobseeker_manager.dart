@@ -24,12 +24,13 @@ class JobseekerManager extends ChangeNotifier {
 
   set authToken(AuthToken? authToken) {
     _jobseekerService.authToken = authToken;
-    log('Gọi thay đổi');
+    log('Gọi thay đổi ${authToken?.userId}');
     notifyListeners();
   }
 
-  set jobseeker(Jobseeker jobseeker) {
-    _jobseeker = jobseeker;
+  set jobseeker(Jobseeker? jobseeker) {
+    _jobseeker = jobseeker!;
+    log('Gọi setJobseeker: ${jobseeker.toString()}');
     notifyListeners();
   }
 

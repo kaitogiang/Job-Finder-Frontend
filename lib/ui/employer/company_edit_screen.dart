@@ -181,7 +181,7 @@ class _CompanyEditScreenState extends State<CompanyEditScreen> {
           .read<CompanyManager>()
           .updateCompany(_editedCompany, _selectedAvatar, selectedFiles);
       //Hiện thị thông báo thành công
-      QuickAlert.show(
+      final isExit = await QuickAlert.show(
         context: context,
         type: QuickAlertType.success,
         title: 'Lưu thành công',
@@ -193,6 +193,9 @@ class _CompanyEditScreenState extends State<CompanyEditScreen> {
         showCancelBtn: true,
         cancelBtnText: 'Quay lại',
       );
+      if (isExit) {
+        Navigator.of(context).pop();
+      }
     } catch (error) {
       log('error in company manager: $error');
     }

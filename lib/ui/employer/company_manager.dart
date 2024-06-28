@@ -66,6 +66,7 @@ class CompanyManager extends ChangeNotifier {
         await _companyService.updateCompanyInfo(file, images, editedCompany);
     if (updatedCompany != null) {
       _company = updatedCompany;
+      log('updatedCompany la : ${updatedCompany.companyName}');
       notifyListeners();
     }
   }

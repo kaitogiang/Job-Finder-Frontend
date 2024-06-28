@@ -73,7 +73,7 @@ class _CompanyScreenState extends State<CompanyScreen> {
                   slivers: [
                     SliverAppBar(
                       pinned: true,
-                      expandedHeight: 400,
+                      expandedHeight: 440,
                       title: const Text(
                         'Công ty của tôi',
                         style: TextStyle(

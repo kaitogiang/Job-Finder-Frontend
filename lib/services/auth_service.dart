@@ -88,6 +88,7 @@ class AuthService {
       //   log(e);
       // });
       //Trả về đối tượng tùy theo loại của chúng, khi lấy dữ liệu thì chỉ cần ép kiểu là được
+      // log('Gia tri cua Jobseeker: ${Jobseeker.fromJson(responseJson).toString()}');
       return isEmployer
           ? Employer.fromJson(responseJson)
           : Jobseeker.fromJson(responseJson);

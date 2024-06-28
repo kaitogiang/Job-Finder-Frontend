@@ -64,6 +64,7 @@ class MyApp extends StatelessWidget {
             //TODO Khi authManager có báo hiệu thay đổi thì đọc lại authToken
             //* cho JobseekerManager
             jobseekerManager!.authToken = authManager.authToken;
+            // jobseekerManager.jobseeker = authManager.jobseeker;
             return jobseekerManager;
           },
         ),
