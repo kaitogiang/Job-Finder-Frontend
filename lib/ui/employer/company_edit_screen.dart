@@ -192,7 +192,9 @@ class _CompanyEditScreenState extends State<CompanyEditScreen> {
             Navigator.of(context, rootNavigator: true).pop(true),
         showCancelBtn: true,
         cancelBtnText: 'Quay lại',
-      );
+        onCancelBtnTap: () =>
+            Navigator.of(context, rootNavigator: true).pop(false),
+      ) as bool;
       if (isExit) {
         Navigator.of(context).pop();
       }

@@ -250,7 +250,10 @@ class ApplicantCard extends StatelessWidget {
                                 .read<ApplicationManager>()
                                 .rejectApplication(jobpostingId!, application);
                             Navigator.popUntil(
-                                context, (route) => route.isFirst);
+                                context,
+                                (route) =>
+                                    route.settings.name ==
+                                    'application-detail');
                           }
                         }
                       },
@@ -294,7 +297,10 @@ class ApplicantCard extends StatelessWidget {
                                 .read<ApplicationManager>()
                                 .approveApplication(application, jobpostingId!);
                             Navigator.popUntil(
-                                context, (route) => route.isFirst);
+                                context,
+                                (route) =>
+                                    route.settings.name ==
+                                    'application-detail');
                           }
                         }
                       },

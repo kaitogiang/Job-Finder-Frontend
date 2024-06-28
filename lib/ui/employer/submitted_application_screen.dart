@@ -115,7 +115,9 @@ class ReceivedApplicationList extends StatelessWidget {
         child: Consumer<ApplicationManager>(
             builder: (context, applicationManager, child) {
           final applicationStorage = applicationManager.applicationStorage;
-          String currentDate = applicationStorage[0].deadline;
+          String currentDate = applicationStorage.isNotEmpty
+              ? applicationStorage[0].deadline
+              : '';
           return ListView(
             children: <Widget>[
               Container(

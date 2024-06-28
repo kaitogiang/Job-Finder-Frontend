@@ -70,7 +70,8 @@ class _JobseekerHomeState extends State<JobseekerHome> {
     ];
 
     final ValueNotifier<int> _selectedLevelIndex = ValueNotifier(0);
-    String userName = context.read<JobseekerManager>().jobseeker.firstName;
+    // String userName = context.read<JobseekerManager>().jobseeker.firstName;
+    String userName = '';
 
     return Scaffold(
         appBar: AppBar(
@@ -83,7 +84,7 @@ class _JobseekerHomeState extends State<JobseekerHome> {
           title: ValueListenableBuilder(
               valueListenable: _isShowSearchAppbar,
               builder: (context, isShowSearch, child) {
-                return !isShowSearch ? Text('Hi, $userName') : SearchField();
+                return !isShowSearch ? Text('Xin chào') : SearchField();
               }),
           toolbarHeight: 70,
           flexibleSpace: Container(

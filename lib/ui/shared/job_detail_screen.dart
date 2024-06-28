@@ -12,6 +12,7 @@ import 'package:quickalert/quickalert.dart';
 import 'package:shadow_overlay/shadow_overlay.dart';
 
 import '../../models/employer.dart';
+import '../auth/auth_manager.dart';
 import '../jobseeker/widgets/company_card.dart';
 
 class JobDetailScreen extends StatefulWidget {
@@ -41,123 +42,130 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
     String formattedDeadline = DateFormat('dd-MM-yyyy').format(deadline);
     DateTime createdDate = DateTime.parse(jobposting.createdAt.split('T')[0]);
     String formattedCreation = DateFormat('dd-MM-yyyy').format(createdDate);
-
+    bool isEmployer = context.read<AuthManager>().isEmployer;
     return Scaffold(
-      bottomNavigationBar: Container(
-        height: 70,
-        width: deviceSize.width,
-        decoration: BoxDecoration(color: Colors.white, boxShadow: [
-          BoxShadow(
-            color: Colors.grey.shade600,
-            spreadRadius: 1,
-            blurRadius: 5,
-            offset: const Offset(0, 3),
-          ),
-        ]),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 15),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: <Widget>[
-              Expanded(
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    elevation: 3,
-                    fixedSize: const Size.fromHeight(50),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+      bottomNavigationBar: isEmployer
+          ? null
+          : Container(
+              height: 70,
+              width: deviceSize.width,
+              decoration: BoxDecoration(color: Colors.white, boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.shade600,
+                  spreadRadius: 1,
+                  blurRadius: 5,
+                  offset: const Offset(0, 3),
+                ),
+              ]),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 15),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    Expanded(
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          elevation: 3,
+                          fixedSize: const Size.fromHeight(50),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          backgroundColor: theme.primaryColor,
+                        ),
+                        onPressed: () async {
+                          final isApply = await QuickAlert.show(
+                            context: context,
+                            type: QuickAlertType.confirm,
+                            title:
+                                'Bạn có chắc chắn muốn ứng tuyển vào công việc này?',
+                            text:
+                                'Bạn chỉ được ứng tuyển vào công việc này một lần duy nhất',
+                            cancelBtnText: 'Không',
+                            confirmBtnText: 'Có',
+                            onCancelBtnTap: () =>
+                                Navigator.of(context).pop(false),
+                            onConfirmBtnTap: () =>
+                                Navigator.of(context).pop(true),
+                          ) as bool;
+                          if (isApply) {
+                            log('Apply liền luôn bạn ơi');
+                            Employer? employer = await context
+                                .read<ApplicationManager>()
+                                .getEmployerByCompanyId(jobposting.company!.id);
+                            final result = await context
+                                .read<ApplicationManager>()
+                                .applyApplication(
+                                    jobposting.id, employer!.email);
+                            if (result) {
+                              QuickAlert.show(
+                                context: context,
+                                type: QuickAlertType.success,
+                                title: 'Ứng tuyển thành công',
+                                text:
+                                    'Bạn đã ứng tuyển vào công việc này, hãy theo dõi thông báo khi có kết quả',
+                                confirmBtnText: 'Tôi biết rồi',
+                              );
+                            } else {
+                              QuickAlert.show(
+                                context: context,
+                                type: QuickAlertType.error,
+                                title: 'Ứng tuyển thất bại',
+                                text: 'Bạn không thể ứng tuyển vào vị trí này!',
+                                confirmBtnText: 'Tôi biết rồi',
+                              );
+                            }
+                          } else {
+                            log('Thôi để bữa khác');
+                          }
+                        },
+                        child: Text(
+                          'Ứng tuyển ngay',
+                          style: theme.textTheme.titleMedium!.copyWith(
+                            fontSize: 18,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
                     ),
-                    backgroundColor: theme.primaryColor,
-                  ),
-                  onPressed: () async {
-                    final isApply = await QuickAlert.show(
-                      context: context,
-                      type: QuickAlertType.confirm,
-                      title:
-                          'Bạn có chắc chắn muốn ứng tuyển vào công việc này?',
-                      text:
-                          'Bạn chỉ được ứng tuyển vào công việc này một lần duy nhất',
-                      cancelBtnText: 'Không',
-                      confirmBtnText: 'Có',
-                      onCancelBtnTap: () => Navigator.of(context).pop(false),
-                      onConfirmBtnTap: () => Navigator.of(context).pop(true),
-                    ) as bool;
-                    if (isApply) {
-                      log('Apply liền luôn bạn ơi');
-                      Employer? employer = await context
-                          .read<ApplicationManager>()
-                          .getEmployerByCompanyId(jobposting.company!.id);
-                      final result = await context
-                          .read<ApplicationManager>()
-                          .applyApplication(jobposting.id, employer!.email);
-                      if (result) {
-                        QuickAlert.show(
-                          context: context,
-                          type: QuickAlertType.success,
-                          title: 'Ứng tuyển thành công',
-                          text:
-                              'Bạn đã ứng tuyển vào công việc này, hãy theo dõi thông báo khi có kết quả',
-                          confirmBtnText: 'Tôi biết rồi',
-                        );
-                      } else {
-                        QuickAlert.show(
-                          context: context,
-                          type: QuickAlertType.error,
-                          title: 'Ứng tuyển thất bại',
-                          text: 'Bạn không thể ứng tuyển vào vị trí này!',
-                          confirmBtnText: 'Tôi biết rồi',
-                        );
-                      }
-                    } else {
-                      log('Thôi để bữa khác');
-                    }
-                  },
-                  child: Text(
-                    'Ứng tuyển ngay',
-                    style: theme.textTheme.titleMedium!.copyWith(
-                      fontSize: 18,
-                      color: Colors.white,
+                    const SizedBox(
+                      width: 10,
                     ),
-                  ),
+                    Container(
+                      height: 50,
+                      width: 50,
+                      decoration: BoxDecoration(
+                          color: Colors.blue[50],
+                          borderRadius: BorderRadius.circular(10),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.shade300,
+                              spreadRadius: 1,
+                              blurRadius: 1,
+                              offset: const Offset(0, 3),
+                            ),
+                          ]),
+                      child: ValueListenableBuilder(
+                          valueListenable: jobposting.favorite,
+                          builder: (context, isFavorite, child) {
+                            return IconButton(
+                              onPressed: () async {
+                                await context
+                                    .read<JobpostingManager>()
+                                    .changeFavoriteStatus(jobposting);
+                              },
+                              icon: Icon(
+                                isFavorite
+                                    ? Icons.favorite
+                                    : Icons.favorite_border,
+                                color: theme.primaryColor,
+                              ),
+                            );
+                          }),
+                    )
+                  ],
                 ),
               ),
-              const SizedBox(
-                width: 10,
-              ),
-              Container(
-                height: 50,
-                width: 50,
-                decoration: BoxDecoration(
-                    color: Colors.blue[50],
-                    borderRadius: BorderRadius.circular(10),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.shade300,
-                        spreadRadius: 1,
-                        blurRadius: 1,
-                        offset: const Offset(0, 3),
-                      ),
-                    ]),
-                child: ValueListenableBuilder(
-                    valueListenable: jobposting.favorite,
-                    builder: (context, isFavorite, child) {
-                      return IconButton(
-                        onPressed: () async {
-                          await context
-                              .read<JobpostingManager>()
-                              .changeFavoriteStatus(jobposting);
-                        },
-                        icon: Icon(
-                          isFavorite ? Icons.favorite : Icons.favorite_border,
-                          color: theme.primaryColor,
-                        ),
-                      );
-                    }),
-              )
-            ],
-          ),
-        ),
-      ),
+            ),
       body: CustomScrollView(
         slivers: <Widget>[
           //? Phần appbar dùng để chứa thông tin giới thiệu về bài tuyển dụng

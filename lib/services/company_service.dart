@@ -36,9 +36,11 @@ class CompanyService extends NodeService {
         file: file,
         images: images,
       ) as Map<String, dynamic>;
-      String avatar = response['avatarLink'];
-      log(response.toString());
-      return Company.fromJson({...response['updateCompany'], 'avatar': avatar});
+      // log('avatar link bi null: ${response['avatarLink']}');
+      // String avatar = response['avatarLink'];
+      // log('avatar la: $avatar');
+
+      return Company.fromJson(response['updateCompany']);
     } catch (error) {
       log('Error in updateCompanyInfo - service: $error');
       return null;

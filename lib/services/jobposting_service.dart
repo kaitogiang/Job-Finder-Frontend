@@ -101,7 +101,7 @@ class JobpostingService extends NodeService {
   Future<Jobposting?> createJobposting(Jobposting job) async {
     Map<String, dynamic> decodedToken = JwtDecoder.decode(token!);
     try {
-      await httpFetch(
+      final response = await httpFetch(
         '$databaseUrl/api/jobposting/create',
         headers: headers,
         method: HttpMethod.post,
@@ -109,9 +109,12 @@ class JobpostingService extends NodeService {
           ...job.toJson(),
           'companyId': decodedToken['companyId'],
         }),
-      );
+      ) as Map<String, dynamic>;
 
-      return job;
+      Map<String, dynamic> newJobposting =
+          response['newPost'] as Map<String, dynamic>;
+
+      return Jobposting.fromJson(newJobposting);
     } catch (error) {
       log('Error in createJobposting - Jobposting Service: $error');
       return null;

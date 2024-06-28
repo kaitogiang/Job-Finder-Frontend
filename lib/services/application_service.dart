@@ -64,6 +64,7 @@ class ApplicationService extends NodeService {
   Future<List<ApplicationStorage>?> getAllPostApplicationList() async {
     Map<String, dynamic> decodedToken = JwtDecoder.decode(token!);
     String companyId = decodedToken['companyId'];
+    log('CompanyId: $companyId');
     log('CompanyId la: $companyId');
     try {
       final response = await httpFetch(

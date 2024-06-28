@@ -56,7 +56,7 @@ class _JobPageViewState extends State<JobPageView>
       alignment: Alignment.bottomCenter,
       children: <Widget>[
         ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: 760),
+          constraints: const BoxConstraints(minHeight: 820),
           child: ExpandablePageView(
             controller: _pageViewController,
             onPageChanged: _handlePageViewChanged,

@@ -9,6 +9,7 @@ import 'package:flutter_quill/flutter_quill.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:job_finder_app/models/jobposting.dart';
+import 'package:job_finder_app/ui/employer/company_manager.dart';
 import 'package:job_finder_app/ui/shared/combined_text_form_field.dart';
 import 'package:job_finder_app/ui/shared/jobposting_manager.dart';
 import 'package:provider/provider.dart';
@@ -309,6 +310,7 @@ class _JobpostingCreationFormState extends State<JobpostingCreationForm> {
     String jobType = _jobtypeController.text;
     String deadline = _selectedDeadline.value!.toIso8601String();
     log('Title: $title, description: $desc, requirement: $req, benifit: $benifit, technoligy: $tech, level: $level, address: $address, worktime: $workTime, experience: $experience, jobtype: $jobType, address: $address, dealine: $deadline');
+
     //todo: Thực hiện lưu dữ liệu vào bảng công việc
     editedJob = editedJob?.copyWith(
       title: title,
