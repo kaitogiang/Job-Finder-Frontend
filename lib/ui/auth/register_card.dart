@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:job_finder_app/ui/auth/auth_manager.dart';
 import 'package:provider/provider.dart';
 
+import '../shared/modal_bottom_sheet.dart';
+import '../shared/vietname_provinces.dart';
+
 enum UserType { jobseeker, employer }
 
 class RegisterCard extends StatefulWidget {
@@ -17,7 +20,8 @@ class _RegisterCardState extends State<RegisterCard> {
   final GlobalKey<FormState> _formKey = GlobalKey();
   final PageController _pageController =
       PageController(); //Controller để quản lý việc chuyển form
-  ValueNotifier<UserType> userType = ValueNotifier<UserType>(UserType.jobseeker);
+  ValueNotifier<UserType> userType =
+      ValueNotifier<UserType>(UserType.jobseeker);
   ValueNotifier<bool> isPasswordShown = ValueNotifier<bool>(false);
   ValueNotifier<int> _currentIndexPage = ValueNotifier<int>(0);
   ValueNotifier<bool> _isSendingOTP = ValueNotifier<bool>(false);
@@ -26,6 +30,12 @@ class _RegisterCardState extends State<RegisterCard> {
   final firstNameController = TextEditingController();
   final addressController = TextEditingController();
   final Map<String, TextEditingController> textControllers = {};
+
+  //?Các khai báo dành cho hiển thị popup chọn tỉnh/thành phố
+  ValueNotifier<List<String>> provinceListenable =
+      ValueNotifier(VietNameProvinces.provinces);
+  ValueNotifier<int> selectedProvinceIndex = ValueNotifier(-1);
+  TextEditingController searchController = TextEditingController();
 
   Map<String, String> submitedData = {
     'firstName': '',
@@ -49,11 +59,13 @@ class _RegisterCardState extends State<RegisterCard> {
     _formKey.currentState!.save();
     log(submitedData.toString());
     try {
-      await context.read<AuthManager>().register(
-          submitedData, userType.value == UserType.employer ? true : false).then((value) {
-            log('Tạo tài khoản thành công');
-          });
-      
+      await context
+          .read<AuthManager>()
+          .register(
+              submitedData, userType.value == UserType.employer ? true : false)
+          .then((value) {
+        log('Tạo tài khoản thành công');
+      });
     } catch (error) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -74,6 +86,15 @@ class _RegisterCardState extends State<RegisterCard> {
       String controllerName = '${key}Controller';
       textControllers[controllerName] = TextEditingController();
     }
+    //?Lắng nghe nhập tìm kiếm trong search bar bên trong popUp tỉnh/thành phố
+    searchController.addListener(() {
+      String searchText = searchController.text;
+      List<String> searchProivinces =
+          VietNameProvinces.searchProvinces(searchText);
+      provinceListenable.value = searchProivinces;
+      selectedProvinceIndex.value = provinceListenable.value
+          .indexOf(textControllers['addressController']!.text);
+    });
     super.initState();
   }
 
@@ -244,7 +265,9 @@ class _RegisterCardState extends State<RegisterCard> {
         ValueListenableBuilder(
           valueListenable: userType,
           builder: (context, value, child) {
-            return value == UserType.jobseeker ? _buildOTP() : _buildRoleField();
+            return value == UserType.jobseeker
+                ? _buildOTP()
+                : _buildRoleField();
           },
         )
       ],
@@ -328,6 +351,8 @@ class _RegisterCardState extends State<RegisterCard> {
   Widget _buildAddressField() {
     return TextFormField(
       controller: textControllers['addressController'],
+      readOnly: true,
+      onTap: _showProvincesOption,
       decoration: const InputDecoration(
         labelText: 'Address',
         prefixIcon: Icon(Icons.place),
@@ -344,6 +369,98 @@ class _RegisterCardState extends State<RegisterCard> {
         submitedData['address'] = value!;
       },
     );
+  }
+
+  //?Hàm xử lý việc hiển thị popup để chọn địa chỉ
+  void _showProvincesOption() {
+    log('So luong tinh: ${provinceListenable.value.length}');
+    showAdditionalScreen(
+        context: context,
+        title: 'Tỉnh/thành phố',
+        child: Column(
+          children: [
+            TextFormField(
+              controller: searchController,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                constraints: BoxConstraints.tight(Size.fromHeight(60)),
+                labelText: 'Tìm Tỉnh/thành phố',
+                prefixIcon: Icon(Icons.search),
+              ),
+              textInputAction: TextInputAction.search,
+            ),
+            Expanded(
+              child: Container(
+                  padding: EdgeInsets.only(top: 5),
+                  child: ValueListenableBuilder<List<String>>(
+                      valueListenable: provinceListenable,
+                      builder: (context, provinces, child) {
+                        return !provinces.isEmpty
+                            ? ListView.separated(
+                                shrinkWrap:
+                                    true, //TODO: Chỉ định kích thước của ListView bằng với cố lượng phần tử
+                                itemCount: provinces.length,
+                                separatorBuilder:
+                                    (BuildContext context, int index) =>
+                                        const Divider(
+                                          thickness: 0.3,
+                                        ),
+                                itemBuilder: (context, index) {
+                                  return ValueListenableBuilder<int>(
+                                      valueListenable: selectedProvinceIndex,
+                                      builder: (context, provinceIndex, child) {
+                                        return ListTile(
+                                          selected: index == provinceIndex,
+                                          title: Text(
+                                            provinces[index],
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodyLarge!
+                                                .copyWith(
+                                                    fontFamily: 'Lato',
+                                                    color:
+                                                        index == provinceIndex
+                                                            ? Theme.of(context)
+                                                                .primaryColor
+                                                            : Colors.black),
+                                          ),
+                                          trailing: index == provinceIndex
+                                              ? Icon(
+                                                  Icons.check,
+                                                  color: Theme.of(context)
+                                                      .primaryColor,
+                                                )
+                                              : null,
+                                          onTap: () {
+                                            log('Đã chọn ${provinces[index]}');
+                                            textControllers[
+                                                    'addressController']!
+                                                .text = provinces[index];
+                                            selectedProvinceIndex.value = index;
+                                            searchController.clear();
+                                            Navigator.pop(context);
+                                          },
+                                        );
+                                      });
+                                })
+                            : Padding(
+                                padding: const EdgeInsets.only(top: 10),
+                                child: Text(
+                                  'Không tìm thấy địa điểm phù hợp',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyLarge!
+                                      .copyWith(
+                                        fontSize: 17,
+                                      ),
+                                ),
+                              );
+                      })),
+            )
+          ],
+        ));
   }
 
   Widget _buildEmailField() {
