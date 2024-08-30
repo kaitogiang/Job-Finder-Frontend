@@ -3,6 +3,7 @@ import 'dart:developer' as dp;
 import 'package:flutter/material.dart';
 import 'package:job_finder_app/models/auth_token.dart';
 import 'package:job_finder_app/services/jobposting_service.dart';
+import 'package:job_finder_app/services/socket_service.dart';
 import 'package:job_finder_app/ui/shared/utils.dart';
 
 import '../../models/jobposting.dart';
@@ -34,6 +35,7 @@ class JobpostingManager extends ChangeNotifier {
   bool _isLoading = false;
 
   final JobpostingService _jobpostingService;
+  SocketService? _socketService;
 
   JobpostingManager([AuthToken? authToken])
       : _jobpostingService = JobpostingService(authToken);
@@ -41,6 +43,10 @@ class JobpostingManager extends ChangeNotifier {
   set authToken(AuthToken? authToken) {
     _jobpostingService.authToken = authToken;
     notifyListeners();
+  }
+
+  set socketService(SocketService? socketService) {
+    _socketService = socketService;
   }
 
   List<Jobposting> get jobpostings => _jobpostings;

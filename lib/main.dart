@@ -1,7 +1,10 @@
+import 'dart:developer';
+
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:job_finder_app/services/socket_service.dart';
 import 'package:job_finder_app/ui/auth/auth_manager.dart';
 import 'package:job_finder_app/ui/employer/application_manager.dart';
 import 'package:job_finder_app/ui/employer/company_manager.dart';
@@ -11,6 +14,7 @@ import 'package:job_finder_app/ui/shared/jobposting_manager.dart';
 import 'package:provider/provider.dart';
 
 import 'ui/shared/build_router.dart';
+import 'ui/shared/utils.dart';
 
 Future<void> main() async {
   //load the .env file
@@ -55,7 +59,10 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (context) => AuthManager(),
+          create: (context) {
+            log("AuthManager is being created");
+            return AuthManager();
+          },
         ),
         ChangeNotifierProxyProvider<AuthManager, JobseekerManager>(
           create: (context) =>
@@ -93,6 +100,8 @@ class MyApp extends StatelessWidget {
             //TODO Khi authManager có báo hiệu thay đổi thì đọc lại authToken
             //* cho JobseekerManager
             jobpostingManager!.authToken = authManager.authToken;
+            jobpostingManager.socketService = authManager.socketService;
+            Utils.logMessage('JobpostingManager is being created');
             return jobpostingManager;
           },
         ),
@@ -104,7 +113,7 @@ class MyApp extends StatelessWidget {
             applicationManager!.authToken = authManager.authToken;
             return applicationManager;
           },
-        )
+        ),
       ],
       child: Consumer<AuthManager>(builder: (ctx, authManager, child) {
         return MaterialApp.router(
