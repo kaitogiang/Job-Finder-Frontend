@@ -30,7 +30,7 @@ class _TechAdditionScreenState extends State<TechAdditionScreen> {
 
   @override
   void dispose() {
-    log('dispose');
+    Utils.logMessage('dispose');
     // _skillController!.dispose();
     super.dispose();
   }
@@ -68,7 +68,7 @@ class _TechAdditionScreenState extends State<TechAdditionScreen> {
                       });
                     },
                     onSelected: (option) {
-                      log('Bạn đã chọn ${option}');
+                      Utils.logMessage('Bạn đã chọn ${option}');
                     },
                     fieldViewBuilder: ((context, textEditingController,
                         focusNode, onFieldSubmitted) {
@@ -145,7 +145,7 @@ class _TechAdditionScreenState extends State<TechAdditionScreen> {
                       _skillsListenable.value = updatedList;
                       _skillController!.clear();
                     } else {
-                      log('Emplty text form field');
+                      Utils.logMessage('Emplty text form field');
                       QuickAlert.show(
                           context: context,
                           type: QuickAlertType.error,
@@ -208,7 +208,8 @@ class _TechAdditionScreenState extends State<TechAdditionScreen> {
                                 size: 20,
                               ),
                               onDeleted: () {
-                                log('Xóa kỹ năng: ${skillsList[index]}');
+                                Utils.logMessage(
+                                    'Xóa kỹ năng: ${skillsList[index]}');
                                 final updatedList =
                                     List<String>.from(_skillsListenable.value)
                                       ..remove(_skillsListenable.value[index]);

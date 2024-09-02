@@ -10,6 +10,7 @@ import 'package:job_finder_app/models/resume.dart';
 import 'package:job_finder_app/services/node_service.dart';
 
 import '../models/jobseeker.dart';
+import '../ui/shared/utils.dart';
 
 class JobseekerService extends NodeService {
   JobseekerService([AuthToken? authToken]) : super(authToken);
@@ -23,7 +24,7 @@ class JobseekerService extends NodeService {
 
       return jobseeker;
     } catch (error) {
-      log('job service: ${error}');
+      Utils.logMessage('job service: ${error}');
       return null;
     }
   }
@@ -37,13 +38,13 @@ class JobseekerService extends NodeService {
           fields: updatedUser) as Map<String, dynamic>?;
 
       if (updateProfile != null) {
-        log('job service Đã cập nhật người dùng');
+        Utils.logMessage('job service Đã cập nhật người dùng');
         return updateProfile;
       } else {
         return null;
       }
     } catch (error) {
-      log('job service: ${error}');
+      Utils.logMessage('job service: ${error}');
       return null;
     }
   }

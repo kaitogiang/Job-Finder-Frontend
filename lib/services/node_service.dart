@@ -59,9 +59,9 @@ abstract class NodeService {
           headers: headers,
         ),
     };
-    log('respone la: $response');
+    // log('respone la: $response');
     final json = jsonDecode(response.body);
-    log('kq json la: $json');
+    // log('kq json la: $json');
     if (response.statusCode != 200) {
       log('Lỗi trong catch');
       throw HttpException(json['message']);

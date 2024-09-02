@@ -11,6 +11,7 @@ import '../../../models/application.dart';
 import '../../shared/enums.dart';
 import '../../shared/modal_bottom_sheet.dart';
 import 'status_card.dart';
+import '../../shared/utils.dart';
 
 //! Card dùng để hiển thị một hồ sơ đã nộp của một ứng viên
 class ApplicantCard extends StatelessWidget {
@@ -125,20 +126,20 @@ class ApplicantCard extends StatelessWidget {
                   return _buildActionButton(
                     context: context,
                     onPreview: () async {
-                      log('Xem chi tiết profile');
+                      Utils.logMessage('Xem chi tiết profile');
                       context.pushNamed('jobseeker-detail',
                           extra: application.jobseekerId);
                       Navigator.pop(context);
                     },
                     onDownload: () async {
-                      log('Tải xuống CV');
+                      Utils.logMessage('Tải xuống CV');
                       bool isAllowedToSendNotification =
                           await AwesomeNotifications().isNotificationAllowed();
                       if (!isAllowedToSendNotification) {
                         AwesomeNotifications()
                             .requestPermissionToSendNotifications();
                       }
-                      log('Path la: ${application.resume}');
+                      Utils.logMessage('Path la: ${application.resume}');
                       final path = await context
                           .read<ApplicationManager>()
                           .downloadFile(application.resume,
@@ -166,7 +167,8 @@ class ApplicantCard extends StatelessWidget {
                     },
                     onUpdate: !isRead
                         ? () {
-                            log('Cập nhật trạng thái cho ứng viên này');
+                            Utils.logMessage(
+                                'Cập nhật trạng thái cho ứng viên này');
                             _showMyDialog(context, application);
                           }
                         : null,
@@ -226,7 +228,7 @@ class ApplicantCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(10),
                           )),
                       onPressed: () async {
-                        log('Từ chối');
+                        Utils.logMessage('Từ chối');
                         final isCancel = await QuickAlert.show(
                           context: context,
                           type: QuickAlertType.confirm,
@@ -272,7 +274,7 @@ class ApplicantCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(10),
                           )),
                       onPressed: () async {
-                        log('Nhận');
+                        Utils.logMessage('Nhận');
                         final isCancel = await QuickAlert.show(
                           context: context,
                           type: QuickAlertType.confirm,

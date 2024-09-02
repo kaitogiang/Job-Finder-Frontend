@@ -10,6 +10,7 @@ import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/jobseeker.dart';
 import '../models/http_exception.dart';
+import '../ui/shared/utils.dart';
 
 class AuthService {
   static const _authTokenKey = 'authToken';
@@ -39,12 +40,13 @@ class AuthService {
           body: json.encode({'email': email, 'password': password}));
       if (response.statusCode >= 200 && response.statusCode < 300) {
         final responseJson = json.decode(response.body);
-        log('Đang trong auth_service: ' + responseJson.toString());
+        Utils.logMessage('Đang trong auth_service: ' + responseJson.toString());
         final token = responseJson['token'];
         //decode token to get information
         if (token != null) {
           Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
-          log('Đang trong auth_service: ' + decodedToken.toString());
+          Utils.logMessage(
+              'Đang trong auth_service: ' + decodedToken.toString());
           final authToken = _fromJson(responseJson);
           //lưu trữ lại AuthToken để đăng nhập tự động khi còn thời gian
           await _saveAuthToken(authToken);
@@ -80,7 +82,7 @@ class AuthService {
     final response = await http.get(uri);
     if (response.statusCode >= 200 && response.statusCode < 300) {
       final responseJson = json.decode(response.body) as Map<String, dynamic>;
-      log('Dữ liệu fetch trong response: $responseJson');
+      Utils.logMessage('Dữ liệu fetch trong response: $responseJson');
       // final list = responseJson['skills'] as List<dynamic>;
       // log('Hàm fetchUserInfo auth_servie ' + list.toString());
       // list.forEach((element) {
@@ -94,7 +96,7 @@ class AuthService {
           : Jobseeker.fromJson(responseJson);
     } else {
       final errorResponse = json.decode(response.body);
-      log(errorResponse.toString());
+      Utils.logMessage(errorResponse.toString());
       throw HttpException.fromJson(errorResponse);
     }
   }
@@ -165,7 +167,7 @@ class AuthService {
         throw HttpException.fromJson(errorResponse);
       }
     } catch (error) {
-      log(error.toString());
+      Utils.logMessage(error.toString());
       rethrow;
     }
   }
@@ -242,7 +244,7 @@ class AuthService {
         throw HttpException.fromJson(errorResponse);
       }
     } catch (error) {
-      log(error.toString());
+      Utils.logMessage(error.toString());
       rethrow;
     }
   }

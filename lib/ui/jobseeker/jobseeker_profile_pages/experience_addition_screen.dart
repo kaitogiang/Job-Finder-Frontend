@@ -10,6 +10,8 @@ import 'package:job_finder_app/ui/shared/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 import 'package:quickalert/quickalert.dart';
 
+import 'package:job_finder_app/ui/shared/utils.dart';
+
 class ExperienceAdditionScreen extends StatefulWidget {
   ExperienceAdditionScreen({super.key, Experience? experience}) {
     if (experience == null) {
@@ -62,7 +64,7 @@ class _ExperienceAdditionScreenState extends State<ExperienceAdditionScreen> {
           .experience
           .indexOf(widget.exp!);
     }
-    log('Chỉ số la $expIndex');
+    Utils.logMessage('Chỉ số la $expIndex');
 
     super.initState();
   }
@@ -79,7 +81,7 @@ class _ExperienceAdditionScreenState extends State<ExperienceAdditionScreen> {
         _companyController.text.isNotEmpty &&
         _fromController.text.isNotEmpty &&
         (_isDoing || _toController.text.isNotEmpty);
-    log('IsFull la: ${isFull.value}');
+    Utils.logMessage('IsFull la: ${isFull.value}');
   }
 
   Future<void> _addExperience() async {
@@ -102,7 +104,7 @@ class _ExperienceAdditionScreenState extends State<ExperienceAdditionScreen> {
           .whenComplete(() => Navigator.pop(context));
       Navigator.pop(context);
     } catch (error) {
-      log('Loi trong _addExperienece: exp_addiion_screen');
+      Utils.logMessage('Loi trong _addExperienece: exp_addiion_screen');
     }
   }
 
@@ -126,7 +128,7 @@ class _ExperienceAdditionScreenState extends State<ExperienceAdditionScreen> {
           .whenComplete(() => Navigator.pop(context));
       Navigator.pop(context);
     } catch (error) {
-      log('Loi trong _addExperienece: exp_addiion_screen');
+      Utils.logMessage('Loi trong _addExperienece: exp_addiion_screen');
     }
   }
 

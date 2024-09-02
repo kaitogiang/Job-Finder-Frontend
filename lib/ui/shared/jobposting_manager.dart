@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 import 'dart:developer' as dp;
 import 'package:flutter/material.dart';
@@ -47,6 +48,12 @@ class JobpostingManager extends ChangeNotifier {
 
   set socketService(SocketService? socketService) {
     _socketService = socketService;
+    // _socketService?.jobpostingStream.listen((data) {
+    //   Utils.logMessage("Jobposting modified: $data");
+    // }, onError: (error) {
+    //   Utils.logMessage("Error: $error");
+    // });
+    notifyListeners();
   }
 
   List<Jobposting> get jobpostings => _jobpostings;
@@ -102,6 +109,30 @@ class JobpostingManager extends ChangeNotifier {
       _filteredPosts = _jobpostings;
       notifyListeners();
     }
+  }
+
+  void _handleJobpostingUpdate(Map<String, dynamic> data) {
+    final operationType = data["operationType"];
+    final updatedJobposting = Jobposting.fromJson(data["modifiedJobposting"]);
+
+    if (operationType == "update") {
+      final index =
+          _jobpostings.indexWhere((job) => job.id == updatedJobposting.id);
+      _jobpostings[index] = updatedJobposting;
+    } else {
+      Utils.logMessage("Unknown operation type: $operationType");
+    }
+
+    _filteredPosts = _jobpostings;
+    notifyListeners();
+  }
+
+  void listenToJobpostingChanges() {
+    _socketService?.jobpostingStream.listen((data) {
+      Utils.logMessage("Jobposting modified: $data");
+    }, onError: (error) {
+      Utils.logMessage("Error: $error");
+    });
   }
 
   Future<void> changeFavoriteStatus(Jobposting jobposting) async {

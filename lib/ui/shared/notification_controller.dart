@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/services.dart';
 import 'package:open_file_manager/open_file_manager.dart';
+import 'package:job_finder_app/ui/shared/utils.dart';
 
 class NotificationController {
   /// Use this method to detect when a new notification or a schedule is created
@@ -11,7 +12,7 @@ class NotificationController {
   static Future<void> onNotificationCreatedMethod(
       ReceivedNotification receivedNotification) async {
     // Your code goes here
-    log('Created Notification');
+    Utils.logMessage('Created Notification');
   }
 
   /// Use this method to detect every time that a new notification is displayed
@@ -33,7 +34,7 @@ class NotificationController {
   static Future<void> onActionReceivedMethod(
       ReceivedAction receivedAction) async {
     // Your code goes here
-    log('Mở folder');
+    Utils.logMessage('Mở folder');
     //todo open the image folder
 
     // await OpenFile.open('/storage/emulated/0/Download/');
