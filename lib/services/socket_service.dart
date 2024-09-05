@@ -81,8 +81,8 @@ class SocketService {
 
   void disconnect() {
     // socket?.disconnect();
-    socket?.close();
-    // socket?.dispose();
+    // socket?.close();
+    socket?.dispose();
     _jobpostingController.close();
   }
 
@@ -92,9 +92,17 @@ class SocketService {
   }
 
   void _listenToJobpostingChanges() {
+    Utils.logMessage("Lắng nghe sự kiện cập nhật jobposting");
     socket?.on("jobposting:modified", (data) {
-      Utils.logMessage("Jobposting modified: $data");
-      _jobpostingController.sink.add(data);
+      Utils.logMessage("Có dữ liệu mới đến của jobposting");
+      _jobpostingController.add(data);
     });
   }
+
+  // void listenToJobpostingChanges(Function(Map<String, dynamic>) onAction) {
+  //   socket?.on("jobposting:modified", (data) {
+  //     Utils.logMessage("Có dữ liệu mới đến của jobposting");
+  //     onAction(data);
+  //   });
+  // }
 }

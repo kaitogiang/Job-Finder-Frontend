@@ -106,7 +106,7 @@ class MyApp extends StatelessWidget {
             //TODO Khi authManager có báo hiệu thay đổi thì đọc lại authToken
             //* cho JobseekerManager
             jobpostingManager!.authToken = authManager.authToken;
-            // jobpostingManager.socketService = authManager.socketService;
+            jobpostingManager.socketService = authManager.socketService;
             Utils.logMessage(
                 'Trong JobpostingManager: Socket la: ${authManager.socketService?.socket?.hashCode}');
             Utils.logMessage(
