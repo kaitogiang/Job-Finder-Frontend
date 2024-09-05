@@ -92,18 +92,18 @@ class EmployerEditScreenState extends State<EmployerEditScreen> {
         });
       }
     } catch (error) {
-      log(error.toString());
+      Utils.logMessage(error.toString());
     }
   }
 
   Future<void> _updateProfile() async {
     if (!_formKey.currentState!.validate()) {
-      log('Lỗi trong info edit, chưa điền hết');
+      Utils.logMessage('Lỗi trong info edit, chưa điền hết');
       return;
     }
 
     _formKey.currentState!.save();
-    log(userInfo.toString());
+    Utils.logMessage(userInfo.toString());
     try {
       setState(() {
         _isLoading = true;
@@ -115,7 +115,7 @@ class EmployerEditScreenState extends State<EmployerEditScreen> {
       });
       Navigator.pop(context);
     } catch (error) {
-      log('Lỗi trong infor edit ${error}');
+      Utils.logMessage('Lỗi trong infor edit ${error}');
     }
   }
 
@@ -185,7 +185,7 @@ class EmployerEditScreenState extends State<EmployerEditScreen> {
                                       color: theme.indicatorColor,
                                     ),
                                     onPressed: () {
-                                      log('Upload ảnh');
+                                      Utils.logMessage('Upload ảnh');
                                       _pickFile();
                                     },
                                   ),
@@ -324,7 +324,7 @@ class EmployerEditScreenState extends State<EmployerEditScreen> {
   }
 
   void _showProvincesOption() {
-    log('So luong tinh: ${provinceListenable.value.length}');
+    Utils.logMessage('So luong tinh: ${provinceListenable.value.length}');
     showAdditionalScreen(
         context: context,
         title: 'Tỉnh/thành phố',
@@ -385,7 +385,8 @@ class EmployerEditScreenState extends State<EmployerEditScreen> {
                                                 )
                                               : null,
                                           onTap: () {
-                                            log('Đã chọn ${provinces[index]}');
+                                            Utils.logMessage(
+                                                'Đã chọn ${provinces[index]}');
                                             addressController.text =
                                                 provinces[index];
                                             selectedProvinceIndex.value = index;

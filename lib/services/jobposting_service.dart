@@ -94,7 +94,7 @@ class JobpostingService extends NodeService {
       ) as List<dynamic>;
       List<Map<String, dynamic>> convertedResponse =
           response.map((post) => post as Map<String, dynamic>).toList();
-      log('List<Map<String, dynamic la>>: ${convertedResponse.toString()}');
+      // log('List<Map<String, dynamic la>>: ${convertedResponse.toString()}');
       List<Jobposting> jobList =
           convertedResponse.map((e) => Jobposting.fromJson(e)).toList();
 

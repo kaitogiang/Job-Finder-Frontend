@@ -309,7 +309,8 @@ class _JobpostingCreationFormState extends State<JobpostingCreationForm> {
     String experience = _experienceController.text;
     String jobType = _jobtypeController.text;
     String deadline = _selectedDeadline.value!.toIso8601String();
-    log('Title: $title, description: $desc, requirement: $req, benifit: $benifit, technoligy: $tech, level: $level, address: $address, worktime: $workTime, experience: $experience, jobtype: $jobType, address: $address, dealine: $deadline');
+    Utils.logMessage(
+        'Title: $title, description: $desc, requirement: $req, benifit: $benifit, technoligy: $tech, level: $level, address: $address, worktime: $workTime, experience: $experience, jobtype: $jobType, address: $address, dealine: $deadline');
 
     //todo: Thực hiện lưu dữ liệu vào bảng công việc
     editedJob = editedJob?.copyWith(
@@ -363,7 +364,7 @@ class _JobpostingCreationFormState extends State<JobpostingCreationForm> {
               : 'Cập nhật bài tuyển dụng thành công',
           confirmBtnText: 'Đồng ý');
     } catch (error) {
-      log('Error in Job creation form: $error');
+      Utils.logMessage('Error in Job creation form: $error');
     }
   }
 
@@ -400,7 +401,7 @@ class _JobpostingCreationFormState extends State<JobpostingCreationForm> {
     _descController.dispose();
     _reqController.dispose();
 
-    log('dispose trong JobCreationForm');
+    Utils.logMessage('dispose trong JobCreationForm');
     super.dispose();
   }
 
@@ -1180,7 +1181,7 @@ class _JobpostingCreationFormState extends State<JobpostingCreationForm> {
                   child: ValueListenableBuilder(
                       valueListenable: _isFullField,
                       builder: (context, isFull, child) {
-                        log('kq cua isFull: $isFull');
+                        Utils.logMessage('kq cua isFull: $isFull');
                         return ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             elevation: 3,
@@ -1211,7 +1212,7 @@ class _JobpostingCreationFormState extends State<JobpostingCreationForm> {
   }
 
   void _showProvincesOption() {
-    log('So luong tinh: ${provinceListenable.value.length}');
+    Utils.logMessage('So luong tinh: ${provinceListenable.value.length}');
     //todo Tìm chỉ số tỉnh mà trùng với danh sách tỉnh
     int selectedIndex = provinceListenable.value.indexWhere((element) {
       String alteredElement =
@@ -1283,7 +1284,8 @@ class _JobpostingCreationFormState extends State<JobpostingCreationForm> {
                                                 )
                                               : null,
                                           onTap: () {
-                                            log('Đã chọn ${provinces[index]}');
+                                            Utils.logMessage(
+                                                'Đã chọn ${provinces[index]}');
                                             addressController.text =
                                                 provinces[index];
                                             Navigator.of(context,

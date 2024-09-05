@@ -3,6 +3,8 @@ import 'dart:developer';
 import 'package:expandable_page_view/expandable_page_view.dart';
 import 'package:flutter/material.dart';
 import 'package:job_finder_app/models/jobposting.dart';
+import 'package:job_finder_app/ui/shared/jobposting_manager.dart';
+import 'package:job_finder_app/ui/shared/utils.dart';
 
 import '../../shared/job_card.dart';
 
@@ -14,15 +16,19 @@ class JobPageView extends StatefulWidget {
 }
 
 class _JobPageViewState extends State<JobPageView>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin, AutomaticKeepAliveClientMixin {
   late PageController _pageViewController;
   late TabController _tabController;
-  int _currentPageIndex = 0;
+  ValueNotifier<int> _currentPageIndex = ValueNotifier(0);
   int tabLength = 0;
   List<Jobposting> list = [];
   @override
   void initState() {
     super.initState();
+    _intialPageView();
+  }
+
+  void _intialPageView() {
     int randomLength;
     if (widget.random != null) {
       randomLength = widget.random!.length;
@@ -41,6 +47,7 @@ class _JobPageViewState extends State<JobPageView>
     log('Tab lengh: $tabLength');
     _pageViewController = PageController();
     _tabController = TabController(length: tabLength, vsync: this);
+    Utils.logMessage("Phan tu trong JobPageView: ${list.toString()}");
   }
 
   @override
@@ -51,7 +58,23 @@ class _JobPageViewState extends State<JobPageView>
   }
 
   @override
+  void didUpdateWidget(covariant JobPageView oldWidget) {
+    // TODO: implement didUpdateWidget
+    Utils.logMessage("Goi didUpdateWidget trong JobPageView");
+    super.didUpdateWidget(oldWidget);
+    if (widget.random != oldWidget.random) {
+      _intialPageView();
+    }
+  }
+
+  @override
+  bool get wantKeepAlive => true; // Required for AutomaticKeepAliveClientMixin
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context); // Call the super method
+    // _intialPageView();
+    Utils.logMessage("Goi build trong JobPageView");
     return Stack(
       alignment: Alignment.bottomCenter,
       children: <Widget>[
@@ -63,6 +86,7 @@ class _JobPageViewState extends State<JobPageView>
             children: <Widget>[
               if (tabLength >= 1)
                 Column(
+                  key: const PageStorageKey<String>('page1'),
                   mainAxisSize: MainAxisSize.min,
                   children: List<Widget>.generate(
                       list.length >= 3 ? 3 : list.length,
@@ -70,6 +94,7 @@ class _JobPageViewState extends State<JobPageView>
                 ),
               if (tabLength >= 2)
                 Column(
+                  key: const PageStorageKey<String>('page2'),
                   mainAxisSize: MainAxisSize.min,
                   children: List<Widget>.generate(
                       list.length >= 6 ? 3 : list.length - 3,
@@ -77,6 +102,7 @@ class _JobPageViewState extends State<JobPageView>
                 ),
               if (tabLength == 3)
                 Column(
+                  key: const PageStorageKey<String>('page3'),
                   mainAxisSize: MainAxisSize.min,
                   children: List<Widget>.generate(
                       list.length >= 9 ? 3 : list.length - 6,
@@ -85,10 +111,16 @@ class _JobPageViewState extends State<JobPageView>
             ],
           ),
         ),
-        PageIndicator(
-          tabController: _tabController,
-          currentPageIndex: _currentPageIndex,
-          onUpdateCurrentPageIndex: _updateCurrentPageIndex,
+        ValueListenableBuilder<int>(
+          valueListenable: _currentPageIndex,
+          builder: (context, currentPageIndex, child) {
+            return PageIndicator(
+              tabController: _tabController,
+              currentPageIndex: currentPageIndex,
+              onUpdateCurrentPageIndex: _updateCurrentPageIndex,
+              tabLength: tabLength,
+            );
+          },
         )
       ],
     );
@@ -98,9 +130,7 @@ class _JobPageViewState extends State<JobPageView>
   //todo 2. Đổi trang
   void _handlePageViewChanged(int currentPageIndex) {
     _tabController.index = currentPageIndex;
-    setState(() {
-      _currentPageIndex = currentPageIndex;
-    });
+    _currentPageIndex.value = currentPageIndex;
   }
 
   void _updateCurrentPageIndex(int index) {
@@ -117,11 +147,13 @@ class PageIndicator extends StatelessWidget {
     required this.tabController,
     required this.currentPageIndex,
     required this.onUpdateCurrentPageIndex,
+    required this.tabLength,
   });
 
   final int currentPageIndex;
   final TabController tabController;
   final void Function(int) onUpdateCurrentPageIndex;
+  final int tabLength;
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
@@ -154,7 +186,7 @@ class PageIndicator extends StatelessWidget {
             splashRadius: 16,
             padding: EdgeInsets.zero,
             onPressed: () {
-              if (currentPageIndex == 2) {
+              if (currentPageIndex == 2 || currentPageIndex == tabLength - 1) {
                 return;
               }
               onUpdateCurrentPageIndex(currentPageIndex + 1);

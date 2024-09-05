@@ -6,6 +6,7 @@ import 'package:job_finder_app/ui/jobseeker/widgets/job_page_view.dart';
 import 'package:job_finder_app/ui/shared/job_card.dart';
 import 'package:job_finder_app/ui/shared/jobposting_manager.dart';
 import 'package:job_finder_app/ui/shared/loading_screen.dart';
+import 'package:job_finder_app/ui/shared/utils.dart';
 import 'package:provider/provider.dart';
 
 import 'widgets/home_card.dart';
@@ -26,6 +27,7 @@ class _JobseekerHomeState extends State<JobseekerHome> {
   @override
   void initState() {
     super.initState();
+    Utils.logMessage("Jobseeker home init state");
     _scrollController = ScrollController();
     _scrollController!.addListener(() {
       if (_scrollController!.offset >= _scrollThreshold) {
@@ -34,6 +36,9 @@ class _JobseekerHomeState extends State<JobseekerHome> {
         _isShowSearchAppbar.value = false;
       }
     });
+
+    //Lắng nghe jobposting socket
+    context.read<JobpostingManager>().listenToJobpostingChanges();
   }
 
   @override

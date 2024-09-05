@@ -8,6 +8,8 @@ import '../../models/jobseeker.dart';
 import '../../models/employer.dart';
 import '../../services/auth_service.dart';
 import '../../models/auth_token.dart';
+import '../../services/socket_service.dart';
+import '../../ui/shared/utils.dart';
 
 class AuthManager with ChangeNotifier {
   AuthToken? _authToken;
@@ -15,6 +17,7 @@ class AuthManager with ChangeNotifier {
   bool _isEmployer = false; //Biến quản lý loại người dùng
   late Jobseeker? _jobseeker;
   late Employer? _employer;
+  SocketService? _socketService;
 
   final AuthService _authService = AuthService();
 
@@ -35,6 +38,8 @@ class AuthManager with ChangeNotifier {
 
   Employer? get employer => _employer;
 
+  SocketService? get socketService => _socketService;
+
   //Hàm gán lại token
   Future<void> _setAuthToken(AuthToken token, bool isEmployer) async {
     _authToken = token;
@@ -46,13 +51,21 @@ class AuthManager with ChangeNotifier {
       _jobseeker = await _authService.fetchUserInfo(token.userId, isEmployer)
           as Jobseeker;
     }
+    // _socketService = SocketService(token);
+    // Always create a new SocketService instance
+    _socketService?.disconnect();
+    _socketService = SocketService(token);
+
+    Utils.logMessage(
+        'Socket trong _setAuthToken: ${_socketService?.socket?.hashCode}');
     _autoLogout();
     notifyListeners();
+    Utils.logMessage('##1 - Goi ham _setAuthToken');
   }
 
   //Hàm đăng nhập vào tài khoản
   Future<void> login(String email, String password, bool isEmployer) async {
-    log("Đăng nhập nè");
+    Utils.logMessage('Đăng nhập nè');
     await _setAuthToken(
         await _authService.signIn(
           email: email,
@@ -61,7 +74,7 @@ class AuthManager with ChangeNotifier {
         ),
         isEmployer);
     //Lấy thông tin người dùng
-    log("Đang chay");
+    Utils.logMessage('Đang chay');
   }
 
   //Hàm đăng ký tài khoản
@@ -118,8 +131,12 @@ class AuthManager with ChangeNotifier {
     await _authService.clearSavedAuthToken();
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
-    log('token trong Preferences la: ' +
+    Utils.logMessage('token trong Preferences la: ' +
         prefs.getString("authToken").toString());
+
+    //Disconnect the socket
+    _socketService?.disconnect();
+    _socketService = null;
   }
 
   //hàm tự động đăng xuất khi token hết thời gian
@@ -129,6 +146,7 @@ class AuthManager with ChangeNotifier {
     }
     final timeToExpiry =
         _authToken!.expiryDate.difference(DateTime.now()).inSeconds;
+    Utils.logMessage('Thoi gian con lai cua token la: $timeToExpiry');
     _authTimer = Timer(
       Duration(seconds: timeToExpiry),
       logout,

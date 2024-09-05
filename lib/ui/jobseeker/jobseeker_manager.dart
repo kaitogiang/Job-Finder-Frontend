@@ -12,6 +12,7 @@ import 'package:flutter/foundation.dart';
 import 'package:job_finder_app/ui/jobseeker/jobseeker_profile_pages/resume_upload_screen.dart';
 
 import '../../models/resume.dart';
+import 'package:job_finder_app/ui/shared/utils.dart';
 
 class JobseekerManager extends ChangeNotifier {
   Jobseeker _jobseeker;
@@ -24,13 +25,13 @@ class JobseekerManager extends ChangeNotifier {
 
   set authToken(AuthToken? authToken) {
     _jobseekerService.authToken = authToken;
-    log('Gọi thay đổi ${authToken?.userId}');
+    Utils.logMessage('Gọi thay đổi ${authToken?.userId}');
     notifyListeners();
   }
 
   set jobseeker(Jobseeker? jobseeker) {
     _jobseeker = jobseeker!;
-    log('Gọi setJobseeker: ${jobseeker.toString()}');
+    Utils.logMessage('Gọi setJobseeker: ${jobseeker.toString()}');
     notifyListeners();
   }
 
@@ -62,7 +63,7 @@ class JobseekerManager extends ChangeNotifier {
       jobseeker.avatar = result['avatarLink'] ?? jobseeker.avatar;
       notifyListeners();
     } else {
-      log('Lỗi trong hàm updateProfile của job manager');
+      Utils.logMessage('Lỗi trong hàm updateProfile của job manager');
     }
   }
 
@@ -72,7 +73,7 @@ class JobseekerManager extends ChangeNotifier {
       jobseeker.skills.addAll(skills);
       notifyListeners();
     } else {
-      log('Lỗi trong hàm appendSkill của job manager');
+      Utils.logMessage('Lỗi trong hàm appendSkill của job manager');
     }
   }
 
@@ -84,7 +85,7 @@ class JobseekerManager extends ChangeNotifier {
       jobseeker.skills.remove(skill);
       notifyListeners();
     } else {
-      log('Lỗi trong hàm removeSkill của job manager');
+      Utils.logMessage('Lỗi trong hàm removeSkill của job manager');
     }
   }
 
@@ -96,7 +97,7 @@ class JobseekerManager extends ChangeNotifier {
       jobseeker.resume.add(result);
       notifyListeners();
     } else {
-      log('Lỗi trong hàm uploadResume của job manager');
+      Utils.logMessage('Lỗi trong hàm uploadResume của job manager');
     }
   }
 
@@ -107,7 +108,7 @@ class JobseekerManager extends ChangeNotifier {
       jobseeker.resume.clear();
       notifyListeners();
     } else {
-      log('Lỗi trong hàm removeResume của job manager');
+      Utils.logMessage('Lỗi trong hàm removeResume của job manager');
     }
     return result;
   }
@@ -121,10 +122,10 @@ class JobseekerManager extends ChangeNotifier {
         jobseeker.experience.addAll(result);
         notifyListeners();
       } else {
-        log('Lỗi trong hàm addExperience của job manager');
+        Utils.logMessage('Lỗi trong hàm addExperience của job manager');
       }
     } catch (error) {
-      log('Lỗi trong hàm addExperience của job manager: $error');
+      Utils.logMessage('Lỗi trong hàm addExperience của job manager: $error');
     }
   }
 
@@ -136,7 +137,7 @@ class JobseekerManager extends ChangeNotifier {
         notifyListeners();
       }
     } catch (error) {
-      log('Lỗi trong job manager $error');
+      Utils.logMessage('Lỗi trong job manager $error');
     }
   }
 
@@ -148,7 +149,7 @@ class JobseekerManager extends ChangeNotifier {
         notifyListeners();
       }
     } catch (error) {
-      log('Lỗi trong hàm addEducation của job manager: $error');
+      Utils.logMessage('Lỗi trong hàm addEducation của job manager: $error');
     }
   }
 
@@ -160,7 +161,7 @@ class JobseekerManager extends ChangeNotifier {
         notifyListeners();
       }
     } catch (error) {
-      log('Lỗi trong hàm removeEducation của job manager: $error');
+      Utils.logMessage('Lỗi trong hàm removeEducation của job manager: $error');
     }
   }
 
@@ -172,7 +173,7 @@ class JobseekerManager extends ChangeNotifier {
         notifyListeners();
       }
     } catch (error) {
-      log('Lỗi trong hàm updateEducation của job manager: $error');
+      Utils.logMessage('Lỗi trong hàm updateEducation của job manager: $error');
     }
   }
 
@@ -187,7 +188,8 @@ class JobseekerManager extends ChangeNotifier {
         notifyListeners();
       }
     } catch (error) {
-      log('Lỗi trong hàm updateExperience của job manager: $error');
+      Utils.logMessage(
+          'Lỗi trong hàm updateExperience của job manager: $error');
     }
   }
 
@@ -201,7 +203,7 @@ class JobseekerManager extends ChangeNotifier {
       }
       return false;
     } catch (error) {
-      log('Lỗi trong hàm changeEmail của job manager: $error');
+      Utils.logMessage('Lỗi trong hàm changeEmail của job manager: $error');
       return false;
     }
   }
@@ -211,13 +213,13 @@ class JobseekerManager extends ChangeNotifier {
       final result =
           await _jobseekerService.changePassword(oldPassword, newPassword);
       if (result == true) {
-        log('JobManager: Đổi mật khẩu thành công');
+        Utils.logMessage('JobManager: Đổi mật khẩu thành công');
         return true;
       } else {
         return false;
       }
     } catch (error) {
-      log('Lỗi trong hàm changePassword của job manager: $error');
+      Utils.logMessage('Lỗi trong hàm changePassword của job manager: $error');
       return false;
     }
   }

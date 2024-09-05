@@ -12,6 +12,8 @@ import 'package:job_finder_app/ui/shared/modal_bottom_sheet.dart';
 import 'package:path/path.dart';
 import 'package:provider/provider.dart';
 
+import 'package:job_finder_app/ui/shared/utils.dart';
+
 class ResumeUploadScreen extends StatefulWidget {
   ResumeUploadScreen({super.key, this.resume});
 
@@ -43,9 +45,9 @@ class _ResumeUploadScreenState extends State<ResumeUploadScreen> {
     if (result != null) {
       setState(() {
         _selectedFile = File(result.files.single.path!);
-        log('File đã chọn ${_selectedFile!.path}');
+        Utils.logMessage('File đã chọn ${_selectedFile!.path}');
         String filename = basename(_selectedFile!.path);
-        log('Tên file la: ${filename}');
+        Utils.logMessage('Tên file la: ${filename}');
       });
     }
   }
@@ -60,10 +62,10 @@ class _ResumeUploadScreenState extends State<ResumeUploadScreen> {
         await context
             .read<JobseekerManager>()
             .uploadResume(filename, _selectedFile!);
-        log('Tải lên thành công');
+        Utils.logMessage('Tải lên thành công');
         Navigator.of(context).pop();
       } catch (error) {
-        log('Trong resume upload screen ' + error.toString());
+        Utils.logMessage('Trong resume upload screen ' + error.toString());
       }
     }
   }
@@ -73,7 +75,7 @@ class _ResumeUploadScreenState extends State<ResumeUploadScreen> {
       await context.read<JobseekerManager>().deleteResume();
       Navigator.pop(context);
     } catch (error) {
-      log('Trong resume delete file ' + error.toString());
+      Utils.logMessage('Trong resume delete file ' + error.toString());
     }
   }
 
@@ -124,7 +126,7 @@ class _ResumeUploadScreenState extends State<ResumeUploadScreen> {
                           child: _buildActionButton(
                             context: context,
                             onDelete: () {
-                              log('Xóa bỏ fie');
+                              Utils.logMessage('Xóa bỏ fie');
                               setState(() {
                                 _selectedFile = null;
                                 if (widget.resume != null) widget.resume = null;
@@ -132,7 +134,7 @@ class _ResumeUploadScreenState extends State<ResumeUploadScreen> {
                               Navigator.pop(context);
                             },
                             onPreview: () {
-                              log('Xem trước file');
+                              Utils.logMessage('Xem trước file');
                               Navigator.pop(context);
                             },
                           ),
