@@ -5,6 +5,7 @@ import 'package:job_finder_app/ui/auth/auth_manager.dart';
 import 'package:job_finder_app/ui/employer/employer_manager.dart';
 import 'package:job_finder_app/ui/jobseeker/jobseeker_manager.dart';
 import 'package:job_finder_app/ui/shared/combined_text_form_field.dart';
+import 'package:job_finder_app/ui/shared/utils.dart';
 import 'package:provider/provider.dart';
 import 'package:quickalert/quickalert.dart';
 
@@ -161,7 +162,6 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
     ThemeData theme = Theme.of(context);
     TextTheme textTheme = theme.textTheme;
     bool isEmployer = context.read<AuthManager>().isEmployer;
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Đổi email truy cập'),

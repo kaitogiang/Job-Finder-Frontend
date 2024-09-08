@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:job_finder_app/ui/jobseeker/jobseeker_manager.dart';
 import 'package:job_finder_app/ui/jobseeker/widgets/job_page_view.dart';
+import 'package:job_finder_app/ui/jobseeker/widgets/message_icon.dart';
 import 'package:job_finder_app/ui/shared/job_card.dart';
 import 'package:job_finder_app/ui/shared/jobposting_manager.dart';
 import 'package:job_finder_app/ui/shared/loading_screen.dart';
@@ -106,6 +107,7 @@ class _JobseekerHomeState extends State<JobseekerHome> {
             ),
           ),
         ),
+        floatingActionButton: MessageIcon(),
         body: FutureBuilder(
             future: context.read<JobpostingManager>().fetchJobposting(),
             builder: (context, snapshot) {
