@@ -152,7 +152,8 @@ GoRouter buildRouter(AuthManager authManager) {
             parentNavigatorKey: _rootNavigatorkey,
             name: 'chat',
             path: 'chat',
-            builder: (context, state) => ChatScreen(),
+            builder: (context, state) =>
+                ChatScreen(conversationId: state.extra as String),
           )
         ],
       )

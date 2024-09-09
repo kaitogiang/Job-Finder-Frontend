@@ -11,6 +11,7 @@ import 'package:job_finder_app/ui/employer/company_manager.dart';
 import 'package:job_finder_app/ui/employer/employer_manager.dart';
 import 'package:job_finder_app/ui/jobseeker/jobseeker_manager.dart';
 import 'package:job_finder_app/ui/shared/jobposting_manager.dart';
+import 'package:job_finder_app/ui/shared/message_manager.dart';
 import 'package:provider/provider.dart';
 
 import 'ui/shared/build_router.dart';
@@ -123,6 +124,15 @@ class MyApp extends StatelessWidget {
             Utils.logMessage(
                 "---- ChangeNotifierProxyProvider<AuthManager, ApplicationManager> ----");
             return applicationManager;
+          },
+        ),
+        //Manager quản lý tin nhắn
+        ChangeNotifierProxyProvider<AuthManager, MessageManager>(
+          create: (context) => MessageManager(),
+          update: (context, authManager, messageManager) {
+            Utils.logMessage('Goi update MessageManager');
+            messageManager!.socketService = authManager.socketService;
+            return messageManager;
           },
         ),
       ],

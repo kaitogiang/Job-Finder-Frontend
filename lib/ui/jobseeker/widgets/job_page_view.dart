@@ -47,7 +47,7 @@ class _JobPageViewState extends State<JobPageView>
     log('Tab lengh: $tabLength');
     _pageViewController = PageController();
     _tabController = TabController(length: tabLength, vsync: this);
-    Utils.logMessage("Phan tu trong JobPageView: ${list.toString()}");
+    // Utils.logMessage("Phan tu trong JobPageView: ${list.toString()}");
   }
 
   @override

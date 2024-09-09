@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:job_finder_app/main.dart';
+import 'package:job_finder_app/models/conversation.dart';
 import 'package:job_finder_app/models/user.dart';
+import 'package:job_finder_app/ui/shared/message_manager.dart';
 import 'package:job_finder_app/ui/shared/utils.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 class MessageScreen extends StatefulWidget {
   const MessageScreen({super.key});
@@ -38,25 +43,26 @@ class _MessageScreenState extends State<MessageScreen>
     final deviceSize = MediaQuery.of(context).size;
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
-    final user = User(
-      id: '1',
-      firstName: 'Devin',
-      lastName: 'Glover',
-      email: 'devin@example.com',
-      phone: '1234567890',
-      address: '1234 Main St, Anytown, USA',
-      avatar:
-          'https://www.dexerto.com/cdn-cgi/image/width=3840,quality=60,format=auto/https://editors.dexerto.com/wp-content/uploads/2022/08/25/nilou-eyes-closed-genshin-impact.jpg',
-    );
-    final user2 = User(
-      id: '2',
-      firstName: 'Gojo',
-      lastName: 'Satoru',
-      email: 'devin@example.com',
-      phone: '1234567890',
-      address: '1234 Main St, Anytown, USA',
-      avatar: 'https://pics.craiyon.com/2023-11-20/Ud5thxsrQ16T6n0TDZ6BsA.webp',
-    );
+    final messageManager = context.watch<MessageManager>();
+    // final user = User(
+    //   id: '1',
+    //   firstName: 'Devin',
+    //   lastName: 'Glover',
+    //   email: 'devin@example.com',
+    //   phone: '1234567890',
+    //   address: '1234 Main St, Anytown, USA',
+    //   avatar:
+    //       'https://www.dexerto.com/cdn-cgi/image/width=3840,quality=60,format=auto/https://editors.dexerto.com/wp-content/uploads/2022/08/25/nilou-eyes-closed-genshin-impact.jpg',
+    // );
+    // final user2 = User(
+    //   id: '2',
+    //   firstName: 'Gojo',
+    //   lastName: 'Satoru',
+    //   email: 'devin@example.com',
+    //   phone: '1234567890',
+    //   address: '1234 Main St, Anytown, USA',
+    //   avatar: 'https://pics.craiyon.com/2023-11-20/Ud5thxsrQ16T6n0TDZ6BsA.webp',
+    // );
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -110,22 +116,18 @@ class _MessageScreenState extends State<MessageScreen>
           ),
         ),
       ),
-      body: Column(
-        children: [
-          const SizedBox(height: 10),
-          ChatPreviewCard(
-            user: user,
-            lastMessage: 'Hẹn ngày mai gặp tại phòng họp adfa dfa ',
-            dateTime: '10:30 AM',
-            unseenMessages: 0,
-          ),
-          ChatPreviewCard(
-            user: user2,
-            lastMessage: 'Hẹn ngày mai gặp tại phòng họp adfa dfa ',
-            dateTime: '7:30 AM',
-            unseenMessages: 7,
-          ),
-        ],
+      body: Padding(
+        padding: const EdgeInsets.only(
+          top: 10,
+          bottom: 10,
+        ),
+        child: ListView.builder(
+          itemCount: messageManager.conversations.length,
+          itemBuilder: (context, index) {
+            final conversation = messageManager.conversations[index];
+            return ChatPreviewCard(conversation: conversation);
+          },
+        ),
       ),
     );
   }
@@ -134,24 +136,22 @@ class _MessageScreenState extends State<MessageScreen>
 class ChatPreviewCard extends StatelessWidget {
   const ChatPreviewCard({
     super.key,
-    required this.user,
-    required this.lastMessage,
-    required this.dateTime,
-    required this.unseenMessages,
+    required this.conversation,
   });
 
-  final User user;
-  final String lastMessage;
-  final String dateTime;
-  final int unseenMessages;
+  final Conversation conversation;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
+    final user = conversation.opponent;
+    final lastMessage = conversation.lastMessage;
+    final dateTime = DateFormat('hh:mm a').format(conversation.lastMessageTime);
+    final unseenMessages = conversation.unseenMessages;
     return ListTile(
       onTap: () {
-        context.pushNamed('chat');
+        context.pushNamed('chat', extra: conversation.id);
       },
       onLongPress: () {
         Utils.logMessage('Tùy chọn cuộc trò chuyện');
