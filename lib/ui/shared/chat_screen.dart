@@ -158,112 +158,111 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
           titleSpacing: 0,
         ),
-        body: Stack(
+        body: Column(
           children: [
-            SingleChildScrollView(
-              controller: _scrollController,
-              child: Padding(
-                padding: const EdgeInsets.only(
-                    top: 10, left: 13, right: 13, bottom: 10),
-                child: Column(
-                  children: List<Widget>.generate(
-                    conversation.messages.length,
-                    (index) {
-                      final message = conversation.messages[index] as Message;
-                      final messageDate = message.timestamp;
-                      final previousMessageDate = index > 0
-                          ? conversation.messages[index - 1].timestamp
-                          : null;
-                      final showDateLabel = previousMessageDate == null ||
-                          messageDate.day != previousMessageDate.day;
-                      final isLastInSequence =
-                          index == conversation.messages.length - 1 ||
-                              message.senderId !=
-                                  conversation.messages[index + 1].senderId;
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (showDateLabel)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 5, bottom: 8),
-                              child: Center(
-                                child: Text(
-                                  DateFormat('HH:mm dd/MM/yyyy')
-                                      .format(messageDate),
-                                  style: textTheme.bodySmall,
+            Expanded(
+              child: Stack(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(
+                        top: 10, left: 13, right: 13, bottom: 10),
+                    child: ListView.builder(
+                      itemCount: conversation.messages.length,
+                      itemBuilder: (context, index) {
+                        final message = conversation.messages[index] as Message;
+                        final messageDate = message.timestamp;
+                        final previousMessageDate = index > 0
+                            ? conversation.messages[index - 1].timestamp
+                            : null;
+                        final showDateLabel = previousMessageDate == null ||
+                            messageDate.day != previousMessageDate.day;
+                        final isLastInSequence =
+                            index == conversation.messages.length - 1 ||
+                                message.senderId !=
+                                    conversation.messages[index + 1].senderId;
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (showDateLabel)
+                              Padding(
+                                padding:
+                                    const EdgeInsets.only(top: 5, bottom: 8),
+                                child: Center(
+                                  child: Text(
+                                    DateFormat('HH:mm dd/MM/yyyy')
+                                        .format(messageDate),
+                                    style: textTheme.bodySmall,
+                                  ),
+                                ),
+                              ),
+                            _buildMessageWidget(message, index, isEmployer)
+                          ],
+                        );
+                      },
+                    ),
+                  ),
+                  ValueListenableBuilder(
+                    valueListenable: _isScrolledToBottom,
+                    builder: (context, isScrolledToBottom, child) {
+                      if (isScrolledToBottom) {
+                        return const SizedBox.shrink();
+                      }
+                      return Positioned(
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        child: Center(
+                          child: IconButton(
+                            alignment: Alignment.bottomCenter,
+                            onPressed: _scrollToBottom,
+                            icon: const SizedBox(
+                              width: 40,
+                              height: 40,
+                              child: Card(
+                                color: Colors.white,
+                                elevation: 4,
+                                shape: CircleBorder(),
+                                child: Icon(
+                                  Icons.arrow_downward_rounded,
+                                  color: Colors.grey,
+                                  size: 20,
                                 ),
                               ),
                             ),
-                          _buildMessageWidget(message, index, isEmployer)
-                        ],
+                          ),
+                        ),
                       );
                     },
                   ),
-                ),
+                ],
               ),
             ),
-            ValueListenableBuilder(
-              valueListenable: _isScrolledToBottom,
-              builder: (context, isScrolledToBottom, child) {
-                if (isScrolledToBottom) {
-                  return const SizedBox.shrink();
-                }
-                return Positioned(
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  child: Center(
-                    child: IconButton(
-                      alignment: Alignment.bottomCenter,
-                      onPressed: _scrollToBottom,
-                      icon: const SizedBox(
-                        width: 40,
-                        height: 40,
-                        child: Card(
-                          color: Colors.white,
-                          elevation: 4,
-                          shape: CircleBorder(),
-                          child: Icon(
-                            Icons.arrow_downward_rounded,
-                            color: Colors.grey,
-                            size: 20,
-                          ),
-                        ),
-                      ),
+            Row(
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    controller: _searchController,
+                    focusNode: _focusNode,
+                    onTap: () {},
+                    decoration: const InputDecoration(
+                      constraints: BoxConstraints.tightFor(height: 60),
+                      hintText: 'Tin nhắn',
+                      prefixIcon: Icon(Icons.message),
+                      filled: true,
+                      fillColor: Colors.white,
                     ),
+                    keyboardType: TextInputType.text,
+                    textInputAction: TextInputAction.send,
+                    onFieldSubmitted: (value) {
+                      _sendMessage();
+                    },
                   ),
-                );
-              },
+                ),
+                IconButton(
+                    onPressed: _sendMessage, icon: const Icon(Icons.send))
+              ],
             ),
           ],
-        ),
-        bottomNavigationBar: AnimatedPadding(
-          padding: EdgeInsets.only(bottom: bottomInset > 0 ? bottomInset : 0),
-          duration: const Duration(milliseconds: 0),
-          child: Row(
-            children: [
-              Expanded(
-                child: TextFormField(
-                  controller: _searchController,
-                  focusNode: _focusNode,
-                  onTap: () {},
-                  decoration: const InputDecoration(
-                    constraints: BoxConstraints.tightFor(height: 60),
-                    hintText: 'Tin nhắn',
-                    prefixIcon: Icon(Icons.message),
-                    filled: true,
-                    fillColor: Colors.white,
-                  ),
-                  keyboardType: TextInputType.text,
-                  textInputAction: TextInputAction.send,
-                  onFieldSubmitted: (value) {
-                    _sendMessage();
-                  },
-                ),
-              ),
-              IconButton(onPressed: _sendMessage, icon: const Icon(Icons.send))
-            ],
-          ),
         ),
       );
     });
