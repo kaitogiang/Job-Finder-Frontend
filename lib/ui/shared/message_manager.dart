@@ -7,11 +7,12 @@ import 'package:job_finder_app/services/socket_service.dart';
 
 class MessageManager extends ChangeNotifier {
   SocketService? _socketService;
+  AuthToken? _authToken;
 
   final List<Conversation> _conversations = [
     Conversation(
       id: '1',
-      opponent: User(
+      jobseeker: User(
         id: 'user2_id',
         firstName: 'Devin',
         lastName: 'Glover',
@@ -20,6 +21,16 @@ class MessageManager extends ChangeNotifier {
         address: '1234 Main St, Anytown, USA',
         avatar:
             'https://www.dexerto.com/cdn-cgi/image/width=3840,quality=60,format=auto/https://editors.dexerto.com/wp-content/uploads/2022/08/25/nilou-eyes-closed-genshin-impact.jpg',
+      ),
+      employer: User(
+        id: 'user1_id',
+        firstName: 'Gojo',
+        lastName: 'Satoru',
+        email: 'devin@example.com',
+        phone: '1234567890',
+        address: '1234 Main St, Anytown, USA',
+        avatar:
+            'https://pics.craiyon.com/2023-11-20/Ud5thxsrQ16T6n0TDZ6BsA.webp',
       ),
       lastMessage: 'Hello, how are you?',
       lastMessageTime: DateTime.now(),
@@ -128,7 +139,7 @@ class MessageManager extends ChangeNotifier {
     ),
     Conversation(
       id: '2',
-      opponent: User(
+      jobseeker: User(
         id: 'user2_id',
         firstName: 'Gojo',
         lastName: 'Satoru',
@@ -138,37 +149,47 @@ class MessageManager extends ChangeNotifier {
         avatar:
             'https://pics.craiyon.com/2023-11-20/Ud5thxsrQ16T6n0TDZ6BsA.webp',
       ),
+      employer: User(
+        id: 'user1_id',
+        firstName: 'Devin',
+        lastName: 'Glover',
+        email: 'devin@example.com',
+        phone: '1234567890',
+        address: '1234 Main St, Anytown, USA',
+        avatar:
+            'https://www.dexerto.com/cdn-cgi/image/width=3840,quality=60,format=auto/https://editors.dexerto.com/wp-content/uploads/2022/08/25/nilou-eyes-closed-genshin-impact.jpg',
+      ),
       lastMessage: 'I am fine, thank you!',
       lastMessageTime: DateTime.now(),
       unseenMessages: 1,
       messages: [
-        // Message(
-        //   id: '4',
-        //   conversationId: '2',
-        //   senderId: 'user2_id',
-        //   receiverId: 'user1_id',
-        //   messageText: 'Do you play Genshin Impact!',
-        //   timestamp: DateTime.now(),
-        //   isRead: false,
-        // ),
-        // Message(
-        //   id: '5',
-        //   conversationId: '2',
-        //   senderId: 'user1_id',
-        //   receiverId: 'user2_id',
-        //   messageText: 'Yes, I do!',
-        //   timestamp: DateTime.now(),
-        //   isRead: false,
-        // ),
-        // Message(
-        //   id: '6',
-        //   conversationId: '2',
-        //   senderId: 'user2_id',
-        //   receiverId: 'user1_id',
-        //   messageText: 'Do you want to play with me?',
-        //   timestamp: DateTime.now(),
-        //   isRead: false,
-        // ),
+        Message(
+          id: '4',
+          conversationId: '2',
+          senderId: 'user2_id',
+          receiverId: 'user1_id',
+          messageText: 'Do you play Genshin Impact!',
+          timestamp: DateTime.now(),
+          isRead: false,
+        ),
+        Message(
+          id: '5',
+          conversationId: '2',
+          senderId: 'user1_id',
+          receiverId: 'user2_id',
+          messageText: 'Yes, I do!',
+          timestamp: DateTime.now(),
+          isRead: false,
+        ),
+        Message(
+          id: '6',
+          conversationId: '2',
+          senderId: 'user2_id',
+          receiverId: 'user1_id',
+          messageText: 'Do you want to play with me?',
+          timestamp: DateTime.now(),
+          isRead: false,
+        ),
       ],
     ),
   ];
@@ -184,6 +205,25 @@ class MessageManager extends ChangeNotifier {
 
   set socketService(SocketService? socketService) {
     _socketService = socketService;
+    notifyListeners();
+  }
+
+  set authToken(AuthToken? authToken) {
+    _authToken = authToken;
+    notifyListeners();
+  }
+
+  void sendMessage(String conversationId, String messageText) {
+    final conversation = getConversation(conversationId);
+    conversation.messages.add(Message(
+      id: '${conversation.messages.length + 1}',
+      conversationId: conversationId,
+      senderId: 'user1_id',
+      receiverId: 'user2_id',
+      messageText: messageText,
+      timestamp: DateTime.now(),
+      isRead: false,
+    ));
     notifyListeners();
   }
 }
