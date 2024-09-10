@@ -3,7 +3,8 @@ import 'package:job_finder_app/models/user.dart';
 
 class Conversation {
   final String id;
-  final User opponent;
+  final User jobseeker;
+  final User employer;
   final String lastMessage;
   final DateTime lastMessageTime;
   final int unseenMessages;
@@ -11,7 +12,8 @@ class Conversation {
 
   Conversation({
     required this.id,
-    required this.opponent,
+    required this.jobseeker,
+    required this.employer,
     required this.lastMessage,
     required this.lastMessageTime,
     required this.unseenMessages,
@@ -21,7 +23,8 @@ class Conversation {
   factory Conversation.fromJson(Map<String, dynamic> json) {
     return Conversation(
       id: json['id'],
-      opponent: json['opponent'],
+      jobseeker: json['jobseeker'],
+      employer: json['employer'],
       lastMessage: json['lastMessage'],
       lastMessageTime: DateTime.parse(json['lastMessageTime']),
       unseenMessages: json['unseenMessages'],
@@ -33,7 +36,8 @@ class Conversation {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'opponent': opponent,
+      'jobseeker': jobseeker,
+      'employer': employer,
       'lastMessage': lastMessage,
       'lastMessageTime': lastMessageTime.toIso8601String(),
       'unseenMessages': unseenMessages,

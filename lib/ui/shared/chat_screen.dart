@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:job_finder_app/models/conversation.dart';
 import 'package:job_finder_app/models/message.dart';
+import 'package:job_finder_app/ui/auth/auth_manager.dart';
 import 'package:job_finder_app/ui/shared/message_manager.dart';
 import 'package:job_finder_app/ui/shared/utils.dart';
 import 'package:go_router/go_router.dart';
@@ -24,29 +25,38 @@ class _ChatScreenState extends State<ChatScreen> {
   // ScrollController để điều khiển việc cuộn trong SingleChildScrollView
   // initialScrollOffset được đặt bằng BouncingScrollSimulation.maxSpringTransferVelocity
   // để bắt đầu cuộn từ vị trí cao nhất tức là bên dưới (bottom)
-  final ScrollController _scrollController = ScrollController(
-      initialScrollOffset: BouncingScrollSimulation.maxSpringTransferVelocity);
+  final ScrollController _scrollController = ScrollController();
   ValueNotifier<bool> _isScrolledToBottom =
       ValueNotifier(true); //Biến kiểm tra xem đã scroll đến bottom chưa?
-  final isEmployer = false;
   //Khởi tạo dữ liệu
   late Conversation conversation;
 
   final ValueNotifier<EdgeInsets> _bottomPadding =
       ValueNotifier(EdgeInsets.zero);
 
+  late MessageManager messageManager;
+
+  late bool isEmployer;
+
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(() {
-      double maxScrollExtent = _scrollController.position.maxScrollExtent;
       double currentScrollPosiion = _scrollController.offset;
-      // Utils.logMessage('currentScrollPosiion: $currentScrollPosiion');
-      if (currentScrollPosiion <= maxScrollExtent - 200) {
+      if (currentScrollPosiion <
+          _scrollController.position.maxScrollExtent - 200) {
         _isScrolledToBottom.value = false;
       } else {
         _isScrolledToBottom.value = true;
       }
+    });
+    isEmployer = context.read<AuthManager>().isEmployer;
+    // WidgetsBinding.instance.addPostFrameCallback là một hàm callback được gọi sau khi khung hình hiện tại đã được vẽ xong.
+    // Nó thường được sử dụng để thực hiện các tác vụ cần truy cập vào cây widget sau khi nó đã được xây dựng.
+    // Trong trường hợp này, nó được sử dụng để cuộn đến cuối danh sách tin nhắn sau khi khung hình đã được vẽ.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _defaultScrollPosition();
+      messageManager = context.read<MessageManager>();
     });
   }
 
@@ -62,8 +72,10 @@ class _ChatScreenState extends State<ChatScreen> {
     if (_searchController.text.isNotEmpty) {
       // Gửi tin nhắn
       String message = _searchController.text;
+      messageManager.sendMessage(widget.conversationId, message);
       _searchController.clear();
       Utils.logMessage('Sent message: $message');
+      _scrollToBottom();
     }
   }
 
@@ -75,10 +87,21 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
+  void _defaultScrollPosition() {
+    if (_scrollController.hasClients) {
+      _scrollController.jumpTo(
+        _scrollController.position.maxScrollExtent,
+      );
+    }
+  }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     Utils.logMessage('didChangeDependencies ChatScreen');
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _defaultScrollPosition();
+    });
   }
 
   @override
@@ -121,10 +144,14 @@ class _ChatScreenState extends State<ChatScreen> {
             contentPadding: EdgeInsets.symmetric(horizontal: 0),
             leading: CircleAvatar(
               radius: 25,
-              backgroundImage: NetworkImage(conversation.opponent.avatar),
+              backgroundImage: NetworkImage(!isEmployer
+                  ? conversation.jobseeker.avatar
+                  : conversation.employer.avatar),
             ),
             title: Text(
-              '${conversation.opponent.firstName} ${conversation.opponent.lastName}',
+              !isEmployer
+                  ? '${conversation.jobseeker.firstName} ${conversation.jobseeker.lastName}'
+                  : '${conversation.employer.firstName} ${conversation.employer.lastName}',
               style: textTheme.bodyLarge!.copyWith(
                 color: theme.indicatorColor,
               ),
@@ -167,6 +194,8 @@ class _ChatScreenState extends State<ChatScreen> {
                     padding: const EdgeInsets.only(
                         top: 10, left: 13, right: 13, bottom: 10),
                     child: ListView.builder(
+                      controller: _scrollController,
+                      reverse: false,
                       itemCount: conversation.messages.length,
                       itemBuilder: (context, index) {
                         final message = conversation.messages[index] as Message;
@@ -279,8 +308,10 @@ class _ChatScreenState extends State<ChatScreen> {
     // Kiểm tra xem tin nhắn có phải là tin nhắn cuối cùng trong chuỗi không
     final isLastInSequence = index == conversation.messages.length - 1 ||
         message.senderId != conversation.messages[index + 1].senderId;
-    // Đường dẫn avatar của người gửi tin nhắn
-    final avatarLink = conversation.opponent.avatar;
+    // Đường dẫn avatar của đối phương gửi tin nhắn
+    final avatarLink = isEmployer
+        ? conversation.jobseeker.avatar
+        : conversation.employer.avatar;
 
     // Nếu là tin nhắn của người dùng hiện tại
     if (isMyMessage) {

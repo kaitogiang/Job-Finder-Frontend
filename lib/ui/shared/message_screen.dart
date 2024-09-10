@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:job_finder_app/main.dart';
 import 'package:job_finder_app/models/conversation.dart';
 import 'package:job_finder_app/models/user.dart';
+import 'package:job_finder_app/ui/auth/auth_manager.dart';
 import 'package:job_finder_app/ui/shared/message_manager.dart';
 import 'package:job_finder_app/ui/shared/utils.dart';
 import 'package:go_router/go_router.dart';
@@ -44,25 +45,7 @@ class _MessageScreenState extends State<MessageScreen>
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
     final messageManager = context.watch<MessageManager>();
-    // final user = User(
-    //   id: '1',
-    //   firstName: 'Devin',
-    //   lastName: 'Glover',
-    //   email: 'devin@example.com',
-    //   phone: '1234567890',
-    //   address: '1234 Main St, Anytown, USA',
-    //   avatar:
-    //       'https://www.dexerto.com/cdn-cgi/image/width=3840,quality=60,format=auto/https://editors.dexerto.com/wp-content/uploads/2022/08/25/nilou-eyes-closed-genshin-impact.jpg',
-    // );
-    // final user2 = User(
-    //   id: '2',
-    //   firstName: 'Gojo',
-    //   lastName: 'Satoru',
-    //   email: 'devin@example.com',
-    //   phone: '1234567890',
-    //   address: '1234 Main St, Anytown, USA',
-    //   avatar: 'https://pics.craiyon.com/2023-11-20/Ud5thxsrQ16T6n0TDZ6BsA.webp',
-    // );
+    final isEmployer = context.read<AuthManager>().isEmployer;
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -125,7 +108,10 @@ class _MessageScreenState extends State<MessageScreen>
           itemCount: messageManager.conversations.length,
           itemBuilder: (context, index) {
             final conversation = messageManager.conversations[index];
-            return ChatPreviewCard(conversation: conversation);
+            return ChatPreviewCard(
+              conversation: conversation,
+              isEmployer: isEmployer,
+            );
           },
         ),
       ),
@@ -137,15 +123,17 @@ class ChatPreviewCard extends StatelessWidget {
   const ChatPreviewCard({
     super.key,
     required this.conversation,
+    required this.isEmployer,
   });
 
   final Conversation conversation;
+  final bool isEmployer;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
-    final user = conversation.opponent;
+    final user = isEmployer ? conversation.jobseeker : conversation.employer;
     final lastMessage = conversation.lastMessage;
     final dateTime = DateFormat('hh:mm a').format(conversation.lastMessageTime);
     final unseenMessages = conversation.unseenMessages;
