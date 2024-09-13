@@ -72,7 +72,9 @@ class _ChatScreenState extends State<ChatScreen> {
     if (_searchController.text.isNotEmpty) {
       // Gửi tin nhắn
       String message = _searchController.text;
-      messageManager.sendMessage(widget.conversationId, message);
+      bool senderIsJobseeker = !isEmployer ? true : false;
+      messageManager.sendMessage(
+          widget.conversationId, message, senderIsJobseeker);
       _searchController.clear();
       Utils.logMessage('Sent message: $message');
       _scrollToBottom();
@@ -106,6 +108,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    Utils.logMessage('IsEmployer: $isEmployer');
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
     final deviceSize = MediaQuery.of(context).size;
@@ -144,12 +147,12 @@ class _ChatScreenState extends State<ChatScreen> {
             contentPadding: EdgeInsets.symmetric(horizontal: 0),
             leading: CircleAvatar(
               radius: 25,
-              backgroundImage: NetworkImage(!isEmployer
-                  ? conversation.jobseeker.avatar
-                  : conversation.employer.avatar),
+              backgroundImage: NetworkImage(isEmployer
+                  ? conversation.jobseeker.getImageUrl()
+                  : conversation.employer.getImageUrl()),
             ),
             title: Text(
-              !isEmployer
+              isEmployer
                   ? '${conversation.jobseeker.firstName} ${conversation.jobseeker.lastName}'
                   : '${conversation.employer.firstName} ${conversation.employer.lastName}',
               style: textTheme.bodyLarge!.copyWith(
@@ -193,41 +196,50 @@ class _ChatScreenState extends State<ChatScreen> {
                   Padding(
                     padding: const EdgeInsets.only(
                         top: 10, left: 13, right: 13, bottom: 10),
-                    child: ListView.builder(
-                      controller: _scrollController,
-                      reverse: false,
-                      itemCount: conversation.messages.length,
-                      itemBuilder: (context, index) {
-                        final message = conversation.messages[index] as Message;
-                        final messageDate = message.timestamp;
-                        final previousMessageDate = index > 0
-                            ? conversation.messages[index - 1].timestamp
-                            : null;
-                        final showDateLabel = previousMessageDate == null ||
-                            messageDate.day != previousMessageDate.day;
-                        final isLastInSequence =
-                            index == conversation.messages.length - 1 ||
-                                message.senderId !=
-                                    conversation.messages[index + 1].senderId;
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (showDateLabel)
-                              Padding(
-                                padding:
-                                    const EdgeInsets.only(top: 5, bottom: 8),
-                                child: Center(
-                                  child: Text(
-                                    DateFormat('HH:mm dd/MM/yyyy')
-                                        .format(messageDate),
-                                    style: textTheme.bodySmall,
+                    child: GestureDetector(
+                      onTap: () => _focusNode.unfocus(),
+                      child: ListView.builder(
+                        controller: _scrollController,
+                        reverse: false,
+                        itemCount: conversation.messages.length,
+                        itemBuilder: (context, index) {
+                          final message =
+                              conversation.messages[index] as Message;
+                          final messageDate = message.timestamp;
+                          final previousMessageDate = index > 0
+                              ? conversation.messages[index - 1].timestamp
+                              : null;
+                          final showDateLabel = previousMessageDate == null ||
+                              messageDate.day != previousMessageDate.day;
+                          final isLastInSequence =
+                              index == conversation.messages.length - 1 ||
+                                  message.senderId !=
+                                      conversation.messages[index + 1].senderId;
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (showDateLabel)
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.only(top: 5, bottom: 8),
+                                  child: Center(
+                                    child: Text(
+                                      DateFormat('HH:mm dd/MM/yyyy')
+                                          .format(messageDate),
+                                      style: textTheme.bodySmall,
+                                    ),
                                   ),
                                 ),
-                              ),
-                            _buildMessageWidget(message, index, isEmployer)
-                          ],
-                        );
-                      },
+                              _buildMessageWidget(
+                                  message,
+                                  index,
+                                  isEmployer,
+                                  conversation.employer.id,
+                                  conversation.jobseeker.id)
+                            ],
+                          );
+                        },
+                      ),
                     ),
                   ),
                   ValueListenableBuilder(
@@ -284,6 +296,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     textInputAction: TextInputAction.send,
                     onFieldSubmitted: (value) {
                       _sendMessage();
+                      _focusNode.requestFocus();
                     },
                   ),
                 ),
@@ -298,10 +311,11 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   // Hàm xây dựng widget tin nhắn
-  Widget _buildMessageWidget(Message message, int index, bool isEmployer) {
+  Widget _buildMessageWidget(Message message, int index, bool isEmployer,
+      String employerId, String jobseekerId) {
     // Kiểm tra xem tin nhắn có phải của người dùng hiện tại không
-    final isMyMessage = (isEmployer && message.senderId == 'user2_id') ||
-        (!isEmployer && message.senderId == 'user1_id');
+    final isMyMessage = (isEmployer && message.senderId == employerId) ||
+        (!isEmployer && message.senderId == jobseekerId);
     // Kiểm tra xem tin nhắn có liền mạch với tin nhắn trước đó không
     final isSeamlessMessages = index > 0 &&
         message.senderId == conversation.messages[index - 1].senderId;
@@ -310,8 +324,8 @@ class _ChatScreenState extends State<ChatScreen> {
         message.senderId != conversation.messages[index + 1].senderId;
     // Đường dẫn avatar của đối phương gửi tin nhắn
     final avatarLink = isEmployer
-        ? conversation.jobseeker.avatar
-        : conversation.employer.avatar;
+        ? conversation.jobseeker.getImageUrl()
+        : conversation.employer.getImageUrl();
 
     // Nếu là tin nhắn của người dùng hiện tại
     if (isMyMessage) {

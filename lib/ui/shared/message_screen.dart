@@ -23,10 +23,24 @@ class _MessageScreenState extends State<MessageScreen>
 
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
+  List<Conversation> conversations = [];
 
   @override
   void initState() {
     super.initState();
+    // Gọi hàm khởi tạo dữ liệu conversation khi widget được khởi tạo
+    // Sử dụng addPostFrameCallback để đảm bảo rằng hàm getAllJobseekerConversation
+    // được gọi sau khi khung hình hiện tại đã hoàn thành, tránh việc gọi hàm này
+    // trong quá trình xây dựng widget, giúp tránh các lỗi liên quan đến việc
+    // thay đổi trạng thái trong quá trình xây dựng.
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await context.read<MessageManager>().getAllConversation();
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
   }
 
   @override
@@ -46,6 +60,8 @@ class _MessageScreenState extends State<MessageScreen>
     final textTheme = theme.textTheme;
     final messageManager = context.watch<MessageManager>();
     final isEmployer = context.read<AuthManager>().isEmployer;
+    conversations = messageManager.conversations;
+    Utils.logMessage('conversations: ${conversations.length}');
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -136,7 +152,9 @@ class ChatPreviewCard extends StatelessWidget {
     final user = isEmployer ? conversation.jobseeker : conversation.employer;
     final lastMessage = conversation.lastMessage;
     final dateTime = DateFormat('hh:mm a').format(conversation.lastMessageTime);
-    final unseenMessages = conversation.unseenMessages;
+    final unseenMessages = isEmployer
+        ? conversation.unseenEmployerMessages
+        : conversation.unseenJobseekerMessages;
     return ListTile(
       onTap: () {
         context.pushNamed('chat', extra: conversation.id);
@@ -146,7 +164,7 @@ class ChatPreviewCard extends StatelessWidget {
       },
       leading: CircleAvatar(
         radius: 30,
-        backgroundImage: NetworkImage(user.avatar),
+        backgroundImage: NetworkImage(user.getImageUrl()),
       ),
       title: Text(
         '${user.firstName} ${user.lastName}',

@@ -107,11 +107,7 @@ class MyApp extends StatelessWidget {
             //TODO Khi authManager có báo hiệu thay đổi thì đọc lại authToken
             //* cho JobseekerManager
             jobpostingManager!.authToken = authManager.authToken;
-            jobpostingManager.socketService = authManager.socketService;
-            Utils.logMessage(
-                'Trong JobpostingManager: Socket la: ${authManager.socketService?.socket?.hashCode}');
-            Utils.logMessage(
-                "---- ChangeNotifierProxyProvider<AuthManager, JobpostingManager> ----");
+            // jobpostingManager.socketService = authManager.socketService;
             return jobpostingManager;
           },
         ),
@@ -131,7 +127,8 @@ class MyApp extends StatelessWidget {
           create: (context) => MessageManager(),
           update: (context, authManager, messageManager) {
             Utils.logMessage('Goi update MessageManager');
-            messageManager!.socketService = authManager.socketService;
+            messageManager!.authToken = authManager.authToken;
+            // messageManager.socketService = authManager.socketService;
             return messageManager;
           },
         ),

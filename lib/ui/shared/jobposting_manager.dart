@@ -51,8 +51,7 @@ class JobpostingManager extends ChangeNotifier {
 
   set socketService(SocketService? socketService) {
     _socketService = socketService;
-    // _socketService?.listenToJobpostingChanges(_printSocketEvent);
-    notifyListeners();
+    // notifyListeners();
   }
 
   void jobpostingEventRunning() {
