@@ -104,8 +104,8 @@ class SocketService {
   }
 
   void disconnect() {
-    socket?.disconnect();
-    socket?.close();
+    // socket?.disconnect();
+    // socket?.close();
     socket?.dispose();
     _jobpostingController.close();
   }

@@ -16,9 +16,20 @@ class MessageManager extends ChangeNotifier {
   int _unseenJobseekerMessages = 0;
   int _unseenEmployerMessages = 0;
 
+  //Hàm này sai nghiêm trọng tại vì ban đầu khởi tao MessageManager ở ProxyProvider thì
+  //Token không được truyền vào hàm xây dựng mà truyền vào setter của authToken
+  //Nên khi này khởi tạo thì nó sẽ tạo một Socket service mới chứa không còn là tham chiếu
+  //mà trong khi đó tại AuthManager đã khởi tạo SocketService rồi nên có nghĩa là socket được
+  //tạo ra tới hai lần dến server, một cái thì token không null, còn socket còn lại ở trong
+  //Hàm xây dựng này là null, vì null nên khi gửi lên server thì nó sẽ bị chặn lại ở socket middleware.
+  //Chính vì vậy mà nó bị reconnect liên tục.
+  // MessageManager([AuthToken? authToken])
+  //     : _socketService = SocketService(authToken),
+  //       _conversationService = ConversationService(authToken),
+  //       _authToken = authToken;
+
   MessageManager([AuthToken? authToken])
-      : _socketService = SocketService(authToken),
-        _conversationService = ConversationService(authToken),
+      : _conversationService = ConversationService(authToken),
         _authToken = authToken;
 
   //Định nghĩa các hàm setter
