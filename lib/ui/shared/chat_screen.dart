@@ -38,6 +38,8 @@ class _ChatScreenState extends State<ChatScreen> {
 
   late bool isEmployer;
 
+  late String userId;
+
   @override
   void initState() {
     super.initState();
@@ -51,12 +53,19 @@ class _ChatScreenState extends State<ChatScreen> {
       }
     });
     isEmployer = context.read<AuthManager>().isEmployer;
+    userId = context.read<AuthManager>().authToken!.userId;
+    context.read<MessageManager>().joinConversation(widget.conversationId);
     // WidgetsBinding.instance.addPostFrameCallback là một hàm callback được gọi sau khi khung hình hiện tại đã được vẽ xong.
     // Nó thường được sử dụng để thực hiện các tác vụ cần truy cập vào cây widget sau khi nó đã được xây dựng.
     // Trong trường hợp này, nó được sử dụng để cuộn đến cuối danh sách tin nhắn sau khi khung hình đã được vẽ.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _defaultScrollPosition();
       messageManager = context.read<MessageManager>();
+      //Gọi hàm đánh dấu đã đọc tin nhắn
+      if ((isEmployer && messageManager.unseenEmployerMessages > 0) ||
+          (!isEmployer && messageManager.unseenJobseekerMessages > 0)) {
+        messageManager.readMessages(widget.conversationId, userId, isEmployer);
+      }
     });
   }
 
@@ -65,6 +74,7 @@ class _ChatScreenState extends State<ChatScreen> {
     _searchController.dispose();
     _focusNode.dispose();
     _scrollController.dispose();
+    messageManager.leaveConversation(widget.conversationId);
     super.dispose();
   }
 

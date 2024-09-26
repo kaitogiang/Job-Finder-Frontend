@@ -39,7 +39,7 @@ class _JobseekerHomeState extends State<JobseekerHome> {
     });
 
     //Lắng nghe jobposting socket
-    // context.read<JobpostingManager>().listenToJobpostingChanges();
+    context.read<JobpostingManager>().listenToJobpostingChanges();
   }
 
   @override

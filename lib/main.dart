@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:awesome_notifications/awesome_notifications.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -107,7 +108,7 @@ class MyApp extends StatelessWidget {
             //TODO Khi authManager có báo hiệu thay đổi thì đọc lại authToken
             //* cho JobseekerManager
             jobpostingManager!.authToken = authManager.authToken;
-            // jobpostingManager.socketService = authManager.socketService;
+            jobpostingManager.socketService = authManager.socketService;
             return jobpostingManager;
           },
         ),
@@ -127,8 +128,18 @@ class MyApp extends StatelessWidget {
           create: (context) => MessageManager(),
           update: (context, authManager, messageManager) {
             Utils.logMessage('Goi update MessageManager');
+            //Gán lại authToken khi AuthManager thay đổi
             messageManager!.authToken = authManager.authToken;
-            // messageManager.socketService = authManager.socketService;
+            //Truyền socketService vào cho MessageManager
+            messageManager.socketService = authManager.socketService;
+            //Nạp dữ liệu các cuộc trò chuyện và tin nhắn
+            messageManager.getAllConversation();
+            //Lắng nghe tin nhắn mới đến
+            messageManager.listenToIncomingMessages();
+            //Nếu là nhà tuyển dụng thì lắng nghe việc nhận conversation mới từ jobseeker
+            if (authManager.isEmployer) {
+              messageManager.listenForNewConversation();
+            }
             return messageManager;
           },
         ),

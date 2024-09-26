@@ -390,6 +390,20 @@ List<StatefulShellBranch> _buildEmployerRoutes() {
                     CompanyEditScreen(state.extra as Company))
           ]),
     ]),
+    StatefulShellBranch(routes: <RouteBase>[
+      GoRoute(
+          name: 'conversations',
+          path: '/conversations',
+          builder: (context, state) => MessageScreen(),
+          routes: <RouteBase>[
+            GoRoute(
+              name: 'chat-detail',
+              path: 'chat-detail',
+              builder: (context, state) =>
+                  ChatScreen(conversationId: state.extra as String),
+            )
+          ])
+    ]),
     //Nhánh xem tài khoản cho nhà tuyển dụng
     StatefulShellBranch(routes: <RouteBase>[
       GoRoute(

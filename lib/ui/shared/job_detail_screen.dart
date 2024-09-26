@@ -10,6 +10,8 @@ import 'package:job_finder_app/ui/employer/application_detail_screen.dart';
 import 'package:job_finder_app/ui/employer/application_manager.dart';
 import 'package:job_finder_app/ui/employer/employer_manager.dart';
 import 'package:job_finder_app/ui/shared/jobposting_manager.dart';
+import 'package:job_finder_app/ui/shared/message_manager.dart';
+import 'package:job_finder_app/ui/shared/utils.dart';
 import 'package:provider/provider.dart';
 import 'package:quickalert/quickalert.dart';
 import 'package:shadow_overlay/shadow_overlay.dart';
@@ -38,7 +40,27 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
   }
 
   Future<void> _gotoChatScreen() async {
-    
+    //Kiểm tra xem có cuộc trò chuyện nào giữa jobseeker và company này không
+    final conversationId = await context
+        .read<MessageManager>()
+        .verifyExistingConversation(jobposting.company!.id);
+    if (conversationId != null) {
+      //Truy xuất đến conversation trong danh sách sẳn có
+      if (!mounted) return;
+      context.pushNamed('chat', extra: conversationId);
+    } else {
+      //Tạo mới conversation
+      if (mounted) {
+        String? conversationId = await context
+            .read<MessageManager>()
+            .createConversation(jobposting.company!.id);
+        if (conversationId != null && mounted) {
+          context.pushNamed('chat', extra: conversationId);
+        }
+      } else {
+        Utils.logMessage('The widget tree is removed!!');
+      }
+    }
   }
 
   @override
@@ -187,9 +209,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                             ),
                           ]),
                       child: IconButton(
-                        onPressed: () {
-                          context.pushNamed('chat', extra: 'conversationId');
-                        },
+                        onPressed: _gotoChatScreen,
                         icon: Icon(
                           Icons.chat_rounded,
                           color: theme.primaryColor,

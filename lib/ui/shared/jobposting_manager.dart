@@ -51,7 +51,7 @@ class JobpostingManager extends ChangeNotifier {
 
   set socketService(SocketService? socketService) {
     _socketService = socketService;
-    // notifyListeners();
+    notifyListeners();
   }
 
   void jobpostingEventRunning() {

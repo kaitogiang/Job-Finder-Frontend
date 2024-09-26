@@ -3,14 +3,14 @@ import 'package:job_finder_app/models/user.dart';
 import 'package:job_finder_app/ui/shared/utils.dart';
 
 class Conversation {
-  final String id;
-  final User jobseeker;
-  final User employer;
-  final String lastMessage;
-  final DateTime lastMessageTime;
-  final int unseenJobseekerMessages;
-  final int unseenEmployerMessages;
-  final List<Message> messages;
+  String id;
+  User jobseeker;
+  User employer;
+  String lastMessage;
+  DateTime lastMessageTime;
+  int unseenJobseekerMessages;
+  int unseenEmployerMessages;
+  List<Message> messages;
 
   Conversation({
     required this.id,
@@ -43,15 +43,16 @@ class Conversation {
     );
   }
 
-  // Map<String, dynamic> toJson() {
-  //   return {
-  //     '_id': id,
-  //     'jobseekerId': jobseeker.id,
-  //     'employerId': employer.id,
-  //     'lastMessage': lastMessage,
-  //     'lastMessageTime': lastMessageTime.toIso8601String(),
-  //     'unseenMessages': unseenMessages,
-  //     'messages': messages,
-  //   };
-  // }
+  Map<String, dynamic> toJson() {
+    return {
+      '_id': id,
+      'jobseeker': jobseeker.toJson(),
+      'employer': employer.toJson(),
+      'lastMessage': lastMessage,
+      'lastMessageTime': lastMessageTime.toIso8601String(),
+      'unseenJobseekerMessages': unseenJobseekerMessages,
+      'unseenEmployerMessages': unseenEmployerMessages,
+      'messages': messages.map((message) => message.toJson()).toList(),
+    };
+  }
 }

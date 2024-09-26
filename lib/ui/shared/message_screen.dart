@@ -33,9 +33,9 @@ class _MessageScreenState extends State<MessageScreen>
     // được gọi sau khi khung hình hiện tại đã hoàn thành, tránh việc gọi hàm này
     // trong quá trình xây dựng widget, giúp tránh các lỗi liên quan đến việc
     // thay đổi trạng thái trong quá trình xây dựng.
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await context.read<MessageManager>().getAllConversation();
-    });
+    // WidgetsBinding.instance.addPostFrameCallback((_) async {
+    //   await context.read<MessageManager>().getAllConversation();
+    // });
   }
 
   @override
@@ -115,20 +115,25 @@ class _MessageScreenState extends State<MessageScreen>
           ),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.only(
-          top: 10,
-          bottom: 10,
-        ),
-        child: ListView.builder(
-          itemCount: messageManager.conversations.length,
-          itemBuilder: (context, index) {
-            final conversation = messageManager.conversations[index];
-            return ChatPreviewCard(
-              conversation: conversation,
-              isEmployer: isEmployer,
-            );
-          },
+      body: RefreshIndicator(
+        onRefresh: () => context.read<MessageManager>().getAllConversation(),
+        child: Padding(
+          padding: const EdgeInsets.only(
+            top: 10,
+            bottom: 10,
+          ),
+          child: ListView.builder(
+            itemCount: messageManager.conversations.length,
+            itemBuilder: (context, index) {
+              final conversation = messageManager.conversations[index];
+              return conversation.messages.isEmpty
+                  ? const SizedBox.shrink()
+                  : ChatPreviewCard(
+                      conversation: conversation,
+                      isEmployer: isEmployer,
+                    );
+            },
+          ),
         ),
       ),
     );

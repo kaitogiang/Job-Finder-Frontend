@@ -1,7 +1,10 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:job_finder_app/models/auth_token.dart';
+import 'package:job_finder_app/models/conversation.dart';
+import 'package:job_finder_app/models/message.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 import '../ui/shared/utils.dart';
 
@@ -11,9 +14,22 @@ class SocketService {
 
   final StreamController<Map<String, dynamic>> _jobpostingController =
       StreamController<Map<String, dynamic>>.broadcast();
+  final StreamController<Message> _messageController =
+      StreamController<Message>();
+  final StreamController<Conversation> _conversationController =
+      StreamController<Conversation>();
 
   Stream<Map<String, dynamic>> get jobpostingStream =>
       _jobpostingController.stream;
+
+  Stream<Message> get messageStream => _messageController.stream;
+
+  Stream<Conversation> get conversationStream => _conversationController.stream;
+
+  StreamController<Message> get messageController => _messageController;
+
+  StreamController<Conversation> get conversationController =>
+      _conversationController;
 
   SocketService(this._authToken) {
     Utils.logMessage("TOken trong socket: ${_authToken?.token}");
@@ -41,6 +57,7 @@ class SocketService {
           .disableAutoConnect()
           .setAuth({
             'token': _authToken?.token,
+            'isEmployer': _authToken?.isEmployer,
           })
           .enableForceNew()
           .setTimeout(10000)
@@ -90,6 +107,12 @@ class SocketService {
 
     //Lắng nghe sự kiện cập nhật jobposting
     _listenToJobpostingChanges();
+
+    //Lắng nghe sự kiện nhận tin nhắn mới
+    _listenForIncommingMessages();
+
+    //Lắng nghe sự kiện nhận conversation mới
+    _listenForNewConversation();
   }
 
   void _connectSocket() {
@@ -108,11 +131,16 @@ class SocketService {
     // socket?.close();
     socket?.dispose();
     _jobpostingController.close();
+    _messageController.close();
+    _conversationController.close();
   }
 
   void dispose() {
     socket?.dispose();
     _jobpostingController.close();
+    _messageController.close();
+    _conversationController.close();
+    Utils.logMessage('Gọi dispose trong SocketService');
   }
 
   void _listenToJobpostingChanges() {
@@ -123,10 +151,45 @@ class SocketService {
     });
   }
 
-  // void listenToJobpostingChanges(Function(Map<String, dynamic>) onAction) {
-  //   socket?.on("jobposting:modified", (data) {
-  //     Utils.logMessage("Có dữ liệu mới đến của jobposting");
-  //     onAction(data);
-  //   });
-  // }
+  void joinRoom(String roomId) {
+    socket?.emit('joinRoom', roomId);
+  }
+
+  void leaveRoom(String roomId) {
+    socket?.emit('leaveRoom', roomId);
+  }
+
+  //Emit sự kiện tạo conversation cho employer nhận biết và build lại UI
+  void createConversation(Conversation conversation) {
+    final receiverId = conversation.employer.id;
+    socket?.emit('createRoom', [conversation, receiverId]);
+  }
+
+  //Hàm xử lý việc nhận và gửi tin nhắn
+  void sendMessage(String conversationId, String userId, Message message) {
+    socket?.emit('sendMessage', [conversationId, userId, message]);
+  }
+
+  //Hàm nhận tin nhắn từ server và chuyển vào manager
+  void _listenForIncommingMessages() {
+    Utils.logMessage('Goi listenForIncaommingMessages services');
+    socket?.on("receiveMessage", (message) {
+      Utils.logMessage('New message received');
+      Map<String, dynamic> opponentMessageMap = message as Map<String, dynamic>;
+      Message opponentMessage = Message.fromJson(opponentMessageMap);
+      _messageController.add(opponentMessage);
+    });
+  }
+
+  //Hàm lắng nghe việc tạo conversation mới
+  void _listenForNewConversation() {
+    Utils.logMessage('Goi listenForNewConversation services');
+    socket?.on("receiveNewRoom", (conversation) {
+      Utils.logMessage('New conversation is created');
+      Map<String, dynamic> newConversationMap =
+          conversation as Map<String, dynamic>;
+      Conversation newConversation = Conversation.fromJson(newConversationMap);
+      _conversationController.add(newConversation);
+    });
+  }
 }

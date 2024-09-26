@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:job_finder_app/models/message.dart';
 import 'package:job_finder_app/ui/auth/auth_manager.dart';
+import 'package:job_finder_app/ui/shared/message_manager.dart';
 import 'package:provider/provider.dart';
 
 class ScaffoldWithNavBar extends StatelessWidget {
@@ -57,6 +59,24 @@ class ScaffoldWithNavBar extends StatelessWidget {
       //     icon: Icon(Icons.home_repair_service), label: 'Đã duyệt'),
       const BottomNavigationBarItem(
           icon: Icon(Icons.business), label: 'Công ty'),
+      BottomNavigationBarItem(
+          icon: Selector<MessageManager, int>(
+              selector: (context, messageManager) =>
+                  messageManager.unseenEmployerMessages,
+              builder: (context, unseenEmployerMessages, child) {
+                return unseenEmployerMessages > 0
+                    ? Badge(
+                        label: Text(unseenEmployerMessages > 9
+                            ? '9+'
+                            : unseenEmployerMessages.toString()),
+                        child: Icon(
+                          Icons.message,
+                          // color: theme.indicatorColor,
+                        ),
+                      )
+                    : Icon(Icons.chat_sharp);
+              }),
+          label: 'Tin nhắn'),
       const BottomNavigationBarItem(
           icon: Icon(Icons.person), label: 'Tài khoản'),
     ];

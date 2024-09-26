@@ -1,15 +1,14 @@
 import 'package:job_finder_app/ui/shared/utils.dart';
 
 class Message {
-  final String id;
-  final String conversationId;
-  final String senderId;
-  final String receiverId;
-  final bool senderIsJobseeker;
-  final String messageText;
-  final DateTime timestamp;
-  final bool
-      isRead; //thuộc tính này là trạng thái đã đọc của tin nhắn người khác
+  String id;
+  String conversationId;
+  String senderId;
+  String receiverId;
+  bool senderIsJobseeker;
+  String messageText;
+  DateTime timestamp;
+  bool isRead; //thuộc tính này là trạng thái đã đọc của tin nhắn người khác
   //nếu senderIsJobseeker là true thì isRead là trạng thái đã đọc của employer, ngược lại isRead là trạng thái đã đọc của jobseeker
 
   Message({
@@ -38,7 +37,7 @@ class Message {
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
+      '_id': id,
       'conversationId': conversationId,
       'senderId': senderId,
       'receiverId': receiverId,
