@@ -1,4 +1,3 @@
-
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -7,7 +6,6 @@ import 'package:job_finder_app/ui/auth/register_screen.dart';
 import 'login_screen.dart';
 
 class AuthScreen extends StatelessWidget {
-
   const AuthScreen({super.key});
 
   @override
@@ -22,11 +20,10 @@ class AuthScreen extends StatelessWidget {
             blurColor: const Color.fromARGB(255, 23, 48, 91),
             child: Container(
               decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage('assets/images/job_background.jpg'),
-                  fit: BoxFit.cover,
-                )
-              ),
+                  image: DecorationImage(
+                image: AssetImage('assets/images/job_background.jpg'),
+                fit: BoxFit.cover,
+              )),
             ),
           ),
           Positioned(
@@ -68,23 +65,27 @@ class AuthScreen extends StatelessWidget {
             right: 0,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,              
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     fixedSize: Size(300, 50),
                     backgroundColor: primaryColor,
                   ),
-                  
                   onPressed: () {
                     print('Đăng nhập');
                     Navigator.of(context).push(
                       MaterialPageRoute(builder: (context) => LoginScreen()),
                     );
                   },
-                  child: Text('Đăng nhập', style: TextStyle(fontSize: 20, color: Colors.white),),
+                  child: Text(
+                    'Đăng nhập',
+                    style: TextStyle(fontSize: 20, color: Colors.white),
+                  ),
                 ),
-                const SizedBox(height: 20,),
+                const SizedBox(
+                  height: 20,
+                ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     fixedSize: Size(300, 50),
@@ -95,7 +96,10 @@ class AuthScreen extends StatelessWidget {
                       MaterialPageRoute(builder: (context) => RegisterScreen()),
                     );
                   },
-                  child: Text('Đăng ký', style: TextStyle(fontSize: 20, color: primaryColor),),
+                  child: Text(
+                    'Đăng ký',
+                    style: TextStyle(fontSize: 20, color: primaryColor),
+                  ),
                 )
               ],
             ),

@@ -18,11 +18,22 @@ class User {
       required this.address,
       required this.avatar});
 
+  // factory User.fromJson(Map<String, dynamic> json) {
+  //   return User(
+  //       id: json['id'],
+  //       firstName: json['first_name'],
+  //       lastName: json['last_name'],
+  //       email: json['email'],
+  //       phone: json['phone'],
+  //       address: json['address'],
+  //       avatar: json['avatar']);
+  // }
+
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-        id: json['id'],
-        firstName: json['first_name'],
-        lastName: json['last_name'],
+        id: json['_id'],
+        firstName: json['firstName'],
+        lastName: json['lastName'],
         email: json['email'],
         phone: json['phone'],
         address: json['address'],
@@ -31,8 +42,9 @@ class User {
 
   Map<String, dynamic> toJson() {
     return {
-      'first_name': firstName,
-      'last_name': lastName,
+      '_id': id,
+      'firstName': firstName,
+      'lastName': lastName,
       'email': email,
       'phone': phone,
       'address': address,

@@ -5,6 +5,7 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   awesome_notifications
   awesome_notifications_core
+  connectivity_plus
   file_selector_windows
   gal
   irondash_engine_context

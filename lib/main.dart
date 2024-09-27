@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:awesome_notifications/awesome_notifications.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -11,6 +12,7 @@ import 'package:job_finder_app/ui/employer/company_manager.dart';
 import 'package:job_finder_app/ui/employer/employer_manager.dart';
 import 'package:job_finder_app/ui/jobseeker/jobseeker_manager.dart';
 import 'package:job_finder_app/ui/shared/jobposting_manager.dart';
+import 'package:job_finder_app/ui/shared/message_manager.dart';
 import 'package:provider/provider.dart';
 
 import 'ui/shared/build_router.dart';
@@ -107,10 +109,6 @@ class MyApp extends StatelessWidget {
             //* cho JobseekerManager
             jobpostingManager!.authToken = authManager.authToken;
             jobpostingManager.socketService = authManager.socketService;
-            Utils.logMessage(
-                'Trong JobpostingManager: Socket la: ${authManager.socketService?.socket?.hashCode}');
-            Utils.logMessage(
-                "---- ChangeNotifierProxyProvider<AuthManager, JobpostingManager> ----");
             return jobpostingManager;
           },
         ),
@@ -123,6 +121,26 @@ class MyApp extends StatelessWidget {
             Utils.logMessage(
                 "---- ChangeNotifierProxyProvider<AuthManager, ApplicationManager> ----");
             return applicationManager;
+          },
+        ),
+        //Manager quản lý tin nhắn
+        ChangeNotifierProxyProvider<AuthManager, MessageManager>(
+          create: (context) => MessageManager(),
+          update: (context, authManager, messageManager) {
+            Utils.logMessage('Goi update MessageManager');
+            //Gán lại authToken khi AuthManager thay đổi
+            messageManager!.authToken = authManager.authToken;
+            //Truyền socketService vào cho MessageManager
+            messageManager.socketService = authManager.socketService;
+            //Nạp dữ liệu các cuộc trò chuyện và tin nhắn
+            messageManager.getAllConversation();
+            //Lắng nghe tin nhắn mới đến
+            messageManager.listenToIncomingMessages();
+            //Nếu là nhà tuyển dụng thì lắng nghe việc nhận conversation mới từ jobseeker
+            if (authManager.isEmployer) {
+              messageManager.listenForNewConversation();
+            }
+            return messageManager;
           },
         ),
       ],

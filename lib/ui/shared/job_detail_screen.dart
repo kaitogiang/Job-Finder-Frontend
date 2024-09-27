@@ -3,14 +3,19 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:intl/intl.dart';
+import 'package:job_finder_app/models/conversation.dart';
 import 'package:job_finder_app/models/jobposting.dart';
+import 'package:job_finder_app/models/user.dart';
+import 'package:job_finder_app/ui/employer/application_detail_screen.dart';
 import 'package:job_finder_app/ui/employer/application_manager.dart';
 import 'package:job_finder_app/ui/employer/employer_manager.dart';
 import 'package:job_finder_app/ui/shared/jobposting_manager.dart';
+import 'package:job_finder_app/ui/shared/message_manager.dart';
+import 'package:job_finder_app/ui/shared/utils.dart';
 import 'package:provider/provider.dart';
 import 'package:quickalert/quickalert.dart';
 import 'package:shadow_overlay/shadow_overlay.dart';
-
+import 'package:go_router/go_router.dart';
 import '../../models/employer.dart';
 import '../auth/auth_manager.dart';
 import '../jobseeker/widgets/company_card.dart';
@@ -32,6 +37,30 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
   void initState() {
     super.initState();
     jobposting = widget.job;
+  }
+
+  Future<void> _gotoChatScreen() async {
+    //Kiểm tra xem có cuộc trò chuyện nào giữa jobseeker và company này không
+    final conversationId = await context
+        .read<MessageManager>()
+        .verifyExistingConversation(jobposting.company!.id);
+    if (conversationId != null) {
+      //Truy xuất đến conversation trong danh sách sẳn có
+      if (!mounted) return;
+      context.pushNamed('chat', extra: conversationId);
+    } else {
+      //Tạo mới conversation
+      if (mounted) {
+        String? conversationId = await context
+            .read<MessageManager>()
+            .createConversation(jobposting.company!.id);
+        if (conversationId != null && mounted) {
+          context.pushNamed('chat', extra: conversationId);
+        }
+      } else {
+        Utils.logMessage('The widget tree is removed!!');
+      }
+    }
   }
 
   @override
@@ -161,6 +190,31 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                               ),
                             );
                           }),
+                    ),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    Container(
+                      height: 50,
+                      width: 50,
+                      decoration: BoxDecoration(
+                          color: Colors.blue[50],
+                          borderRadius: BorderRadius.circular(10),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.shade300,
+                              spreadRadius: 1,
+                              blurRadius: 1,
+                              offset: const Offset(0, 3),
+                            ),
+                          ]),
+                      child: IconButton(
+                        onPressed: _gotoChatScreen,
+                        icon: Icon(
+                          Icons.chat_rounded,
+                          color: theme.primaryColor,
+                        ),
+                      ),
                     )
                   ],
                 ),

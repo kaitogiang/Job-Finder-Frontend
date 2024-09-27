@@ -28,12 +28,15 @@ import 'package:job_finder_app/ui/jobseeker/search_job_screen.dart';
 import 'package:job_finder_app/ui/jobseeker/search_result_screen.dart';
 import 'package:job_finder_app/ui/shared/change_email_screen.dart';
 import 'package:job_finder_app/ui/shared/change_password_screen.dart';
+import 'package:job_finder_app/ui/shared/chat_screen.dart';
 import 'package:job_finder_app/ui/shared/company_detail_screen.dart';
 import 'package:job_finder_app/ui/shared/image_fullscreen.dart';
 import 'package:job_finder_app/ui/shared/image_preview.dart';
 import 'package:job_finder_app/ui/shared/job_detail_screen.dart';
 import 'package:job_finder_app/ui/shared/jobseeker_detail_screen.dart';
+import 'package:job_finder_app/ui/shared/message_screen.dart';
 import 'package:job_finder_app/ui/shared/user_setting_screen.dart';
+import 'package:job_finder_app/ui/shared/utils.dart';
 import 'package:path/path.dart';
 import '../../models/application.dart';
 import '../employer/approved_application_screen.dart';
@@ -50,6 +53,7 @@ import 'splash_screen.dart';
 import '../auth/auth_screen.dart';
 
 final _rootNavigatorkey = GlobalKey<NavigatorState>(debugLabel: 'root');
+final _generalNavigatorkey = GlobalKey<NavigatorState>(debugLabel: 'general');
 
 GoRouter buildRouter(AuthManager authManager) {
   return GoRouter(
@@ -71,10 +75,11 @@ GoRouter buildRouter(AuthManager authManager) {
               )),
       //Routes cho người tìm việc
       StatefulShellRoute.indexedStack(
-          builder: (context, state, navigationShell) {
-            return ScaffoldWithNavBar(navigationShell: navigationShell);
-          },
-          branches: _buildJobseekerRoutes()),
+        builder: (context, state, navigationShell) {
+          return ScaffoldWithNavBar(navigationShell: navigationShell);
+        },
+        branches: _buildJobseekerRoutes(),
+      ),
       //Routes cho nhà tuyển dụng
       StatefulShellRoute.indexedStack(
           builder: (context, state, navigationShell) {
@@ -136,6 +141,21 @@ GoRouter buildRouter(AuthManager authManager) {
         builder: (context, state) => JobseekerDetailScreen(
           jobseekerId: state.extra as String,
         ),
+      ),
+      GoRoute(
+        parentNavigatorKey: _rootNavigatorkey,
+        name: 'conversation-list',
+        path: '/conversation-list',
+        builder: (context, state) => MessageScreen(),
+        routes: <RouteBase>[
+          GoRoute(
+            parentNavigatorKey: _rootNavigatorkey,
+            name: 'chat',
+            path: 'chat',
+            builder: (context, state) =>
+                ChatScreen(conversationId: state.extra as String),
+          )
+        ],
       )
     ],
   );
@@ -369,6 +389,20 @@ List<StatefulShellBranch> _buildEmployerRoutes() {
                 builder: (context, state) =>
                     CompanyEditScreen(state.extra as Company))
           ]),
+    ]),
+    StatefulShellBranch(routes: <RouteBase>[
+      GoRoute(
+          name: 'conversations',
+          path: '/conversations',
+          builder: (context, state) => MessageScreen(),
+          routes: <RouteBase>[
+            GoRoute(
+              name: 'chat-detail',
+              path: 'chat-detail',
+              builder: (context, state) =>
+                  ChatScreen(conversationId: state.extra as String),
+            )
+          ])
     ]),
     //Nhánh xem tài khoản cho nhà tuyển dụng
     StatefulShellBranch(routes: <RouteBase>[
