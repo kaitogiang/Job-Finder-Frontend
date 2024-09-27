@@ -53,7 +53,7 @@ class ConversationService extends NodeService {
           headers: headers,
           method: HttpMethod.get) as Map<String, dynamic>?;
       Utils.logMessage(response.toString());
-      if (response?['conversation'] == null) {
+      if (response == null) {
         return null;
       }
       return response!['_id'] as String;
