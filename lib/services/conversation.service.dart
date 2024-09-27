@@ -56,7 +56,7 @@ class ConversationService extends NodeService {
       if (response == null) {
         return null;
       }
-      return response!['_id'] as String;
+      return response['_id'] as String;
     } catch (error) {
       Utils.logMessage(
           'Error in getConversationByParticipantId method of ConversationService: $error');
