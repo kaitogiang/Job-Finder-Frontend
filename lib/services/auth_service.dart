@@ -248,4 +248,32 @@ class AuthService {
       rethrow;
     }
   }
+
+  Future<bool> saveRegistrationToken(
+      bool isEmployer, String userId, String fcmToken) async {
+    String uri = !isEmployer
+        ? '$_baseUrl/api/jobseeker/$userId/fcmToken'
+        : '$_baseUrl/api/employer/$userId/fcmToken';
+    try {
+      final url = Uri.parse(uri);
+      final response = await http.patch(
+        url,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8'
+        },
+        body: json.encode(
+          {'fcmToken': fcmToken},
+        ),
+      );
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        final json = jsonDecode(response.body);
+        if (json['saveSuccess'] == true) return true;
+      }
+
+      return false;
+    } catch (error) {
+      Utils.logMessage(error.toString());
+      rethrow;
+    }
+  }
 }

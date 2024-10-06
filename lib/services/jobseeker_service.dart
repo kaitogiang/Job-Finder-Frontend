@@ -265,4 +265,8 @@ class JobseekerService extends NodeService {
       return false;
     }
   }
+
+  // Future<bool> saveRegistrationToken() async {
+
+  // }
 }

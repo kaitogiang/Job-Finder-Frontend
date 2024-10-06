@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:job_finder_app/services/firebase_messaging_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../models/jobseeker.dart';
@@ -19,7 +20,11 @@ class AuthManager with ChangeNotifier {
   late Employer? _employer;
   SocketService? _socketService;
 
+  final FirebaseMessagingService _firebaseAPI;
   final AuthService _authService = AuthService();
+
+  AuthManager({required FirebaseMessagingService firebaseAPI})
+      : _firebaseAPI = firebaseAPI;
 
   //Hàm kiểm tra đã đăng nhập vào chưa
   bool get isAuth {
@@ -104,6 +109,16 @@ class AuthManager with ChangeNotifier {
     //       isEmployer: isEmployer,
     //     ),
     //     isEmployer);
+    final isSavedRegistrationToken = await _authService.saveRegistrationToken(
+      isEmployer,
+      authToken!.userId,
+      _firebaseAPI.registrationToken!,
+    );
+    if (isSavedRegistrationToken) {
+      Utils.logMessage('Luu registration token len DB thanh cong');
+    } else {
+      Utils.logMessage('That bai khi luu registration token');
+    }
   }
 
   //Hàm đăng nhập tự động nếu mà token vẫn còn trong sharedPreference

@@ -9,11 +9,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:job_finder_app/main.dart';
+import 'package:job_finder_app/services/firebase_messaging_service.dart';
+
+class MockFirebaseAPI extends FirebaseMessagingService {
+  // Implement any necessary mock methods or properties here
+}
 
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
+    final firebaseAPI = MockFirebaseAPI(); // Use the mock instance
+
     // Build our app and trigger a frame.
-    await tester.pumpWidget( MyApp());
+    await tester.pumpWidget(MyApp(
+      firebaseAPI: firebaseAPI,
+    ));
 
     // Verify that our counter starts at 0.
     expect(find.text('0'), findsOneWidget);

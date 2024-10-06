@@ -1,5 +1,7 @@
 import 'dart:developer';
-
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'firebase_options.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
@@ -17,8 +19,15 @@ import 'package:provider/provider.dart';
 
 import 'ui/shared/build_router.dart';
 import 'ui/shared/utils.dart';
+import 'services/firebase_messaging_service.dart';
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+
   //load the .env file
   await dotenv.load(); //TODO: PHải định nghĩa file .env trong pubspec.yaml
   //? Khởi tạo Notification cho ứng dụng
@@ -27,12 +36,22 @@ Future<void> main() async {
       'resource://drawable/notification',
       [
         NotificationChannel(
-            channelGroupKey: 'basic_channel_group',
-            channelKey: 'basic_channel',
-            channelName: 'Basic notifications',
-            channelDescription: 'Notification channel for basic tests',
-            defaultColor: Color(0xFF9D50DD),
-            ledColor: Colors.white)
+          channelGroupKey: 'basic_channel_group',
+          channelKey: 'basic_channel',
+          channelName: 'Basic notifications',
+          channelDescription: 'Notification channel for basic tests',
+          defaultColor: Color(0xFF9D50DD),
+          ledColor: Colors.white,
+        ),
+        NotificationChannel(
+          channelGroupKey: 'message_channel_group',
+          channelKey: 'message_channel',
+          channelName: 'Message notification',
+          channelDescription: 'Messages channel for receiving messages',
+          defaultColor: Color(0xFF9D50DD),
+          ledColor: Colors.white,
+          groupKey: 'message_group_key',
+        ),
       ],
       // Channel groups are only visual and are not required
       channelGroups: [
@@ -41,11 +60,22 @@ Future<void> main() async {
             channelGroupName: 'Basic group')
       ],
       debug: true);
-  runApp(MyApp());
+
+  
+  FirebaseMessagingService firebaseAPI = FirebaseMessagingService();
+  await firebaseAPI.firebaseMessagingInit();
+  await firebaseAPI.setUpInteractedMessage();
+  runApp(
+    MyApp(
+      firebaseAPI: firebaseAPI,
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
-  MyApp({super.key});
+  MyApp({super.key, required this.firebaseAPI});
+
+  final FirebaseMessagingService firebaseAPI;
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +93,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (context) {
             Utils.logMessage("AuthManager is being created");
-            return AuthManager();
+            return AuthManager(firebaseAPI: firebaseAPI);
           },
         ),
         ChangeNotifierProxyProvider<AuthManager, JobseekerManager>(
