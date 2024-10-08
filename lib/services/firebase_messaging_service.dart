@@ -10,7 +10,7 @@ import 'package:job_finder_app/ui/shared/utils.dart';
 @pragma('vm:entry-point')
 Future<void> _messagingBackgroundHandler(RemoteMessage message) async {
   Utils.logMessage('Receive background message: ${message.data}');
-  _createMessageNotification(message);
+  // _createMessageNotification(message);
 }
 
 void _createMessageNotification(RemoteMessage message) {
@@ -26,6 +26,8 @@ void _createMessageNotification(RemoteMessage message) {
         largeIcon: 'asset://assets/images/comments.png'),
   );
 }
+
+
 
 class FirebaseMessagingService {
   FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;

@@ -27,7 +27,6 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-
   //load the .env file
   await dotenv.load(); //TODO: PHải định nghĩa file .env trong pubspec.yaml
   //? Khởi tạo Notification cho ứng dụng
@@ -51,6 +50,7 @@ Future<void> main() async {
           defaultColor: Color(0xFF9D50DD),
           ledColor: Colors.white,
           groupKey: 'message_group_key',
+          importance: NotificationImportance.High,
         ),
       ],
       // Channel groups are only visual and are not required
@@ -61,7 +61,6 @@ Future<void> main() async {
       ],
       debug: true);
 
-  
   FirebaseMessagingService firebaseAPI = FirebaseMessagingService();
   await firebaseAPI.firebaseMessagingInit();
   await firebaseAPI.setUpInteractedMessage();
