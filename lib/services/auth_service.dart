@@ -1,7 +1,5 @@
 import 'dart:convert';
-import 'dart:developer';
-import 'dart:io';
-
+import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:job_finder_app/models/auth_token.dart';
 import 'package:http/http.dart' as http;
@@ -40,13 +38,14 @@ class AuthService {
           body: json.encode({'email': email, 'password': password}));
       if (response.statusCode >= 200 && response.statusCode < 300) {
         final responseJson = json.decode(response.body);
-        Utils.logMessage('Đang trong auth_service: ' + responseJson.toString());
+        Utils.logMessage(
+            'Đang trong auth_service:  ${responseJson.toString()}');
         final token = responseJson['token'];
         //decode token to get information
         if (token != null) {
           Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
           Utils.logMessage(
-              'Đang trong auth_service: ' + decodedToken.toString());
+              'Đang trong auth_service: ${decodedToken.toString()}');
           final authToken = _fromJson(responseJson);
           //lưu trữ lại AuthToken để đăng nhập tự động khi còn thời gian
           await _saveAuthToken(authToken);
@@ -59,7 +58,7 @@ class AuthService {
         throw HttpException.fromJson(errorResponse);
       }
     } catch (error) {
-      print(error);
+      debugPrint('$error');
       rethrow;
     }
   }

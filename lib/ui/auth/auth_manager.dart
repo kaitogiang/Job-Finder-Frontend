@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:job_finder_app/services/firebase_messaging_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -146,8 +144,8 @@ class AuthManager with ChangeNotifier {
     await _authService.clearSavedAuthToken();
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
-    Utils.logMessage('token trong Preferences la: ' +
-        prefs.getString("authToken").toString());
+    Utils.logMessage(
+        'token trong Preferences la: ${prefs.getString("authToken").toString()}');
 
     //Disconnect the socket
     _socketService?.disconnect();

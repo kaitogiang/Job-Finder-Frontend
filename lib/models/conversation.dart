@@ -1,6 +1,5 @@
 import 'package:job_finder_app/models/message.dart';
 import 'package:job_finder_app/models/user.dart';
-import 'package:job_finder_app/ui/shared/utils.dart';
 
 class Conversation {
   String id;

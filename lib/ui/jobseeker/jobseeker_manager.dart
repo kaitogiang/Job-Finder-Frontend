@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -6,12 +5,9 @@ import 'package:job_finder_app/models/auth_token.dart';
 import 'package:job_finder_app/models/education.dart';
 import 'package:job_finder_app/models/experience.dart';
 import 'package:job_finder_app/models/jobseeker.dart';
-import 'package:job_finder_app/services/auth_service.dart';
 import 'package:job_finder_app/services/jobseeker_service.dart';
 import 'package:flutter/foundation.dart';
-import 'package:job_finder_app/ui/jobseeker/jobseeker_profile_pages/resume_upload_screen.dart';
 
-import '../../models/resume.dart';
 import 'package:job_finder_app/ui/shared/utils.dart';
 
 class JobseekerManager extends ChangeNotifier {
@@ -79,8 +75,8 @@ class JobseekerManager extends ChangeNotifier {
 
   Future<void> removeSkill(String skill) async {
     final result = await _jobseekerService.removeSkill(skill);
-    //TODO Nếu result = true có nghĩa là xóa trên database thành công thì cập nhật UI
-    //TODO và báo cập nhật giao diện
+    //Nếu result = true có nghĩa là xóa trên database thành công thì cập nhật UI
+    //và báo cập nhật giao diện
     if (result) {
       jobseeker.skills.remove(skill);
       notifyListeners();

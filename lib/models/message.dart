@@ -1,5 +1,3 @@
-import 'package:job_finder_app/ui/shared/utils.dart';
-
 class Message {
   String id;
   String conversationId;

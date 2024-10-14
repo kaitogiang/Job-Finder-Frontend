@@ -1,10 +1,7 @@
-import 'dart:developer';
 import 'dart:io';
-import 'dart:isolate';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:job_finder_app/models/employer.dart';
 import 'package:job_finder_app/models/employer.dart';
 import 'package:job_finder_app/ui/employer/employer_manager.dart';
 import 'package:job_finder_app/ui/shared/combined_text_form_field.dart';
@@ -16,9 +13,9 @@ import 'package:provider/provider.dart';
 import '../shared/utils.dart';
 
 class EmployerEditScreen extends StatefulWidget {
-  EmployerEditScreen(this.employer, {super.key});
+  const EmployerEditScreen(this.employer, {super.key});
 
-  Employer? employer;
+  final Employer? employer;
 
   @override
   State<EmployerEditScreen> createState() => EmployerEditScreenState();
@@ -53,7 +50,7 @@ class EmployerEditScreenState extends State<EmployerEditScreen> {
     phoneController.text = widget.employer!.phone;
     roleController.text = widget.employer!.role;
     addressController.text = widget.employer!.address;
-    //TODO: Tìm chỉ số tỉnh mà trùng với danh sách tỉnh
+    //Tìm chỉ số tỉnh mà trùng với danh sách tỉnh
     int selectedIndex = provinceListenable.value.indexWhere((element) {
       String alteredElement =
           Utils.removeVietnameseAccent(element).toLowerCase();
@@ -61,7 +58,7 @@ class EmployerEditScreenState extends State<EmployerEditScreen> {
           Utils.removeVietnameseAccent(addressController.text).toLowerCase();
       return alteredElement.compareTo(alteredAddress) == 0;
     });
-    //TODO: Đặt chỉ số được chọn lại
+    //Đặt chỉ số được chọn lại
     selectedProvinceIndex.value = selectedIndex;
     searchController.addListener(() {
       String searchText = searchController.text;
@@ -113,9 +110,11 @@ class EmployerEditScreenState extends State<EmployerEditScreen> {
       setState(() {
         _isLoading = false;
       });
-      Navigator.pop(context);
+      if (mounted) {
+        Navigator.pop(context);
+      }
     } catch (error) {
-      Utils.logMessage('Lỗi trong infor edit ${error}');
+      Utils.logMessage('Lỗi trong infor edit $error');
     }
   }
 
@@ -127,7 +126,7 @@ class EmployerEditScreenState extends State<EmployerEditScreen> {
 
     return Scaffold(
         appBar: AppBar(
-          title: Text("Thông tin cá nhân"),
+          title: const Text("Thông tin cá nhân"),
         ),
         resizeToAvoidBottomInset: true,
         body: SingleChildScrollView(
@@ -135,7 +134,8 @@ class EmployerEditScreenState extends State<EmployerEditScreen> {
             children: [
               Container(
                 width: deviceSize.width,
-                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -294,10 +294,9 @@ class EmployerEditScreenState extends State<EmployerEditScreen> {
                     ),
                     //Nút dùng để lưu form lại
                     Container(
-                      margin: EdgeInsets.only(bottom: 10),
+                      margin: const EdgeInsets.only(bottom: 10),
                       child: ElevatedButton(
                         onPressed: _updateProfile,
-                        child: Text('Lưu thay đổi'),
                         style: ElevatedButton.styleFrom(
                           // side: BorderSide(color: theme.colorScheme.primary),
                           elevation: 0,
@@ -312,6 +311,7 @@ class EmployerEditScreenState extends State<EmployerEditScreen> {
                             fontSize: 20,
                           ),
                         ),
+                        child: const Text('Lưu thay đổi'),
                       ),
                     )
                   ],
@@ -336,22 +336,22 @@ class EmployerEditScreenState extends State<EmployerEditScreen> {
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
-                constraints: BoxConstraints.tight(Size.fromHeight(60)),
+                constraints: BoxConstraints.tight(const Size.fromHeight(60)),
                 labelText: 'Tìm Tỉnh/thành phố',
-                prefixIcon: Icon(Icons.search),
+                prefixIcon: const Icon(Icons.search),
               ),
               textInputAction: TextInputAction.search,
             ),
             Expanded(
               child: Container(
-                  padding: EdgeInsets.only(top: 5),
+                  padding: const EdgeInsets.only(top: 5),
                   child: ValueListenableBuilder<List<String>>(
                       valueListenable: provinceListenable,
                       builder: (context, provinces, child) {
-                        return !provinces.isEmpty
+                        return provinces.isNotEmpty
                             ? ListView.separated(
                                 shrinkWrap:
-                                    true, //TODO: Chỉ định kích thước của ListView bằng với cố lượng phần tử
+                                    true, //Chỉ định kích thước của ListView bằng với cố lượng phần tử
                                 itemCount: provinces.length,
                                 separatorBuilder:
                                     (BuildContext context, int index) =>

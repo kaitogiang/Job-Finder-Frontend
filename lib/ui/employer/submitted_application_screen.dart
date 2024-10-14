@@ -5,8 +5,6 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:job_finder_app/models/application_storage.dart';
 import 'package:job_finder_app/ui/employer/application_manager.dart';
-import 'package:job_finder_app/ui/employer/widgets/applicant_card.dart';
-import 'package:job_finder_app/ui/shared/enums.dart';
 import 'package:provider/provider.dart';
 
 enum PostStatus {
@@ -85,7 +83,7 @@ class SubmittedApplicationScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              body: TabBarView(
+              body: const TabBarView(
                 children: [
                   ReceivedApplicationList(),
                   AcceptedApplicationList(),
@@ -325,27 +323,27 @@ class PostApplicationCard extends StatelessWidget {
     );
   }
 
-  Container _buildActionButton({
-    required BuildContext context,
-    void Function()? onDelete,
-    void Function()? onEdit,
-  }) {
-    return Container(
-      child: ListView(
-        shrinkWrap: true,
-        children: [
-          ListTile(
-            title: Text(
-              'Xem bài đăng',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            leading: const Icon(Icons.preview),
-            onTap: onEdit,
-          ),
-        ],
-      ),
-    );
-  }
+  // Container _buildActionButton({
+  //   required BuildContext context,
+  //   void Function()? onDelete,
+  //   void Function()? onEdit,
+  // }) {
+  //   return Container(
+  //     child: ListView(
+  //       shrinkWrap: true,
+  //       children: [
+  //         ListTile(
+  //           title: Text(
+  //             'Xem bài đăng',
+  //             style: Theme.of(context).textTheme.titleMedium,
+  //           ),
+  //           leading: const Icon(Icons.preview),
+  //           onTap: onEdit,
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 }
 
 //? Nút trạng thái

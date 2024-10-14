@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:math' as math;
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
@@ -140,11 +139,12 @@ class ApplicantCard extends StatelessWidget {
                             .requestPermissionToSendNotifications();
                       }
                       Utils.logMessage('Path la: ${application.resume}');
+                      if (!context.mounted) return;
                       final path = await context
                           .read<ApplicationManager>()
                           .downloadFile(application.resume,
                               'CV_${name}_${DateTime.now().millisecond}${DateTime.now().minute}.pdf');
-                      if (path != null) {
+                      if (path != null && context.mounted) {
                         QuickAlert.show(
                             context: context,
                             type: QuickAlertType.info,
@@ -176,7 +176,7 @@ class ApplicantCard extends StatelessWidget {
                 }),
                 heightFactor: !isRead ? 0.4 : 0.3);
           },
-          child: Text('Tùy chọn'),
+          child: const Text('Tùy chọn'),
         ),
       ),
     );
@@ -223,7 +223,7 @@ class ApplicantCard extends StatelessWidget {
                           elevation: 3,
                           backgroundColor: Colors.red[50],
                           foregroundColor: Colors.red,
-                          fixedSize: Size.fromWidth(120),
+                          fixedSize: const Size.fromWidth(120),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           )),
@@ -251,11 +251,13 @@ class ApplicantCard extends StatelessWidget {
                             await context
                                 .read<ApplicationManager>()
                                 .rejectApplication(jobpostingId!, application);
-                            Navigator.popUntil(
-                                context,
-                                (route) =>
-                                    route.settings.name ==
-                                    'application-detail');
+                            if (context.mounted) {
+                              Navigator.popUntil(
+                                  context,
+                                  (route) =>
+                                      route.settings.name ==
+                                      'application-detail');
+                            }
                           }
                         }
                       },
@@ -269,7 +271,7 @@ class ApplicantCard extends StatelessWidget {
                           elevation: 3,
                           backgroundColor: Colors.green[50],
                           foregroundColor: Colors.green,
-                          fixedSize: Size.fromWidth(120),
+                          fixedSize: const Size.fromWidth(120),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           )),
@@ -298,11 +300,13 @@ class ApplicantCard extends StatelessWidget {
                             await context
                                 .read<ApplicationManager>()
                                 .approveApplication(application, jobpostingId!);
-                            Navigator.popUntil(
-                                context,
-                                (route) =>
-                                    route.settings.name ==
-                                    'application-detail');
+                            if (context.mounted) {
+                              Navigator.popUntil(
+                                  context,
+                                  (route) =>
+                                      route.settings.name ==
+                                      'application-detail');
+                            }
                           }
                         }
                       },
@@ -333,45 +337,43 @@ class ApplicantCard extends StatelessWidget {
     );
   }
 
-  Container _buildActionButton({
+  ListView _buildActionButton({
     required BuildContext context,
     void Function()? onDownload,
     void Function()? onPreview,
     void Function()? onUpdate,
   }) {
-    return Container(
-      child: ListView(
-        shrinkWrap: true,
-        children: [
+    return ListView(
+      shrinkWrap: true,
+      children: [
+        ListTile(
+          title: Text(
+            'Xem chi tiết',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          leading: const Icon(Icons.remove_red_eye),
+          onTap: onPreview,
+        ),
+        const Divider(),
+        ListTile(
+          title: Text(
+            'Tải xuống CV',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          leading: const Icon(Icons.download),
+          onTap: onDownload,
+        ),
+        const Divider(),
+        if (onUpdate != null)
           ListTile(
             title: Text(
-              'Xem chi tiết',
+              'Cập nhật trạng thái',
               style: Theme.of(context).textTheme.titleMedium,
             ),
-            leading: Icon(Icons.remove_red_eye),
-            onTap: onPreview,
+            leading: const Icon(Icons.update),
+            onTap: onUpdate,
           ),
-          Divider(),
-          ListTile(
-            title: Text(
-              'Tải xuống CV',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            leading: Icon(Icons.download),
-            onTap: onDownload,
-          ),
-          Divider(),
-          if (onUpdate != null)
-            ListTile(
-              title: Text(
-                'Cập nhật trạng thái',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              leading: Icon(Icons.update),
-              onTap: onUpdate,
-            ),
-        ],
-      ),
+      ],
     );
   }
 }

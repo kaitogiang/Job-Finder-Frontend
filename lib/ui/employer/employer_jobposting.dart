@@ -12,8 +12,7 @@ class EmployerJobposting extends StatelessWidget {
   Widget build(BuildContext context) {
     final deviceSize = MediaQuery.of(context).size;
     final theme = Theme.of(context);
-    final textTheme = theme.textTheme;
-    final chipColor = Color.fromRGBO(87, 133, 248, 1);
+    const chipColor = Color.fromRGBO(87, 133, 248, 1);
     String companyId = context.read<AuthManager>().employer!.companyId;
     List<String> filteredData = ['Tất cả', 'Còn hạn', 'Hết hạn'];
     List<TimeFilter> condition = [
@@ -21,7 +20,7 @@ class EmployerJobposting extends StatelessWidget {
       TimeFilter.notExpired,
       TimeFilter.expired
     ];
-    ValueNotifier<int> _selectedIndex = ValueNotifier(0);
+    ValueNotifier<int> choosedIndex = ValueNotifier(0);
 
     return Scaffold(
       appBar: AppBar(
@@ -50,7 +49,7 @@ class EmployerJobposting extends StatelessWidget {
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(50),
           child: ValueListenableBuilder(
-              valueListenable: _selectedIndex,
+              valueListenable: choosedIndex,
               builder: (context, selectedIndex, child) {
                 return Wrap(
                   runAlignment: WrapAlignment.start,
@@ -78,7 +77,7 @@ class EmployerJobposting extends StatelessWidget {
                               ? const BorderSide(color: Colors.white, width: 1)
                               : BorderSide.none),
                       onSelected: (value) {
-                        _selectedIndex.value = index;
+                        choosedIndex.value = index;
                         context
                             .read<JobpostingManager>()
                             .filterCompanyPosts(condition[index]);

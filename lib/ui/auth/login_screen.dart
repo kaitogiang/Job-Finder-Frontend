@@ -3,27 +3,23 @@ import 'dart:developer';
 import 'package:blur/blur.dart';
 import 'package:flutter/material.dart';
 import 'package:job_finder_app/ui/auth/auth_manager.dart';
-import 'package:job_finder_app/ui/shared/loading_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:quickalert/quickalert.dart';
 
 enum UserType { employee, employer }
 
 class LoginScreen extends StatefulWidget {
-  LoginScreen({super.key});
+  const LoginScreen({super.key});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  ValueNotifier<bool> isFocus = new ValueNotifier(false);
+  ValueNotifier<bool> isFocus = ValueNotifier(false);
 
   @override
   Widget build(BuildContext context) {
-    ThemeData theme = Theme.of(context);
-    Color primaryColor = theme.primaryColor;
-
     return Scaffold(
       body: Stack(
         children: <Widget>[
@@ -31,7 +27,7 @@ class _LoginScreenState extends State<LoginScreen> {
             blur: 1.0,
             blurColor: const Color.fromARGB(255, 23, 48, 91),
             child: Container(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                   image: DecorationImage(
                 image: AssetImage('assets/images/job_background.jpg'),
                 fit: BoxFit.cover,
@@ -46,7 +42,7 @@ class _LoginScreenState extends State<LoginScreen> {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text(
+                const Text(
                   'ĐĂNG NHẬP',
                   style: TextStyle(
                     color: Colors.white,
@@ -82,9 +78,9 @@ class _LoginScreenState extends State<LoginScreen> {
 }
 
 class LoginCard extends StatefulWidget {
-  LoginCard({this.isFocus, super.key});
+  const LoginCard({this.isFocus, super.key});
 
-  ValueNotifier<bool>? isFocus;
+  final ValueNotifier<bool>? isFocus;
 
   @override
   State<LoginCard> createState() => _LoginCardState();
@@ -143,15 +139,23 @@ class _LoginCardState extends State<LoginCard> {
         await context
             .read<AuthManager>()
             .login(_authData['email']!, _authData['password']!, false)
-            .whenComplete(() => Navigator.pop(context));
+            .whenComplete(() {
+          if (mounted) {
+            Navigator.pop(context);
+          }
+        });
       } else {
         await context
             .read<AuthManager>()
             .login(_authData['email']!, _authData['password']!, true)
-            .whenComplete(() => Navigator.pop(context));
+            .whenComplete(() {
+          if (mounted) {
+            Navigator.pop(context);
+          }
+        });
       }
     } catch (error) {
-      if (context.mounted) {
+      if (mounted) {
         QuickAlert.show(
             context: context,
             type: QuickAlertType.error,
@@ -165,14 +169,12 @@ class _LoginCardState extends State<LoginCard> {
   @override
   Widget build(BuildContext context) {
     Size currentSceen = MediaQuery.of(context).size;
-
-    final ScrollController _scrollController = ScrollController();
     return Card(
         elevation: 10,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(50),
         ),
-        child: Container(
+        child: SizedBox(
             width: currentSceen.width,
             height: currentSceen.height,
             child: Column(
@@ -187,10 +189,10 @@ class _LoginCardState extends State<LoginCard> {
                     Padding(
                       padding: const EdgeInsets.only(left: 10),
                       child: IconButton(
-                        padding: EdgeInsets.only(left: 6),
-                        icon: Icon(Icons.arrow_back_ios),
+                        padding: const EdgeInsets.only(left: 6),
+                        icon: const Icon(Icons.arrow_back_ios),
                         onPressed: () {
-                          print('Back to AuthScreen');
+                          debugPrint('Back to AuthScreen');
                           Navigator.pop(context);
                         },
                       ),
@@ -201,7 +203,7 @@ class _LoginCardState extends State<LoginCard> {
                           userType == UserType.employee
                               ? 'ỨNG VIÊN'
                               : 'NHÀ TUYỂN DỤNG',
-                          style: TextStyle(
+                          style: const TextStyle(
                               fontSize: 25, fontWeight: FontWeight.bold)),
                     ),
                   ],
@@ -282,7 +284,7 @@ class _LoginCardState extends State<LoginCard> {
   Widget _buildLoginButton() {
     return ElevatedButton(
       onPressed: () {
-        log('Đăng nhập vào' + userType.toString());
+        log('Đăng nhập vào + ${userType.toString()}');
         _login();
       },
       style: ElevatedButton.styleFrom(
@@ -291,9 +293,9 @@ class _LoginCardState extends State<LoginCard> {
           ),
           backgroundColor: Theme.of(context).colorScheme.primary,
           foregroundColor: Theme.of(context).colorScheme.onPrimary,
-          padding: EdgeInsets.symmetric(horizontal: 30, vertical: 8),
-          fixedSize: Size(350, 60)),
-      child: Text(
+          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 8),
+          fixedSize: const Size(350, 60)),
+      child: const Text(
         'ĐĂNG NHẬP',
         style: TextStyle(fontSize: 17),
       ),
@@ -321,7 +323,7 @@ class _LoginCardState extends State<LoginCard> {
         userType != UserType.employee
             ? 'Đăng nhập ứng tuyển viên'
             : 'Đăng nhập nhà tuyển dụng',
-        style: TextStyle(fontSize: 17),
+        style: const TextStyle(fontSize: 17),
       ),
     );
   }

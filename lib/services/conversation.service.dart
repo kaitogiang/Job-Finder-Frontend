@@ -1,6 +1,4 @@
 import 'dart:convert';
-import 'dart:ffi';
-
 import 'package:job_finder_app/models/auth_token.dart';
 import 'package:job_finder_app/models/conversation.dart';
 import 'package:job_finder_app/models/message.dart';
@@ -8,7 +6,7 @@ import 'package:job_finder_app/services/node_service.dart';
 import 'package:job_finder_app/ui/shared/utils.dart';
 
 class ConversationService extends NodeService {
-  ConversationService([AuthToken? authToken]) : super(authToken);
+  ConversationService(AuthToken? authToken) : super(authToken);
 
   final headers = {'Content-Type': 'application/json; charset=UTF-8'};
 
@@ -56,7 +54,7 @@ class ConversationService extends NodeService {
       if (response == null) {
         return null;
       }
-      return response!['_id'] as String;
+      return response['_id'] as String;
     } catch (error) {
       Utils.logMessage(
           'Error in getConversationByParticipantId method of ConversationService: $error');

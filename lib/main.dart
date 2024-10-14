@@ -1,13 +1,8 @@
-import 'dart:developer';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'firebase_options.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:job_finder_app/services/socket_service.dart';
 import 'package:job_finder_app/ui/auth/auth_manager.dart';
 import 'package:job_finder_app/ui/employer/application_manager.dart';
 import 'package:job_finder_app/ui/employer/company_manager.dart';
@@ -28,7 +23,7 @@ Future<void> main() async {
   );
 
   //load the .env file
-  await dotenv.load(); //TODO: PHải định nghĩa file .env trong pubspec.yaml
+  await dotenv.load(); //PHải định nghĩa file .env trong pubspec.yaml
   //? Khởi tạo Notification cho ứng dụng
   AwesomeNotifications().initialize(
       // set the icon to null if you want to use the default app icon
@@ -39,7 +34,7 @@ Future<void> main() async {
           channelKey: 'basic_channel',
           channelName: 'Basic notifications',
           channelDescription: 'Notification channel for basic tests',
-          defaultColor: Color(0xFF9D50DD),
+          defaultColor: const Color(0xFF9D50DD),
           ledColor: Colors.white,
         ),
         NotificationChannel(
@@ -47,7 +42,7 @@ Future<void> main() async {
           channelKey: 'message_channel',
           channelName: 'Message notification',
           channelDescription: 'Messages channel for receiving messages',
-          defaultColor: Color(0xFF9D50DD),
+          defaultColor: const Color(0xFF9D50DD),
           ledColor: Colors.white,
           groupKey: 'message_group_key',
           importance: NotificationImportance.High,
@@ -72,7 +67,7 @@ Future<void> main() async {
 }
 
 class MyApp extends StatelessWidget {
-  MyApp({super.key, required this.firebaseAPI});
+  const MyApp({super.key, required this.firebaseAPI});
 
   final FirebaseMessagingService firebaseAPI;
 
@@ -80,10 +75,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = ColorScheme.fromSeed(
         seedColor: Colors.blueAccent,
-        primary: Color(0xFF0C5FBF),
+        primary: const Color(0xFF0C5FBF),
         secondary: Colors.grey.shade400,
         surface: Colors.white,
-        background: Colors.white,
+        // background: Colors.white, //lỗi thời
         surfaceTint: Colors.grey,
         onSecondary: Colors.black);
 
@@ -99,7 +94,7 @@ class MyApp extends StatelessWidget {
           create: (context) =>
               JobseekerManager(context.read<AuthManager>().jobseeker),
           update: (context, authManager, jobseekerManager) {
-            //TODO Khi authManager có báo hiệu thay đổi thì đọc lại authToken
+            //Khi authManager có báo hiệu thay đổi thì đọc lại authToken
             //* cho JobseekerManager
             jobseekerManager!.authToken = authManager.authToken;
             // jobseekerManager.jobseeker = authManager.jobseeker;
@@ -112,7 +107,7 @@ class MyApp extends StatelessWidget {
           create: (context) =>
               EmployerManager(context.read<AuthManager>().employer),
           update: (context, authManager, employerManager) {
-            //TODO Khi authManager có báo hiệu thay đổi thì đọc lại authToken
+            //Khi authManager có báo hiệu thay đổi thì đọc lại authToken
             //* cho JobseekerManager
             employerManager!.authToken = authManager.authToken;
             Utils.logMessage(
@@ -123,7 +118,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProxyProvider<AuthManager, CompanyManager>(
           create: (context) => CompanyManager(),
           update: (context, authManager, companyManager) {
-            //TODO Khi authManager có báo hiệu thay đổi thì đọc lại authToken
+            //Khi authManager có báo hiệu thay đổi thì đọc lại authToken
             //* cho JobseekerManager
             companyManager!.authToken = authManager.authToken;
             Utils.logMessage(
@@ -134,7 +129,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProxyProvider<AuthManager, JobpostingManager>(
           create: (context) => JobpostingManager(),
           update: (context, authManager, jobpostingManager) {
-            //TODO Khi authManager có báo hiệu thay đổi thì đọc lại authToken
+            //Khi authManager có báo hiệu thay đổi thì đọc lại authToken
             //* cho JobseekerManager
             jobpostingManager!.authToken = authManager.authToken;
             jobpostingManager.socketService = authManager.socketService;
@@ -144,7 +139,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProxyProvider<AuthManager, ApplicationManager>(
           create: (context) => ApplicationManager(),
           update: (context, authManager, applicationManager) {
-            //TODO Khi authManager có báo hiệu thay đổi thì đọc lại authToken
+            //Khi authManager có báo hiệu thay đổi thì đọc lại authToken
             //* cho JobseekerManager
             applicationManager!.authToken = authManager.authToken;
             Utils.logMessage(

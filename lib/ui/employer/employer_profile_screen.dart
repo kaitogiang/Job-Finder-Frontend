@@ -4,14 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:job_finder_app/ui/auth/auth_manager.dart';
 import 'package:job_finder_app/ui/employer/employer_manager.dart';
-import 'package:job_finder_app/ui/jobseeker/jobseeker_manager.dart';
 import 'package:job_finder_app/ui/shared/loading_screen.dart';
 import 'package:provider/provider.dart';
-import 'package:quickalert/quickalert.dart';
-import '../../models/education.dart';
-import '../../models/experience.dart';
-import '../../models/resume.dart';
-import '../shared/modal_bottom_sheet.dart';
 import '../shared/user_info_card.dart';
 
 class EmployerProfileScreen extends StatelessWidget {
@@ -64,7 +58,7 @@ class EmployerProfileScreen extends StatelessWidget {
                         // Khung chứa ảnh đại diện và thông tin cơ bản ngắn gọn
                         Container(
                           height: 200,
-                          padding: EdgeInsets.only(bottom: 13),
+                          padding: const EdgeInsets.only(bottom: 13),
                           decoration: BoxDecoration(
                             color: theme.primaryColor,
                           ),
@@ -158,7 +152,7 @@ class EmployerProfileScreen extends StatelessWidget {
                                             ),
                                           ),
                                           const WidgetSpan(
-                                              child: const SizedBox(
+                                              child: SizedBox(
                                             width: 10,
                                           )),
                                           TextSpan(
@@ -263,36 +257,36 @@ class EmployerProfileScreen extends StatelessWidget {
             }));
   }
 
-  Container _buildActionButton({
-    required BuildContext context,
-    void Function()? onDelete,
-    void Function()? onEdit,
-  }) {
-    return Container(
-      child: ListView(
-        shrinkWrap: true,
-        children: [
-          ListTile(
-            title: Text(
-              'Xóa bỏ',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            leading: Icon(Icons.delete),
-            onTap: onDelete,
-          ),
-          Divider(),
-          ListTile(
-            title: Text(
-              'Chỉnh sửa',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            leading: Icon(Icons.preview),
-            onTap: onEdit,
-          ),
-        ],
-      ),
-    );
-  }
+  // Container _buildActionButton({
+  //   required BuildContext context,
+  //   void Function()? onDelete,
+  //   void Function()? onEdit,
+  // }) {
+  //   return Container(
+  //     child: ListView(
+  //       shrinkWrap: true,
+  //       children: [
+  //         ListTile(
+  //           title: Text(
+  //             'Xóa bỏ',
+  //             style: Theme.of(context).textTheme.titleMedium,
+  //           ),
+  //           leading: Icon(Icons.delete),
+  //           onTap: onDelete,
+  //         ),
+  //         Divider(),
+  //         ListTile(
+  //           title: Text(
+  //             'Chỉnh sửa',
+  //             style: Theme.of(context).textTheme.titleMedium,
+  //           ),
+  //           leading: Icon(Icons.preview),
+  //           onTap: onEdit,
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   Row _buildInfoRow(
       {required String title1,

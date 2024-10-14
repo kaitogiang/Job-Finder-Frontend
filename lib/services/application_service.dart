@@ -3,12 +3,9 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
-import 'package:flutter_file_downloader/flutter_file_downloader.dart';
 import 'package:job_finder_app/models/application_storage.dart';
-import 'package:job_finder_app/models/auth_token.dart';
 import 'package:job_finder_app/services/node_service.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:http/http.dart' as http;
 
@@ -16,7 +13,7 @@ import '../models/employer.dart';
 import '../models/jobseeker.dart';
 
 class ApplicationService extends NodeService {
-  ApplicationService([AuthToken? authToken]) : super(authToken);
+  ApplicationService([super.authToken]);
 
   final headers = {'Content-Type': 'application/json; charset=UTF-8'};
 
@@ -39,6 +36,7 @@ class ApplicationService extends NodeService {
         }
         return null;
       }
+      return null;
     } catch (error) {
       log('Error in application service: $error');
       return null;
@@ -157,7 +155,7 @@ class ApplicationService extends NodeService {
 
       return jobseeker;
     } catch (error) {
-      log('job service - fetchJobseekerById: ${error}');
+      log('job service - fetchJobseekerById: $error');
       return null;
     }
   }

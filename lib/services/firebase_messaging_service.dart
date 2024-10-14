@@ -1,5 +1,4 @@
 import 'package:awesome_notifications/awesome_notifications.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:job_finder_app/ui/shared/utils.dart';
 
@@ -27,10 +26,8 @@ void _createMessageNotification(RemoteMessage message) {
   );
 }
 
-
-
 class FirebaseMessagingService {
-  FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
 
   late String? _registrationToken;
 
