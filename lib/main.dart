@@ -1,4 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:job_finder_app/ui/shared/message_notificaion_controller.dart';
 import 'firebase_options.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
@@ -59,6 +60,9 @@ Future<void> main() async {
   FirebaseMessagingService firebaseAPI = FirebaseMessagingService();
   await firebaseAPI.firebaseMessagingInit();
   await firebaseAPI.setUpInteractedMessage();
+  //Thiết lập xử lý nhận thông báo tin nhắn khi ứng dụng
+  //đang ở foreground
+  MessageNotificaionController.initialize(globalNavigatorKey);
   runApp(
     MyApp(
       firebaseAPI: firebaseAPI,

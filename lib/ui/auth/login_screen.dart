@@ -142,9 +142,9 @@ class _LoginCardState extends State<LoginCard> {
             .login(_authData['email']!, _authData['password']!, false)
             .then((value) {
           Utils.logMessage("Hoan thanh dang nhap");
-          if (mounted) {
-            Navigator.pop(context);
-          }
+          // if (mounted) {
+          //   Navigator.pop(context);
+          // }
         }).catchError((error) {
           Utils.logMessage("Loi khi dang dang nhap");
         });
@@ -152,10 +152,10 @@ class _LoginCardState extends State<LoginCard> {
         await context
             .read<AuthManager>()
             .login(_authData['email']!, _authData['password']!, true)
-            .whenComplete(() {
-          if (mounted) {
-            Navigator.pop(context);
-          }
+            .then((value) {
+          // if (mounted) {
+          //   Navigator.pop(context);
+          // }
         });
       }
     } catch (error) {

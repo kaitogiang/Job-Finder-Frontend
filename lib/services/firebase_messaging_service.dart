@@ -15,16 +15,20 @@ Future<void> _messagingBackgroundHandler(RemoteMessage message) async {
 }
 
 void _createMessageNotification(RemoteMessage message) {
+  final data = Map<String, String>.from(message.data);
+
   AwesomeNotifications().createNotification(
     content: NotificationContent(
-        id: DateTime.now().microsecond,
-        channelKey: 'message_channel',
-        title: message.notification?.title,
-        body: message.notification?.body,
-        notificationLayout: NotificationLayout.MessagingGroup,
-        groupKey: message
-            .data['conversationId'], //message_group_key is the first value
-        largeIcon: 'asset://assets/images/comments.png'),
+      id: DateTime.now().microsecond,
+      channelKey: 'message_channel',
+      title: message.notification?.title,
+      body: message.notification?.body,
+      notificationLayout: NotificationLayout.MessagingGroup,
+      groupKey:
+          message.data['conversationId'], //message_group_key is the first value
+      largeIcon: 'asset://assets/images/comments.png',
+      payload: data,
+    ),
   );
 }
 
