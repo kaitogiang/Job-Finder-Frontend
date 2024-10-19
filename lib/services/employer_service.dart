@@ -1,14 +1,12 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
-
-import 'package:job_finder_app/models/auth_token.dart';
 import 'package:job_finder_app/models/employer.dart';
 
 import 'node_service.dart';
 
 class EmployerService extends NodeService {
-  EmployerService([AuthToken? authToken]) : super(authToken);
+  EmployerService([super.authToken]);
 
   final headers = {'Content-Type': 'application/json; charset=UTF-8'};
 
@@ -56,6 +54,7 @@ class EmployerService extends NodeService {
       log('Error in changeEmail method of Employer: $error');
       return null;
     }
+    return null;
   }
 
   Future<bool> changePassword(String oldPassword, String newPassword) async {

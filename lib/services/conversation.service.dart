@@ -1,6 +1,4 @@
 import 'dart:convert';
-import 'dart:ffi';
-
 import 'package:job_finder_app/models/auth_token.dart';
 import 'package:job_finder_app/models/conversation.dart';
 import 'package:job_finder_app/models/message.dart';
@@ -8,7 +6,7 @@ import 'package:job_finder_app/services/node_service.dart';
 import 'package:job_finder_app/ui/shared/utils.dart';
 
 class ConversationService extends NodeService {
-  ConversationService([AuthToken? authToken]) : super(authToken);
+  ConversationService(AuthToken? authToken) : super(authToken);
 
   final headers = {'Content-Type': 'application/json; charset=UTF-8'};
 

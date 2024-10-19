@@ -1,7 +1,4 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
-import 'package:job_finder_app/ui/jobseeker/jobseeker_manager.dart';
 import 'package:job_finder_app/ui/jobseeker/widgets/job_page_view.dart';
 import 'package:job_finder_app/ui/jobseeker/widgets/message_icon.dart';
 import 'package:job_finder_app/ui/shared/job_card.dart';
@@ -75,9 +72,9 @@ class _JobseekerHomeState extends State<JobseekerHome> {
       FilterType.leader,
     ];
 
-    final ValueNotifier<int> _selectedLevelIndex = ValueNotifier(0);
+    final ValueNotifier<int> selectedLevelIndex = ValueNotifier(0);
     // String userName = context.read<JobseekerManager>().jobseeker.firstName;
-    String userName = '';
+    // String userName = '';
 
     return Scaffold(
         appBar: AppBar(
@@ -90,7 +87,7 @@ class _JobseekerHomeState extends State<JobseekerHome> {
           title: ValueListenableBuilder(
               valueListenable: _isShowSearchAppbar,
               builder: (context, isShowSearch, child) {
-                return !isShowSearch ? Text('Xin chào') : SearchField();
+                return !isShowSearch ? const Text('Xin chào') : const SearchField();
               }),
           toolbarHeight: 70,
           flexibleSpace: Container(
@@ -107,7 +104,7 @@ class _JobseekerHomeState extends State<JobseekerHome> {
             ),
           ),
         ),
-        floatingActionButton: MessageIcon(),
+        floatingActionButton: const MessageIcon(),
         body: FutureBuilder(
             future: context.read<JobpostingManager>().fetchJobposting(),
             builder: (context, snapshot) {
@@ -159,7 +156,7 @@ class _JobseekerHomeState extends State<JobseekerHome> {
                                 const SizedBox(
                                   height: 20,
                                 ),
-                                SearchField()
+                                const SearchField()
                               ],
                             ),
                           ),
@@ -170,7 +167,7 @@ class _JobseekerHomeState extends State<JobseekerHome> {
                           HomeCard(
                             title: 'Cấp độ của bạn',
                             child: ValueListenableBuilder(
-                                valueListenable: _selectedLevelIndex,
+                                valueListenable: selectedLevelIndex,
                                 builder: (context, selectedIndex, child) {
                                   return Wrap(
                                     spacing: 10,
@@ -194,7 +191,7 @@ class _JobseekerHomeState extends State<JobseekerHome> {
                                             borderRadius:
                                                 BorderRadius.circular(40)),
                                         onSelected: (value) {
-                                          _selectedLevelIndex.value = index;
+                                          selectedLevelIndex.value = index;
                                           context
                                               .read<JobpostingManager>()
                                               .filterJobposting(

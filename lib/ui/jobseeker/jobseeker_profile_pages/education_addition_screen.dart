@@ -2,15 +2,12 @@ import 'dart:developer';
 
 import 'package:date_picker_plus/date_picker_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:job_finder_app/models/education.dart';
-import 'package:job_finder_app/models/experience.dart';
 import 'package:job_finder_app/ui/jobseeker/jobseeker_manager.dart';
 import 'package:job_finder_app/ui/shared/combined_text_form_field.dart';
 import 'package:job_finder_app/ui/shared/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
-import 'package:quickalert/quickalert.dart';
 
 import '../../shared/addition_data.dart';
 

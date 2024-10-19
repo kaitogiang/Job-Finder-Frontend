@@ -2,8 +2,6 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:job_finder_app/services/node_service.dart';
-
 import '../../models/auth_token.dart';
 import '../../models/employer.dart';
 import '../../services/employer_service.dart';

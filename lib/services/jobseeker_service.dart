@@ -1,9 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
-
-import 'package:http/http.dart';
-import 'package:job_finder_app/models/auth_token.dart';
 import 'package:job_finder_app/models/education.dart';
 import 'package:job_finder_app/models/experience.dart';
 import 'package:job_finder_app/models/resume.dart';
@@ -13,7 +10,7 @@ import '../models/jobseeker.dart';
 import '../ui/shared/utils.dart';
 
 class JobseekerService extends NodeService {
-  JobseekerService([AuthToken? authToken]) : super(authToken);
+  JobseekerService([super.authToken]);
 
   Future<Jobseeker?> fetchJobseekerInfo() async {
     try {
@@ -24,7 +21,7 @@ class JobseekerService extends NodeService {
 
       return jobseeker;
     } catch (error) {
-      Utils.logMessage('job service: ${error}');
+      Utils.logMessage('job service: $error');
       return null;
     }
   }
@@ -44,12 +41,12 @@ class JobseekerService extends NodeService {
         return null;
       }
     } catch (error) {
-      Utils.logMessage('job service: ${error}');
+      Utils.logMessage('job service: $error');
       return null;
     }
   }
 
-  //TODO: Hàm thêm các kỹ năng mới vào cơ sở dữ liệu
+  //Hàm thêm các kỹ năng mới vào cơ sở dữ liệu
   Future<List<String>?> appendSkills(List<String> skills) async {
     try {
       final responese = await httpFetch(
@@ -64,7 +61,7 @@ class JobseekerService extends NodeService {
       log('jobservice: asdfasdf');
       return result;
     } catch (error) {
-      log('job service: ${error}');
+      log('job service: $error');
       return null;
     }
   }
@@ -80,7 +77,7 @@ class JobseekerService extends NodeService {
         return false;
       }
     } catch (error) {
-      log('job service: ${error}');
+      log('job service: $error');
       return false;
     }
   }
@@ -97,7 +94,7 @@ class JobseekerService extends NodeService {
 
       return resume;
     } catch (error) {
-      log('job service: ${error}');
+      log('job service: $error');
       return null;
     }
   }
@@ -115,12 +112,12 @@ class JobseekerService extends NodeService {
         return false;
       }
     } catch (error) {
-      log('job service: ${error}');
+      log('job service: $error');
       return false;
     }
   }
 
-  //TODO Hàm dùng để thêm kinh nghiệm mới
+  // Hàm dùng để thêm kinh nghiệm mới
   Future<List<Experience>?> appendExperience(
       Map<String, String> expValue) async {
     try {
@@ -136,7 +133,7 @@ class JobseekerService extends NodeService {
           newList.map((e) => Experience.fromJson(e)).toList();
       return exp;
     } catch (error) {
-      log('job service: ${error}');
+      log('job service: $error');
       return null;
     }
   }
@@ -153,7 +150,7 @@ class JobseekerService extends NodeService {
         return false;
       }
     } catch (error) {
-      log('job service: ${error}');
+      log('job service: $error');
       return false;
     }
   }
@@ -172,7 +169,7 @@ class JobseekerService extends NodeService {
           education.map((e) => Education.fromJson(e)).toList();
       return eduList;
     } catch (error) {
-      log('job service: ${error}');
+      log('job service: $error');
       return null;
     }
   }
@@ -189,7 +186,7 @@ class JobseekerService extends NodeService {
         return false;
       }
     } catch (error) {
-      log('job service: ${error}');
+      log('job service: $error');
       return false;
     }
   }
@@ -207,7 +204,7 @@ class JobseekerService extends NodeService {
           originalList.map((e) => Education.fromJson(e)).toList();
       return eduList[0];
     } catch (error) {
-      log('job service: ${error}');
+      log('job service: $error');
       return null;
     }
   }
@@ -226,7 +223,7 @@ class JobseekerService extends NodeService {
           originalList.map((e) => Experience.fromJson(e)).toList();
       return expList[0];
     } catch (error) {
-      log('job service: ${error}');
+      log('job service: $error');
       return null;
     }
   }
@@ -244,9 +241,10 @@ class JobseekerService extends NodeService {
         return result['newEmail'] as String;
       }
     } catch (error) {
-      log('Lỗi trong job service: ${error}');
+      log('Lỗi trong job service: $error');
       return null;
     }
+    return null;
   }
 
   Future<bool> changePassword(String oldPassword, String newPassword) async {
@@ -261,8 +259,12 @@ class JobseekerService extends NodeService {
       final isChanged = result['isChanged'] as bool;
       return isChanged;
     } catch (error) {
-      log('Lỗi trong job service ${error}');
+      log('Lỗi trong job service $error');
       return false;
     }
   }
+
+  // Future<bool> saveRegistrationToken() async {
+
+  // }
 }

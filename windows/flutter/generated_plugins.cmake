@@ -7,10 +7,8 @@ list(APPEND FLUTTER_PLUGIN_LIST
   awesome_notifications_core
   connectivity_plus
   file_selector_windows
-  gal
-  irondash_engine_context
+  firebase_core
   permission_handler_windows
-  super_native_extensions
   url_launcher_windows
 )
 

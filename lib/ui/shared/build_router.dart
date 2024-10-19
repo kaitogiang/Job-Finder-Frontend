@@ -54,8 +54,12 @@ import '../auth/auth_screen.dart';
 
 final _rootNavigatorkey = GlobalKey<NavigatorState>(debugLabel: 'root');
 final _generalNavigatorkey = GlobalKey<NavigatorState>(debugLabel: 'general');
+final globalNavigatorKey = _rootNavigatorkey;
 
 GoRouter buildRouter(AuthManager authManager) {
+  //Ban đầu khi chưa đăng nhập thì sẽ hiển thị màn hình đăng nhập cho người dùng
+  //Khi họ đăng nhập xong và thay đổi getter isAuth và gọi notifyListener thì
+  //sẽ báo hiệu cho các phần khác bao gồm GoRouter nạp lại giao diện
   return GoRouter(
     navigatorKey: _rootNavigatorkey,
     initialLocation: authManager.isAuth

@@ -1,15 +1,9 @@
-import 'dart:developer';
-
 import 'package:date_picker_plus/date_picker_plus.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:job_finder_app/models/jobposting.dart';
-import 'package:job_finder_app/ui/employer/company_manager.dart';
 import 'package:job_finder_app/ui/shared/combined_text_form_field.dart';
 import 'package:job_finder_app/ui/shared/jobposting_manager.dart';
 import 'package:provider/provider.dart';
@@ -44,17 +38,17 @@ class _JobpostingCreationFormState extends State<JobpostingCreationForm> {
   final TextEditingController _salaryController = TextEditingController();
   final TextEditingController _contractTypeController = TextEditingController();
 
-  ValueNotifier<bool> _isShowDesc = ValueNotifier(false);
-  ValueNotifier<bool> _isShowReq = ValueNotifier(false);
-  ValueNotifier<bool> _isShowBeni = ValueNotifier(false);
+  final ValueNotifier<bool> _isShowDesc = ValueNotifier(false);
+  final ValueNotifier<bool> _isShowReq = ValueNotifier(false);
+  final ValueNotifier<bool> _isShowBeni = ValueNotifier(false);
 
-  ValueNotifier<List<String>> _techList = ValueNotifier([]);
-  ValueNotifier<List<String>> _levelList = ValueNotifier([]);
-  ValueNotifier<String> _selectedJobType = ValueNotifier('');
-  ValueNotifier<String> _selectedExperience = ValueNotifier('');
-  ValueNotifier<DateTime?> _selectedDeadline = ValueNotifier(null);
-  ValueNotifier<bool> _isFullField = ValueNotifier(false);
-  ValueNotifier<String> _selectedContractType = ValueNotifier('');
+  final ValueNotifier<List<String>> _techList = ValueNotifier([]);
+  final ValueNotifier<List<String>> _levelList = ValueNotifier([]);
+  final ValueNotifier<String> _selectedJobType = ValueNotifier('');
+  final ValueNotifier<String> _selectedExperience = ValueNotifier('');
+  final ValueNotifier<DateTime?> _selectedDeadline = ValueNotifier(null);
+  final ValueNotifier<bool> _isFullField = ValueNotifier(false);
+  final ValueNotifier<String> _selectedContractType = ValueNotifier('');
 
   FocusNode titleFocus = FocusNode();
   FocusNode workTimeFocus = FocusNode();
@@ -355,14 +349,16 @@ class _JobpostingCreationFormState extends State<JobpostingCreationForm> {
         await context.read<JobpostingManager>().updateJobposting(editedJob!);
       }
 
-      QuickAlert.show(
-          context: context,
-          type: QuickAlertType.success,
-          title: 'Thành công',
-          text: widget.jobposting == null
-              ? 'Bài tuyển dụng đã được tạo thành công'
-              : 'Cập nhật bài tuyển dụng thành công',
-          confirmBtnText: 'Đồng ý');
+      if (mounted) {
+        QuickAlert.show(
+            context: context,
+            type: QuickAlertType.success,
+            title: 'Thành công',
+            text: widget.jobposting == null
+                ? 'Bài tuyển dụng đã được tạo thành công'
+                : 'Cập nhật bài tuyển dụng thành công',
+            confirmBtnText: 'Đồng ý');
+      }
     } catch (error) {
       Utils.logMessage('Error in Job creation form: $error');
     }
@@ -1247,10 +1243,10 @@ class _JobpostingCreationFormState extends State<JobpostingCreationForm> {
                   child: ValueListenableBuilder<List<String>>(
                       valueListenable: provinceListenable,
                       builder: (context, provinces, child) {
-                        return !provinces.isEmpty
+                        return provinces.isNotEmpty
                             ? ListView.separated(
                                 shrinkWrap:
-                                    true, //TODO: Chỉ định kích thước của ListView bằng với cố lượng phần tử
+                                    true, //Chỉ định kích thước của ListView bằng với cố lượng phần tử
                                 itemCount: provinces.length,
                                 separatorBuilder:
                                     (BuildContext context, int index) =>

@@ -1,15 +1,11 @@
 import 'dart:convert';
 import 'dart:developer';
-
-import 'package:flutter/material.dart';
-import 'package:http/http.dart';
-import 'package:job_finder_app/models/auth_token.dart';
 import 'package:job_finder_app/models/jobposting.dart';
 import 'package:job_finder_app/services/node_service.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 
 class JobpostingService extends NodeService {
-  JobpostingService([AuthToken? authToken]) : super(authToken);
+  JobpostingService([super.authToken]);
 
   final headers = {'Content-Type': 'application/json; charset=UTF-8'};
 
@@ -147,7 +143,7 @@ class JobpostingService extends NodeService {
 
   Future<bool> deletePost(String id) async {
     try {
-      final response = await httpFetch(
+      await httpFetch(
         '$databaseUrl/api/jobposting/$id',
         headers: headers,
         method: HttpMethod.delete,

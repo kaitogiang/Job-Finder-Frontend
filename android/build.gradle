@@ -8,6 +8,7 @@ buildscript {
 
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "com.android.tools.build:gradle:7.3.1"
     }
 }
 
@@ -21,10 +22,23 @@ allprojects {
 rootProject.buildDir = '../build'
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
+    // project.evaluationDependsOn(':app')
+    afterEvaluate {
+        project -> 
+            if (project.hasProperty("android")) {
+                project.android {
+                    compileSdkVersion = 34
+                    defaultConfig {
+                        minSdkVersion = 23
+                        targetSdkVersion = 34
+                    }
+                }
+            }
+    }
 }
-subprojects {
-    project.evaluationDependsOn(':app')
-}
+// subprojects {
+    
+// }
 
 tasks.register("clean", Delete) {
     delete rootProject.buildDir

@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:job_finder_app/ui/shared/addition_data.dart';
 import 'package:job_finder_app/ui/shared/utils.dart';
@@ -15,10 +13,10 @@ class TechAdditionScreen extends StatefulWidget {
 }
 
 class _TechAdditionScreenState extends State<TechAdditionScreen> {
-  //TODO: Gợi ý sẽ hiển thị khi nhập vào ô kỹ năng
+  //Gợi ý sẽ hiển thị khi nhập vào ô kỹ năng
   final List<String> _options = List<String>.from(getTechnologyList);
-  //TODO: Biến dùng để quan sát những kỹ năng được thêm vào
-  ValueNotifier<List<String>> _skillsListenable = ValueNotifier([]);
+  //Biến dùng để quan sát những kỹ năng được thêm vào
+  final ValueNotifier<List<String>> _skillsListenable = ValueNotifier([]);
 
   late TextEditingController? _skillController = TextEditingController();
 
@@ -43,14 +41,14 @@ class _TechAdditionScreenState extends State<TechAdditionScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Công nghệ yêu cầu"),
+        title: const Text("Công nghệ yêu cầu"),
       ),
       body: Container(
-        padding: EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+        padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            //TODO: Hiển thị trường nhập và nút bấm để thêm kỹ năng
+            //Hiển thị trường nhập và nút bấm để thêm kỹ năng
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -68,7 +66,7 @@ class _TechAdditionScreenState extends State<TechAdditionScreen> {
                       });
                     },
                     onSelected: (option) {
-                      Utils.logMessage('Bạn đã chọn ${option}');
+                      Utils.logMessage('Bạn đã chọn $option');
                     },
                     fieldViewBuilder: ((context, textEditingController,
                         focusNode, onFieldSubmitted) {
@@ -84,9 +82,9 @@ class _TechAdditionScreenState extends State<TechAdditionScreen> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                           constraints:
-                              BoxConstraints.tight(Size.fromHeight(60)),
+                              BoxConstraints.tight(const Size.fromHeight(60)),
                           labelText: 'Thêm công nghệ yêu cầu',
-                          prefixIcon: Icon(Icons.code),
+                          prefixIcon: const Icon(Icons.code),
                         ),
                         textInputAction: TextInputAction.search,
                       );
@@ -95,10 +93,10 @@ class _TechAdditionScreenState extends State<TechAdditionScreen> {
                       return Align(
                         alignment: Alignment.topLeft,
                         child: Material(
-                          child: Container(
+                          child: SizedBox(
                             width: MediaQuery.of(context).size.width,
                             child: ListView.builder(
-                              padding: EdgeInsets.all(8.0),
+                              padding: const EdgeInsets.all(8.0),
                               itemCount: options.length,
                               itemBuilder: (context, index) {
                                 final option = options.elementAt(index);
@@ -121,7 +119,7 @@ class _TechAdditionScreenState extends State<TechAdditionScreen> {
                 const SizedBox(
                   width: 10,
                 ),
-                //TODO: Nút để thêm kỹ năng
+                //Nút để thêm kỹ năng
                 ElevatedButton(
                   onPressed: () {
                     // log('Thêm kỹ năng: ${_skillController?.text}');
@@ -137,7 +135,7 @@ class _TechAdditionScreenState extends State<TechAdditionScreen> {
                       },
                       orElse: () => '',
                     );
-                    if (!_skillController!.text.isEmpty &&
+                    if (_skillController!.text.isNotEmpty &&
                         isExistSkill.isEmpty) {
                       final updatedList =
                           List<String>.from(_skillsListenable.value)
@@ -151,7 +149,7 @@ class _TechAdditionScreenState extends State<TechAdditionScreen> {
                           type: QuickAlertType.error,
                           title: 'Kỹ năng trùng',
                           text: 'Không thể thêm kỹ năng trùng',
-                          autoCloseDuration: Duration(seconds: 5),
+                          autoCloseDuration: const Duration(seconds: 5),
                           confirmBtnText: 'Tôi đã biết');
                     }
                   },
@@ -168,7 +166,7 @@ class _TechAdditionScreenState extends State<TechAdditionScreen> {
                 ),
               ],
             ),
-            //TODO: Hiển thị những kỹ năng được thêm vào bởi người dùng
+            //Hiển thị những kỹ năng được thêm vào bởi người dùng
             const SizedBox(
               height: 6,
             ),
@@ -203,7 +201,7 @@ class _TechAdditionScreenState extends State<TechAdditionScreen> {
                               ),
                               backgroundColor: Colors.grey[200],
                               deleteIconColor: Colors.grey,
-                              deleteIcon: Icon(
+                              deleteIcon: const Icon(
                                 Icons.cancel,
                                 size: 20,
                               ),
@@ -231,7 +229,7 @@ class _TechAdditionScreenState extends State<TechAdditionScreen> {
             const SizedBox(
               height: 10,
             ),
-            //TODO: Nút dùng để lưu những kỹ năng vào
+            //Nút dùng để lưu những kỹ năng vào
             ValueListenableBuilder(
                 valueListenable: _skillsListenable,
                 builder: (context, skillsList, child) {
@@ -242,7 +240,6 @@ class _TechAdditionScreenState extends State<TechAdditionScreen> {
                             widget.onSaved.call(skillsList);
                             Navigator.of(context).pop();
                           },
-                    child: Text("LƯU"),
                     style: ElevatedButton.styleFrom(
                         disabledBackgroundColor: Colors.grey.shade300,
                         fixedSize: Size(deviceSize.width, 60),
@@ -253,6 +250,7 @@ class _TechAdditionScreenState extends State<TechAdditionScreen> {
                         ),
                         foregroundColor: theme.colorScheme.onPrimary,
                         textStyle: textTheme.titleMedium),
+                    child: const Text("LƯU"),
                   );
                 }),
           ],

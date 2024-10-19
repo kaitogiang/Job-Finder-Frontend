@@ -1,7 +1,5 @@
 import 'dart:convert';
-import 'dart:developer';
-import 'dart:io';
-
+import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:job_finder_app/models/auth_token.dart';
 import 'package:http/http.dart' as http;
@@ -40,13 +38,14 @@ class AuthService {
           body: json.encode({'email': email, 'password': password}));
       if (response.statusCode >= 200 && response.statusCode < 300) {
         final responseJson = json.decode(response.body);
-        Utils.logMessage('Đang trong auth_service: ' + responseJson.toString());
+        Utils.logMessage(
+            'Đang trong auth_service:  ${responseJson.toString()}');
         final token = responseJson['token'];
         //decode token to get information
         if (token != null) {
           Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
           Utils.logMessage(
-              'Đang trong auth_service: ' + decodedToken.toString());
+              'Đang trong auth_service: ${decodedToken.toString()}');
           final authToken = _fromJson(responseJson);
           //lưu trữ lại AuthToken để đăng nhập tự động khi còn thời gian
           await _saveAuthToken(authToken);
@@ -59,7 +58,7 @@ class AuthService {
         throw HttpException.fromJson(errorResponse);
       }
     } catch (error) {
-      print(error);
+      debugPrint('$error');
       rethrow;
     }
   }
@@ -246,6 +245,74 @@ class AuthService {
     } catch (error) {
       Utils.logMessage(error.toString());
       rethrow;
+    }
+  }
+
+  //Hàm lưu thông tin của FCM registration token lên DB để sử dụng cho việc
+  //nhận tin nhắn
+  Future<bool> saveRegistrationToken(
+      bool isEmployer, String userId, String fcmToken) async {
+    String uri = !isEmployer
+        ? '$_baseUrl/api/jobseeker/$userId/fcmToken'
+        : '$_baseUrl/api/employer/$userId/fcmToken';
+    try {
+      final url = Uri.parse(uri);
+      final response = await http.patch(
+        url,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8'
+        },
+        body: json.encode(
+          {'fcmToken': fcmToken},
+        ),
+      );
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        final json = jsonDecode(response.body);
+        if (json['saveSuccess'] == true) {
+          String message = json['message'];
+          Utils.logMessage(message);
+          return true;
+        }
+      } else {
+        Utils.logMessage("Yeu cau luu registration khong thanh cong");
+      }
+
+      return false;
+    } catch (error) {
+      Utils.logMessage(error.toString());
+      rethrow;
+    }
+  }
+
+  //Hàm đánh dấu một loginState cho một registration token nhất định. Mỗi
+  //registration token tương ứng với một thiết bị. Nếu người dùng đang đăng
+  //nhập vào một thiết bị cụ thể nào đó thì đánh dấu nó đang đăng nhập. Điều
+  //này giúp cho việc hệ thống chỉ gửi thông báo đến những thiết bị hiện đang
+  //đang nhập vào app. Nếu thiết bị chưa đăng nhập nhưng thông báo đến thì sẽ không nhận
+  //được, sau khi đăng nhập trở lại thì tất cả thông báo sẽ hiển thị lại bình thường.
+  Future<bool> markLoginState(bool isEmployer, String userId,
+      String registrationToken, bool isLogin) async {
+    String uri = !isEmployer
+        ? '$_baseUrl/api/jobseeker/$userId/update-login-state-fcm'
+        : '$_baseUrl/api/employer/$userId/update-login-state-fcm';
+    try {
+      final url = Uri.parse(uri);
+      final response = await http.patch(url,
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8'
+          },
+          body: json.encode({
+            'fcmToken': registrationToken,
+            'loginState': isLogin,
+          }));
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        final json = jsonDecode(response.body) as Map<String, dynamic>;
+        return json['updateSucess'];
+      }
+      return false;
+    } catch (error) {
+      Utils.logMessage(error.toString());
+      return false;
     }
   }
 }

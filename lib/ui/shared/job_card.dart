@@ -208,6 +208,7 @@ class ExtraInfoChip extends StatelessWidget {
       label: Text(
         label,
         style: const TextStyle(color: Colors.blueAccent),
+        overflow: TextOverflow.ellipsis,
       ),
       backgroundColor: Colors.lightBlueAccent[50],
       padding: EdgeInsets.zero,
@@ -240,10 +241,12 @@ class ExtraLabel extends StatelessWidget {
         const SizedBox(
           width: 10,
         ),
-        Text(label,
-            style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+        Expanded(
+          child: Text(label,
+              style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                   color: Colors.grey.shade700,
-                ))
+                  overflow: TextOverflow.ellipsis)),
+        )
       ],
     );
   }

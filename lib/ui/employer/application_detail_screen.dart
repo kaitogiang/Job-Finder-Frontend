@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:job_finder_app/models/application_storage.dart';
 import 'package:job_finder_app/ui/employer/application_manager.dart';
 import 'package:provider/provider.dart';
 
@@ -100,7 +99,7 @@ class ApplicationDetailScreen extends StatelessWidget {
                   onPressed: () {
                     context.pushNamed('job-detail', extra: jobposting);
                   },
-                  child: Text('Chi tiết'),
+                  child: const Text('Chi tiết'),
                 ),
               ),
             ),

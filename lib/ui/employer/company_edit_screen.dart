@@ -47,14 +47,14 @@ class _CompanyEditScreenState extends State<CompanyEditScreen> {
   final _employementController = TextEditingController();
   final _welfareController = TextEditingController();
 
-  List<TextEditingController> _allController = [];
-  File? _selectedAvatar = null;
+  final List<TextEditingController> _allController = [];
+  File? _selectedAvatar;
 
   @override
   void initState() {
     //todo Khởi tạo các giá trị ban đầu
     _editedCompany = widget.company;
-    imageList.addAll(widget.company.images!);
+    imageList.addAll(widget.company.images);
     //todo Khởi tạo giá trị cho các trường
     _nameController.text = _editedCompany.companyName;
     _emailController.text = _editedCompany.companyEmail;
@@ -110,7 +110,7 @@ class _CompanyEditScreenState extends State<CompanyEditScreen> {
 
   Future<void> _pickImage() async {
     final List<XFile> images = await _picker.pickMultiImage();
-    if (images.length != 0) {
+    if (images.isNotEmpty) {
       for (XFile element in images) {
         File file = File(element.path);
         setState(() {
@@ -143,7 +143,7 @@ class _CompanyEditScreenState extends State<CompanyEditScreen> {
     List<File> selectedFiles = []; //? File ảnh
     for (Object e in imageList) {
       if (e is String) {
-        modifiedImagesList.add(e as String);
+        modifiedImagesList.add(e);
       } else {
         selectedFiles.add(e as File);
       }
@@ -177,26 +177,30 @@ class _CompanyEditScreenState extends State<CompanyEditScreen> {
     log('Giá trị của welfarePolicy: ${_editedCompany.toString()}');
 
     try {
-      await context
-          .read<CompanyManager>()
-          .updateCompany(_editedCompany, _selectedAvatar, selectedFiles);
+      if (mounted) {
+        await context
+            .read<CompanyManager>()
+            .updateCompany(_editedCompany, _selectedAvatar, selectedFiles);
+      }
       //Hiện thị thông báo thành công
-      final isExit = await QuickAlert.show(
-        context: context,
-        type: QuickAlertType.success,
-        title: 'Lưu thành công',
-        text: 'Đã lưu thông tin thành công, bạn có thể rời khỏi hoặc ở lại',
-        showConfirmBtn: true,
-        confirmBtnText: 'Đóng',
-        onConfirmBtnTap: () =>
-            Navigator.of(context, rootNavigator: true).pop(true),
-        showCancelBtn: true,
-        cancelBtnText: 'Quay lại',
-        onCancelBtnTap: () =>
-            Navigator.of(context, rootNavigator: true).pop(false),
-      ) as bool;
-      if (isExit) {
-        Navigator.of(context).pop();
+      if (mounted) {
+        final isExit = await QuickAlert.show(
+          context: context,
+          type: QuickAlertType.success,
+          title: 'Lưu thành công',
+          text: 'Đã lưu thông tin thành công, bạn có thể rời khỏi hoặc ở lại',
+          showConfirmBtn: true,
+          confirmBtnText: 'Đóng',
+          onConfirmBtnTap: () =>
+              Navigator.of(context, rootNavigator: true).pop(true),
+          showCancelBtn: true,
+          cancelBtnText: 'Quay lại',
+          onCancelBtnTap: () =>
+              Navigator.of(context, rootNavigator: true).pop(false),
+        ) as bool;
+        if (isExit && mounted) {
+          Navigator.of(context).pop();
+        }
       }
     } catch (error) {
       log('error in company manager: $error');
@@ -377,7 +381,7 @@ class _CompanyEditScreenState extends State<CompanyEditScreen> {
                   const SizedBox(
                     height: 10,
                   ),
-                  Container(
+                  SizedBox(
                     height: 130,
                     child: ListView.builder(
                       shrinkWrap: true,
@@ -519,10 +523,9 @@ class _CompanyEditScreenState extends State<CompanyEditScreen> {
                 height: 10,
               ),
               Container(
-                margin: EdgeInsets.only(bottom: 10),
+                margin: const EdgeInsets.only(bottom: 10),
                 child: ElevatedButton(
                   onPressed: _saveForm,
-                  child: Text('Lưu thay đổi'),
                   style: ElevatedButton.styleFrom(
                     // side: BorderSide(color: theme.colorScheme.primary),
                     elevation: 0,
@@ -537,6 +540,7 @@ class _CompanyEditScreenState extends State<CompanyEditScreen> {
                       fontSize: 20,
                     ),
                   ),
+                  child: const Text('Lưu thay đổi'),
                 ),
               )
             ],

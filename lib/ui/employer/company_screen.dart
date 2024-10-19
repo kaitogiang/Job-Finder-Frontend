@@ -19,7 +19,7 @@ class CompanyScreen extends StatefulWidget {
 
 class _CompanyScreenState extends State<CompanyScreen> {
   ScrollController controller = ScrollController();
-  ValueNotifier<bool> _isShowEditBtn = ValueNotifier(false);
+  final ValueNotifier<bool> _isShowEditBtn = ValueNotifier(false);
 
   @override
   void initState() {
@@ -380,8 +380,8 @@ class _CompanyScreenState extends State<CompanyScreen> {
                                         left: 30, right: 10),
                                     child: Text(
                                         companyManager
-                                                .company!.website!.isNotEmpty
-                                            ? companyManager.company!.website!
+                                                .company!.website.isNotEmpty
+                                            ? companyManager.company!.website
                                             : 'Chưa thiết lập',
                                         style: textTheme.bodyLarge),
                                   )
@@ -513,7 +513,7 @@ class _CompanyScreenState extends State<CompanyScreen> {
                               BasicInfoCard(
                                 title: 'Hình ảnh về công ty',
                                 children: [
-                                  Container(
+                                  SizedBox(
                                     height: 300,
                                     child: ListView.builder(
                                       shrinkWrap: true,
