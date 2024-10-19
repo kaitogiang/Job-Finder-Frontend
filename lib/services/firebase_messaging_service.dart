@@ -1,5 +1,7 @@
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/widgets.dart';
+import 'package:go_router/go_router.dart';
 import 'package:job_finder_app/ui/shared/utils.dart';
 
 //Riêng xử lý chạy background của FCM background thì phải thỏa mãn 3 điều kiện
@@ -30,6 +32,12 @@ class FirebaseMessagingService {
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
 
   late String? _registrationToken;
+
+  GlobalKey<NavigatorState>? _globalNavigatorKey;
+
+  set globalNavigatorKey(GlobalKey<NavigatorState> key) {
+    _globalNavigatorKey = key;
+  }
 
   String? get registrationToken =>
       _registrationToken; //Hàm setter lấy registration token của thiết bị
@@ -65,6 +73,29 @@ class FirebaseMessagingService {
     Utils.logMessage(
         'Receive new notifcation, title: ${message.notification?.title}, body: ${message.notification?.body}');
     Utils.logMessage('Optional data in notification: ${message.data}');
+    //Xử lý chuyển hướng đến conversation nhất định
+    //Trước tiên, kiểm tra xem loại thông báo có phải là dạng thông báo tin nhắn không (message_notification)
+    final data = message.data;
+    if (data['type'] == 'message_notification') {
+      //Xử lý việc chuyển hướng đến conversation mặc định
+    }
+  }
+
+  void _navigateToConversation(RemoteMessage message) {
+    final data = message.data;
+    if (data['type'] == 'message_notification') {
+      //Chuyển hướng đến conversation
+      final currentContext = _globalNavigatorKey?.currentContext;
+      Utils.logMessage(
+          'context truy cap trong FirebaseMessagingServer: $currentContext');
+      if (currentContext != null) {
+        //Chuyển hướng đến conversation
+        GoRouter.of(currentContext).pushNamed(
+          "chat",
+          extra: data['conversationId'],
+        );
+      }
+    }
   }
 
   Future<void> setUpInteractedMessage() async {
@@ -78,7 +109,10 @@ class FirebaseMessagingService {
     }
     //-----Xử lý thông báo khi ứng dụng đang ở chế độ nền và người dùng
     //nhấn vào thông báo
-    FirebaseMessaging.onMessageOpenedApp.listen(_handleInteraction);
+    FirebaseMessaging.onMessageOpenedApp.listen((message) {
+      _handleInteraction(message);
+      _navigateToConversation(message);
+    });
 
     //Xử lý khi nhận thông báo khi ứng dụng đang chạy foreground
     FirebaseMessaging.onMessage.listen((message) {

@@ -78,6 +78,24 @@ class AuthManager with ChangeNotifier {
         isEmployer);
     //Lấy thông tin người dùng
     Utils.logMessage('Đang chay');
+    final isSavedRegistrationToken = await _authService.saveRegistrationToken(
+      isEmployer,
+      authToken!.userId,
+      _firebaseAPI.registrationToken!,
+    );
+    if (isSavedRegistrationToken) {
+      Utils.logMessage('Luu registration token len DB thanh cong');
+    } else {
+      Utils.logMessage('That bai khi luu registration token');
+    }
+    //Hàm đánh dấu đang đang nhập cho một thiết bị
+    final isMarkedLoginState = await _authService.markLoginState(
+        isEmployer, authToken!.userId, _firebaseAPI.registrationToken!, true);
+    if (isMarkedLoginState) {
+      Utils.logMessage("Marked loginState to true for this device");
+    } else {
+      Utils.logMessage("Encontered an exception or failed to mark this device");
+    }
   }
 
   //Hàm đăng ký tài khoản
@@ -133,6 +151,18 @@ class AuthManager with ChangeNotifier {
   //Hàm đăng xuất khởi ứng dụng, nếu token chưa hết hạn thì khi đăng
   //Xuất thì dừng thời gian của token lại và xóa nó bỏ
   Future<void> logout() async {
+    //Đánh dấu thiết bị đã đăng xuất (đánh dấu loginState = false cho một registration token)
+    final isMarkedLoginState = await _authService.markLoginState(
+        isEmployer, authToken!.userId, _firebaseAPI.registrationToken!, false);
+    if (isMarkedLoginState) {
+      Utils.logMessage(
+          'Marked the loginState = false successfully because the user account have logged out from this device');
+    } else {
+      Utils.logMessage(
+          'There is an exception or failure when trying to change the loginState');
+    }
+
+    //Reset lại các giá trị
     _authToken = null;
     _isEmployer = false;
     _jobseeker = null;

@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:blur/blur.dart';
 import 'package:flutter/material.dart';
 import 'package:job_finder_app/ui/auth/auth_manager.dart';
+import 'package:job_finder_app/ui/shared/utils.dart';
 import 'package:provider/provider.dart';
 import 'package:quickalert/quickalert.dart';
 
@@ -139,10 +140,13 @@ class _LoginCardState extends State<LoginCard> {
         await context
             .read<AuthManager>()
             .login(_authData['email']!, _authData['password']!, false)
-            .whenComplete(() {
+            .then((value) {
+          Utils.logMessage("Hoan thanh dang nhap");
           if (mounted) {
             Navigator.pop(context);
           }
+        }).catchError((error) {
+          Utils.logMessage("Loi khi dang dang nhap");
         });
       } else {
         await context
@@ -155,14 +159,16 @@ class _LoginCardState extends State<LoginCard> {
         });
       }
     } catch (error) {
-      if (mounted) {
-        QuickAlert.show(
-            context: context,
-            type: QuickAlertType.error,
-            title: 'Không thể đăng nhập',
-            text: error.toString(),
-            confirmBtnText: 'Tôi biết rồi');
-      }
+      Utils.logMessage("Exception in login_sceen.dart:  $error");
+
+      // if (mounted) {
+      //   QuickAlert.show(
+      //       context: context,
+      //       type: QuickAlertType.error,
+      //       title: 'Không thể đăng nhập',
+      //       text: error.toString(),
+      //       confirmBtnText: 'Tôi biết rồi');
+      // }
     }
   }
 

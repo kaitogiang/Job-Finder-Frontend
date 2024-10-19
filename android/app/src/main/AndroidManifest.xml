@@ -1,9 +1,22 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android" android:versionName="1.0.0" android:versionCode="1">
+
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <!-- Permissions options for the `manage external storage` group -->
+    <!--    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />-->
+
+    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+
+    <!--The application tab must be after the other elements-->
     <application
         android:label="job_finder_app"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
-        android:enableOnBackInvokedCallback="true" <!-- Add this line -->
+<!--        android:enableOnBackInvokedCallback="true" &lt;!&ndash; Add this line &ndash;&gt; no longer valid-->
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -34,25 +47,23 @@
         <meta-data
         android:name="com.google.firebase.messaging.default_notification_icon"
         android:resource="@drawable/notification" />
-        
+
 
         <meta-data
         android:name="com.google.firebase.messaging.default_notification_channel_id"
-        android:value="message_channel" 
-        
-        />
+        android:value="message_channel"/>
+
+        <!-- [START firebase_service] -->
+        <service android:name=".MyFirebaseMessagingService"
+            android:exported="false"
+        >
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+        <!-- [END firebase_service] -->
     </application>
 
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-       <!-- Permissions options for the `manage external storage` group -->
-    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
 
-    <uses-permission android:name="android.permission.VIBRATE"/>
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
-
-     <!-- Add this line to request the permission -->
-    <uses-permission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE" />
 
 </manifest>

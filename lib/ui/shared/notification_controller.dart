@@ -1,8 +1,4 @@
-import 'dart:developer';
-import 'dart:io';
-
 import 'package:awesome_notifications/awesome_notifications.dart';
-import 'package:flutter/services.dart';
 import 'package:open_file_manager/open_file_manager.dart';
 import 'package:job_finder_app/ui/shared/utils.dart';
 

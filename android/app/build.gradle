@@ -70,4 +70,8 @@ flutter {
     source '../..'
 }
 
-dependencies {}
+dependencies {
+    implementation 'com.google.firebase:firebase-messaging:23.0.0' // Check for the latest version
+    implementation 'androidx.work:work-runtime-ktx:2.7.0' // Check for the latest version
+    implementation "androidx.core:core:1.13.1"
+}

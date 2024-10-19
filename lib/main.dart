@@ -81,12 +81,13 @@ class MyApp extends StatelessWidget {
         // background: Colors.white, //lỗi thời
         surfaceTint: Colors.grey,
         onSecondary: Colors.black);
-
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
           create: (context) {
             Utils.logMessage("AuthManager is being created");
+            //Gán NavigatorKey trong Build_router
+            firebaseAPI.globalNavigatorKey = globalNavigatorKey;
             return AuthManager(firebaseAPI: firebaseAPI);
           },
         ),
@@ -156,13 +157,21 @@ class MyApp extends StatelessWidget {
             messageManager!.authToken = authManager.authToken;
             //Truyền socketService vào cho MessageManager
             messageManager.socketService = authManager.socketService;
-            //Nạp dữ liệu các cuộc trò chuyện và tin nhắn
-            messageManager.getAllConversation();
-            //Lắng nghe tin nhắn mới đến
-            messageManager.listenToIncomingMessages();
-            //Nếu là nhà tuyển dụng thì lắng nghe việc nhận conversation mới từ jobseeker
-            if (authManager.isEmployer) {
-              messageManager.listenForNewConversation();
+            /*
+              Riêng các hàm nạp dữ liệu và lắng nghe tin nhắn mới thì nếu
+              khi người dùng đã đăng xuất rồi thì không gọi lại những hàm này.
+              Những hàm này chỉ được gọi khi người dùng đăng nhập vào hệ thống
+              để khởi tạo danh sách tin nhắn và lắng nghe khi có tin nhắn mới
+            */
+            if (authManager.authToken != null) {
+              //Nạp dữ liệu các cuộc trò chuyện và tin nhắn
+              messageManager.getAllConversation();
+              //Lắng nghe tin nhắn mới đến
+              messageManager.listenToIncomingMessages();
+              //Nếu là nhà tuyển dụng thì lắng nghe việc nhận conversation mới từ jobseeker
+              if (authManager.isEmployer) {
+                messageManager.listenForNewConversation();
+              }
             }
             return messageManager;
           },
