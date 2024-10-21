@@ -2,7 +2,6 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:job_finder_app/ui/shared/utils.dart';
 import 'user_info_card.dart';
 
 class UserSettingScreen extends StatelessWidget {

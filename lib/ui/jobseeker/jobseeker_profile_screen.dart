@@ -186,7 +186,7 @@ class JobseekerProfileScreen extends StatelessWidget {
                                               ),
                                             ),
                                             const WidgetSpan(
-                                                child: const SizedBox(
+                                                child: SizedBox(
                                               width: 10,
                                             )),
                                             TextSpan(
@@ -265,7 +265,7 @@ class JobseekerProfileScreen extends StatelessWidget {
                                         style: textTheme.bodyLarge,
                                       ),
                                     )
-                                  : resume_info_card(
+                                  : ResumeInforCard(
                                       resume: Resume(
                                           fileName: jobseekerManager
                                               .jobseeker.resume[0].fileName,
@@ -363,7 +363,10 @@ class JobseekerProfileScreen extends StatelessWidget {
                                                                 JobseekerManager>()
                                                             .removeExperience(
                                                                 index);
-                                                        Navigator.pop(context);
+                                                        if (context.mounted) {
+                                                          Navigator.pop(
+                                                              context);
+                                                        }
                                                       },
                                                       onEdit: () {
                                                         log('Xem trước file');
@@ -434,7 +437,9 @@ class JobseekerProfileScreen extends StatelessWidget {
                                                               JobseekerManager>()
                                                           .removeEducation(
                                                               index);
-                                                      Navigator.pop(context);
+                                                      if (context.mounted) {
+                                                        Navigator.pop(context);
+                                                      }
                                                     },
                                                     onEdit: () {
                                                       log('Xem trước file');
@@ -546,34 +551,32 @@ class JobseekerProfileScreen extends StatelessWidget {
             }));
   }
 
-  Container _buildActionButton({
+  ListView _buildActionButton({
     required BuildContext context,
     void Function()? onDelete,
     void Function()? onEdit,
   }) {
-    return Container(
-      child: ListView(
-        shrinkWrap: true,
-        children: [
-          ListTile(
-            title: Text(
-              'Xóa bỏ',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            leading: Icon(Icons.delete),
-            onTap: onDelete,
+    return ListView(
+      shrinkWrap: true,
+      children: [
+        ListTile(
+          title: Text(
+            'Xóa bỏ',
+            style: Theme.of(context).textTheme.titleMedium,
           ),
-          Divider(),
-          ListTile(
-            title: Text(
-              'Chỉnh sửa',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            leading: Icon(Icons.preview),
-            onTap: onEdit,
+          leading: Icon(Icons.delete),
+          onTap: onDelete,
+        ),
+        Divider(),
+        ListTile(
+          title: Text(
+            'Chỉnh sửa',
+            style: Theme.of(context).textTheme.titleMedium,
           ),
-        ],
-      ),
+          leading: Icon(Icons.preview),
+          onTap: onEdit,
+        ),
+      ],
     );
   }
 

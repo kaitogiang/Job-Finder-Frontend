@@ -3,7 +3,6 @@ import 'dart:developer';
 import 'package:expandable_page_view/expandable_page_view.dart';
 import 'package:flutter/material.dart';
 import 'package:job_finder_app/models/jobposting.dart';
-import 'package:job_finder_app/ui/shared/jobposting_manager.dart';
 import 'package:job_finder_app/ui/shared/utils.dart';
 
 import '../../shared/job_card.dart';
@@ -19,7 +18,7 @@ class _JobPageViewState extends State<JobPageView>
     with TickerProviderStateMixin, AutomaticKeepAliveClientMixin {
   late PageController _pageViewController;
   late TabController _tabController;
-  ValueNotifier<int> _currentPageIndex = ValueNotifier(0);
+  final ValueNotifier<int> _currentPageIndex = ValueNotifier(0);
   int tabLength = 0;
   List<Jobposting> list = [];
   @override
@@ -59,7 +58,7 @@ class _JobPageViewState extends State<JobPageView>
 
   @override
   void didUpdateWidget(covariant JobPageView oldWidget) {
-    // TODO: implement didUpdateWidget
+    //implement didUpdateWidget
     Utils.logMessage("Goi didUpdateWidget trong JobPageView");
     super.didUpdateWidget(oldWidget);
     if (widget.random != oldWidget.random) {

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:job_finder_app/main.dart';
 import 'package:job_finder_app/models/conversation.dart';
-import 'package:job_finder_app/models/user.dart';
 import 'package:job_finder_app/ui/auth/auth_manager.dart';
 import 'package:job_finder_app/ui/shared/message_manager.dart';
 import 'package:job_finder_app/ui/shared/utils.dart';
@@ -25,18 +23,18 @@ class _MessageScreenState extends State<MessageScreen>
   final FocusNode _focusNode = FocusNode();
   List<Conversation> conversations = [];
 
-  @override
-  void initState() {
-    super.initState();
-    // Gọi hàm khởi tạo dữ liệu conversation khi widget được khởi tạo
-    // Sử dụng addPostFrameCallback để đảm bảo rằng hàm getAllJobseekerConversation
-    // được gọi sau khi khung hình hiện tại đã hoàn thành, tránh việc gọi hàm này
-    // trong quá trình xây dựng widget, giúp tránh các lỗi liên quan đến việc
-    // thay đổi trạng thái trong quá trình xây dựng.
-    // WidgetsBinding.instance.addPostFrameCallback((_) async {
-    //   await context.read<MessageManager>().getAllConversation();
-    // });
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   // Gọi hàm khởi tạo dữ liệu conversation khi widget được khởi tạo
+  //   // Sử dụng addPostFrameCallback để đảm bảo rằng hàm getAllJobseekerConversation
+  //   // được gọi sau khi khung hình hiện tại đã hoàn thành, tránh việc gọi hàm này
+  //   // trong quá trình xây dựng widget, giúp tránh các lỗi liên quan đến việc
+  //   // thay đổi trạng thái trong quá trình xây dựng.
+  //   // WidgetsBinding.instance.addPostFrameCallback((_) async {
+  //   //   await context.read<MessageManager>().getAllConversation();
+  //   // });
+  // }
 
   @override
   void didChangeDependencies() {
@@ -57,7 +55,7 @@ class _MessageScreenState extends State<MessageScreen>
     Utils.logMessage('build message screen');
     final deviceSize = MediaQuery.of(context).size;
     final theme = Theme.of(context);
-    final textTheme = theme.textTheme;
+    // final textTheme = theme.textTheme;
     final messageManager = context.watch<MessageManager>();
     final isEmployer = context.read<AuthManager>().isEmployer;
     conversations = messageManager.conversations;

@@ -5,7 +5,7 @@ import 'package:photo_view/photo_view_gallery.dart';
 class ImageFullcreen extends StatefulWidget {
   const ImageFullcreen({super.key});
   @override
-  _ImageFullcreenState createState() => _ImageFullcreenState();
+  State<ImageFullcreen> createState() => _ImageFullcreenState();
 }
 
 class _ImageFullcreenState extends State<ImageFullcreen> {
@@ -46,7 +46,7 @@ class _ImageFullcreenState extends State<ImageFullcreen> {
           ),
         ],
         loadingBuilder: (context, progress) => Center(
-          child: Container(
+          child: SizedBox(
             width: 20.0,
             height: 20.0,
             child: CircularProgressIndicator(

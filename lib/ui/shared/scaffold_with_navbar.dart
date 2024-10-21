@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:job_finder_app/models/message.dart';
 import 'package:job_finder_app/ui/auth/auth_manager.dart';
 import 'package:job_finder_app/ui/shared/message_manager.dart';
 import 'package:provider/provider.dart';
@@ -9,6 +8,7 @@ class ScaffoldWithNavBar extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
 
   const ScaffoldWithNavBar({
+    super.key,
     required this.navigationShell,
   });
 

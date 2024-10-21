@@ -2,6 +2,7 @@ import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:job_finder_app/ui/shared/utils.dart';
+import 'package:open_file_manager/open_file_manager.dart';
 
 class MessageNotificaionController {
   static GlobalKey<NavigatorState>?
@@ -21,21 +22,39 @@ class MessageNotificaionController {
   @pragma('vm:entry-point')
   static Future<void> onActionReceivedMethod(
       ReceivedAction receivedAction) async {
-    final data = receivedAction.payload;
-    // Process the action and handle navigation
-    if (navigatorKey?.currentState != null &&
-        data?['type'] == 'message_notification') {
-      //Chuyển hướng đến conversation
-      final currentContext = navigatorKey?.currentContext;
-      Utils.logMessage(
-          'context truy cap trong MessageNotificationController: $currentContext');
-      if (currentContext != null && data?['conversationId'] != null) {
+    //Xử lý notification tùy theo loại notification
+    //Nếu là thông báo tin nhắn (message_notification) thì chuyển hướng đến conversation
+    Utils.logMessage(
+        'Received action: ${receivedAction.title} ${receivedAction.payload}');
+    if (receivedAction.payload?['type'] == 'message_notification') {
+      final data = receivedAction.payload;
+      // Process the action and handle navigation
+      if (navigatorKey?.currentState != null &&
+          data?['type'] == 'message_notification') {
         //Chuyển hướng đến conversation
-        GoRouter.of(currentContext).pushNamed(
-          "chat",
-          extra: data?['conversationId'],
-        );
+        final currentContext = navigatorKey?.currentContext;
+        Utils.logMessage(
+            'context truy cap trong MessageNotificationController: $currentContext');
+        if (currentContext != null && data?['conversationId'] != null) {
+          //Chuyển hướng đến conversation
+          GoRouter.of(currentContext).pushNamed(
+            "chat",
+            extra: data?['conversationId'],
+          );
+        }
       }
+    } else if (receivedAction.payload?['type'] == 'download_notification') {
+      //Xử lý notification tải xuống file
+      Utils.logMessage('Mở folder');
+      //todo open the image folder
+
+      // await OpenFile.open('/storage/emulated/0/Download/');
+      // Get the path to the directory
+      openFileManager(
+        androidConfig: AndroidConfig(
+          folderType: FolderType.download,
+        ),
+      );
     }
   }
 }

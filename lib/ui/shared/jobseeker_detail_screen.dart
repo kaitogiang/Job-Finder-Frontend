@@ -3,18 +3,14 @@ import 'dart:math' as math;
 
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
-import 'package:job_finder_app/models/education.dart';
-import 'package:job_finder_app/models/resume.dart';
 import 'package:job_finder_app/ui/employer/application_manager.dart';
 import 'package:job_finder_app/ui/employer/widgets/basic_info_card.dart';
-import 'package:job_finder_app/ui/jobseeker/jobseeker_manager.dart';
 import 'package:job_finder_app/ui/jobseeker/widgets/jobseeker_education_card.dart';
 import 'package:job_finder_app/ui/jobseeker/widgets/jobseeker_experience_card.dart';
 import 'package:job_finder_app/ui/jobseeker/widgets/resume_infor_card.dart';
 import 'package:provider/provider.dart';
 import 'package:quickalert/quickalert.dart';
 
-import '../../models/experience.dart';
 import '../../models/jobseeker.dart';
 import 'modal_bottom_sheet.dart';
 import 'notification_controller.dart';
@@ -35,7 +31,7 @@ class _JobseekerDetailScreenState extends State<JobseekerDetailScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
+    //  implement initState
     _scrollController.addListener(() {
       if (_scrollController.offset > 253) {
         isShowNameTitle.value = true;
@@ -44,21 +40,21 @@ class _JobseekerDetailScreenState extends State<JobseekerDetailScreen> {
       }
     });
 
-    AwesomeNotifications().setListeners(
-      onActionReceivedMethod: NotificationController.onActionReceivedMethod,
-      onNotificationCreatedMethod:
-          NotificationController.onNotificationCreatedMethod,
-      onNotificationDisplayedMethod:
-          NotificationController.onNotificationDisplayedMethod,
-      onDismissActionReceivedMethod:
-          NotificationController.onDismissActionReceivedMethod,
-    );
+    // AwesomeNotifications().setListeners(
+    //   onActionReceivedMethod: NotificationController.onActionReceivedMethod,
+    //   onNotificationCreatedMethod:
+    //       NotificationController.onNotificationCreatedMethod,
+    //   onNotificationDisplayedMethod:
+    //       NotificationController.onNotificationDisplayedMethod,
+    //   onDismissActionReceivedMethod:
+    //       NotificationController.onDismissActionReceivedMethod,
+    // );
     super.initState();
   }
 
   @override
   void dispose() {
-    // TODO: implement dispose
+    // implement dispose
     _scrollController.dispose();
     super.dispose();
   }
@@ -68,7 +64,7 @@ class _JobseekerDetailScreenState extends State<JobseekerDetailScreen> {
     final deviceSize = MediaQuery.of(context).size;
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
-    List<String> list = ['Java', 'Kỹ năng giao tiếp', 'Xử lý vấn đề', 'Nodejs'];
+    // List<String> list = ['Java', 'Kỹ năng giao tiếp', 'Xử lý vấn đề', 'Nodejs'];
     Future<Jobseeker?> jobseekerFuture =
         context.read<ApplicationManager>().getJobseekerById(widget.jobseekerId);
 
@@ -348,7 +344,7 @@ class _JobseekerDetailScreenState extends State<JobseekerDetailScreen> {
                       child: BasicInfoCard(
                         title: 'CV',
                         children: [
-                          resume_info_card(
+                          ResumeInforCard(
                             resume: jobseeker.resume[0],
                             onAction: () {
                               log('Tải xuống CV');
@@ -368,23 +364,28 @@ class _JobseekerDetailScreenState extends State<JobseekerDetailScreen> {
                                               .requestPermissionToSendNotifications();
                                         }
                                         DateTime.now().toIso8601String();
-                                        final path = await context
-                                            .read<ApplicationManager>()
-                                            .downloadFile(
-                                                jobseeker.resume[0].url,
-                                                jobseeker.resume[0].fileName);
-                                        if (path != null) {
-                                          QuickAlert.show(
-                                              context: context,
-                                              type: QuickAlertType.info,
-                                              title: 'Tải xuống thành công',
-                                              text:
-                                                  'File được tải xuống tại $path',
-                                              confirmBtnText: 'Tôi biết rồi');
+                                        if (context.mounted) {
+                                          final path = await context
+                                              .read<ApplicationManager>()
+                                              .downloadFile(
+                                                  jobseeker.resume[0].url,
+                                                  jobseeker.resume[0].fileName);
+                                          if (path != null && context.mounted) {
+                                            QuickAlert.show(
+                                                context: context,
+                                                type: QuickAlertType.info,
+                                                title: 'Tải xuống thành công',
+                                                text:
+                                                    'File được tải xuống tại $path',
+                                                confirmBtnText: 'Tôi biết rồi');
+                                          }
                                         }
 
                                         int random =
                                             math.Random(10).nextInt(1000);
+                                        final Map<String, String> data = {
+                                          'type': 'download_notification',
+                                        };
                                         AwesomeNotifications()
                                             .createNotification(
                                           content: NotificationContent(
@@ -394,6 +395,7 @@ class _JobseekerDetailScreenState extends State<JobseekerDetailScreen> {
                                             title: 'Tải xuống thành công',
                                             body:
                                                 'Tại xuống tại thư mục /storage/emulated/0/Download/, nhấn vào để mở',
+                                            payload: data,
                                           ),
                                         );
                                       },
@@ -417,25 +419,23 @@ class _JobseekerDetailScreenState extends State<JobseekerDetailScreen> {
     );
   }
 
-  Container _buildActionButton({
+  ListView _buildActionButton({
     required BuildContext context,
     void Function()? onDownload,
   }) {
-    return Container(
-      child: ListView(
-        shrinkWrap: true,
-        children: [
-          ListTile(
-            title: Text(
-              'Tải xuống',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            leading: Icon(Icons.download),
-            onTap: onDownload,
+    return ListView(
+      shrinkWrap: true,
+      children: [
+        ListTile(
+          title: Text(
+            'Tải xuống',
+            style: Theme.of(context).textTheme.titleMedium,
           ),
-          const Divider(),
-        ],
-      ),
+          leading: Icon(Icons.download),
+          onTap: onDownload,
+        ),
+        const Divider(),
+      ],
     );
   }
 }

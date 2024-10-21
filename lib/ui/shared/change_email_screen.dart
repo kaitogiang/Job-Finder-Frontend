@@ -5,12 +5,11 @@ import 'package:job_finder_app/ui/auth/auth_manager.dart';
 import 'package:job_finder_app/ui/employer/employer_manager.dart';
 import 'package:job_finder_app/ui/jobseeker/jobseeker_manager.dart';
 import 'package:job_finder_app/ui/shared/combined_text_form_field.dart';
-import 'package:job_finder_app/ui/shared/utils.dart';
 import 'package:provider/provider.dart';
 import 'package:quickalert/quickalert.dart';
 
 class ChangeEmailScreen extends StatefulWidget {
-  ChangeEmailScreen({super.key});
+  const ChangeEmailScreen({super.key});
 
   @override
   State<ChangeEmailScreen> createState() => _ChangeEmailScreenState();
@@ -76,13 +75,24 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
           //     text: 'Bạn đã đổi email thành công');
           clearAllField();
         });
-        if (result) {
+        if (result && mounted) {
           QuickAlert.show(
               context: context,
               type: QuickAlertType.success,
               title: 'Thành công',
               text: 'Bạn đã đổi email thành công');
         } else {
+          if (mounted) {
+            QuickAlert.show(
+              context: context,
+              type: QuickAlertType.error,
+              title: 'Không thể đổi email',
+              text: 'Email hoặc mật khẩu chưa chính xác',
+            );
+          }
+        }
+      } catch (error) {
+        if (mounted) {
           QuickAlert.show(
             context: context,
             type: QuickAlertType.error,
@@ -90,14 +100,7 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
             text: 'Email hoặc mật khẩu chưa chính xác',
           );
         }
-      } catch (error) {
-        QuickAlert.show(
-          context: context,
-          type: QuickAlertType.error,
-          title: 'Không thể đổi email',
-          text: 'Email hoặc mật khẩu chưa chính xác',
-        );
-        log('Lỗi trong chagne email screen ${error}');
+        log('Lỗi trong chagne email screen $error');
       }
     }
   }
@@ -130,13 +133,24 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
             .whenComplete(() {
           clearAllField();
         });
-        if (result) {
+        if (result && mounted) {
           QuickAlert.show(
               context: context,
               type: QuickAlertType.success,
               title: 'Thành công',
               text: 'Bạn đã đổi email thành công');
         } else {
+          if (mounted) {
+            QuickAlert.show(
+              context: context,
+              type: QuickAlertType.error,
+              title: 'Không thể đổi email',
+              text: 'Email hoặc mật khẩu chưa chính xác',
+            );
+          }
+        }
+      } catch (error) {
+        if (mounted) {
           QuickAlert.show(
             context: context,
             type: QuickAlertType.error,
@@ -144,14 +158,7 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
             text: 'Email hoặc mật khẩu chưa chính xác',
           );
         }
-      } catch (error) {
-        QuickAlert.show(
-          context: context,
-          type: QuickAlertType.error,
-          title: 'Không thể đổi email',
-          text: 'Email hoặc mật khẩu chưa chính xác',
-        );
-        log('Lỗi trong chagne email screen ${error}');
+        log('Lỗi trong chagne email screen $error');
       }
     }
   }
@@ -247,7 +254,6 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
                               : (!isEmployer)
                                   ? _changeEmailForJobseeker
                                   : _changeEmailForEmployer,
-                          child: Text("ĐỔI EMAIL"),
                           style: ElevatedButton.styleFrom(
                               disabledBackgroundColor: Colors.grey.shade300,
                               fixedSize: Size(deviceSize.width, 60),
@@ -258,6 +264,7 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
                               ),
                               foregroundColor: theme.colorScheme.onPrimary,
                               textStyle: textTheme.titleMedium),
+                          child: Text("ĐỔI EMAIL"),
                         );
                       }),
                 ),

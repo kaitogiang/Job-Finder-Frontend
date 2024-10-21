@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:job_finder_app/models/conversation.dart';
@@ -26,13 +24,13 @@ class _ChatScreenState extends State<ChatScreen> {
   // initialScrollOffset được đặt bằng BouncingScrollSimulation.maxSpringTransferVelocity
   // để bắt đầu cuộn từ vị trí cao nhất tức là bên dưới (bottom)
   final ScrollController _scrollController = ScrollController();
-  ValueNotifier<bool> _isScrolledToBottom =
+  final ValueNotifier<bool> _isScrolledToBottom =
       ValueNotifier(true); //Biến kiểm tra xem đã scroll đến bottom chưa?
   //Khởi tạo dữ liệu
   late Conversation conversation;
 
-  final ValueNotifier<EdgeInsets> _bottomPadding =
-      ValueNotifier(EdgeInsets.zero);
+  // final ValueNotifier<EdgeInsets> _bottomPadding =
+  //     ValueNotifier(EdgeInsets.zero);
 
   late MessageManager messageManager;
 
@@ -125,7 +123,7 @@ class _ChatScreenState extends State<ChatScreen> {
     conversation =
         context.watch<MessageManager>().getConversation(widget.conversationId);
     // Lắng nghe thay đổi từ bàn phím
-    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+    // final bottomInset = MediaQuery.of(context).viewInsets.bottom;
     Utils.logMessage('Rebult ChatScreen');
     return LayoutBuilder(builder: (context, constraints) {
       return Scaffold(
@@ -213,18 +211,17 @@ class _ChatScreenState extends State<ChatScreen> {
                         reverse: false,
                         itemCount: conversation.messages.length,
                         itemBuilder: (context, index) {
-                          final message =
-                              conversation.messages[index] as Message;
+                          final message = conversation.messages[index];
                           final messageDate = message.timestamp;
                           final previousMessageDate = index > 0
                               ? conversation.messages[index - 1].timestamp
                               : null;
                           final showDateLabel = previousMessageDate == null ||
                               messageDate.day != previousMessageDate.day;
-                          final isLastInSequence =
-                              index == conversation.messages.length - 1 ||
-                                  message.senderId !=
-                                      conversation.messages[index + 1].senderId;
+                          // final isLastInSequence =
+                          //     index == conversation.messages.length - 1 ||
+                          //         message.senderId !=
+                          //             conversation.messages[index + 1].senderId;
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [

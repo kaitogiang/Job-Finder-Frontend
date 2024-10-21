@@ -16,10 +16,10 @@ class SkillAdditionScreen extends StatefulWidget {
 }
 
 class _SkillAdditionScreenState extends State<SkillAdditionScreen> {
-  //TODO: Gợi ý sẽ hiển thị khi nhập vào ô kỹ năng
+  //Gợi ý sẽ hiển thị khi nhập vào ô kỹ năng
   final List<String> _options = List<String>.from(getJobseekerSkillHint());
-  //TODO: Biến dùng để quan sát những kỹ năng được thêm vào
-  ValueNotifier<List<String>> _skillsListenable = ValueNotifier([]);
+  //Biến dùng để quan sát những kỹ năng được thêm vào
+  final ValueNotifier<List<String>> _skillsListenable = ValueNotifier([]);
 
   late TextEditingController? _skillController = TextEditingController();
 
@@ -46,7 +46,9 @@ class _SkillAdditionScreenState extends State<SkillAdditionScreen> {
       } catch (error) {
         log(error.toString());
       }
-      Navigator.of(context).pop();
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
     }
   }
 
@@ -65,7 +67,7 @@ class _SkillAdditionScreenState extends State<SkillAdditionScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            //TODO: Hiển thị trường nhập và nút bấm để thêm kỹ năng
+            //Hiển thị trường nhập và nút bấm để thêm kỹ năng
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
@@ -82,7 +84,7 @@ class _SkillAdditionScreenState extends State<SkillAdditionScreen> {
                       });
                     },
                     onSelected: (option) {
-                      log('Bạn đã chọn ${option}');
+                      log('Bạn đã chọn $option');
                     },
                     fieldViewBuilder: ((context, textEditingController,
                         focusNode, onFieldSubmitted) {
@@ -109,7 +111,7 @@ class _SkillAdditionScreenState extends State<SkillAdditionScreen> {
                       return Align(
                         alignment: Alignment.topLeft,
                         child: Material(
-                          child: Container(
+                          child: SizedBox(
                             width: MediaQuery.of(context).size.width,
                             child: ListView.builder(
                               padding: EdgeInsets.all(8.0),
@@ -135,7 +137,7 @@ class _SkillAdditionScreenState extends State<SkillAdditionScreen> {
                 const SizedBox(
                   width: 10,
                 ),
-                //TODO: Nút để thêm kỹ năng
+                //Nút để thêm kỹ năng
                 ElevatedButton(
                   onPressed: () {
                     // log('Thêm kỹ năng: ${_skillController?.text}');
@@ -151,7 +153,7 @@ class _SkillAdditionScreenState extends State<SkillAdditionScreen> {
                       },
                       orElse: () => '',
                     );
-                    if (!_skillController!.text.isEmpty &&
+                    if (_skillController!.text.isNotEmpty &&
                         isExistSkill.isEmpty) {
                       final updatedList =
                           List<String>.from(_skillsListenable.value)
@@ -169,7 +171,6 @@ class _SkillAdditionScreenState extends State<SkillAdditionScreen> {
                           confirmBtnText: 'Tôi đã biết');
                     }
                   },
-                  child: Text("Thêm"),
                   style: ElevatedButton.styleFrom(
                       fixedSize: Size.fromHeight(60),
                       side: BorderSide(color: theme.colorScheme.primary),
@@ -179,10 +180,11 @@ class _SkillAdditionScreenState extends State<SkillAdditionScreen> {
                       ),
                       foregroundColor: theme.colorScheme.primary,
                       textStyle: textTheme.titleMedium),
+                  child: Text("Thêm"),
                 ),
               ],
             ),
-            //TODO: Hiển thị những kỹ năng được thêm vào bởi người dùng
+            //Hiển thị những kỹ năng được thêm vào bởi người dùng
             const SizedBox(
               height: 6,
             ),
@@ -191,63 +193,61 @@ class _SkillAdditionScreenState extends State<SkillAdditionScreen> {
               height: 6,
             ),
             Expanded(
-              child: Container(
-                child: ValueListenableBuilder<List<String>>(
-                  valueListenable: _skillsListenable,
-                  builder: (context, skillsList, child) {
-                    return !skillsList.isEmpty
-                        ? ListView.builder(
-                            itemCount: skillsList.length,
-                            itemBuilder: (context, index) {
-                              //TODO: Hiển thị kỹ năng vừa được thêm vào
-                              return Container(
-                                margin: EdgeInsets.only(bottom: 10),
-                                child: Card(
-                                  shape:
-                                      LinearBorder(), //TODO: LinerBorder() làm cho viền thẳng góc
-                                  child: ListTile(
-                                    contentPadding: EdgeInsets.zero,
-                                    title: Text(
-                                      skillsList[index],
-                                      style: textTheme.titleMedium,
-                                    ),
-                                    visualDensity: VisualDensity.comfortable,
-                                    leading: Container(
-                                      width: 7,
-                                      decoration: BoxDecoration(
-                                          color: theme.primaryColor),
-                                    ),
-                                    trailing: IconButton(
-                                      icon: Icon(Icons.clear),
-                                      onPressed: () {
-                                        log('Xóa kỹ năng: ${skillsList[index]}');
-                                        final updatedList = List<String>.from(
-                                            _skillsListenable.value)
-                                          ..remove(
-                                              _skillsListenable.value[index]);
-                                        _skillsListenable.value = updatedList;
-                                      },
-                                    ),
+              child: ValueListenableBuilder<List<String>>(
+                valueListenable: _skillsListenable,
+                builder: (context, skillsList, child) {
+                  return skillsList.isNotEmpty
+                      ? ListView.builder(
+                          itemCount: skillsList.length,
+                          itemBuilder: (context, index) {
+                            //Hiển thị kỹ năng vừa được thêm vào
+                            return Container(
+                              margin: EdgeInsets.only(bottom: 10),
+                              child: Card(
+                                shape:
+                                    LinearBorder(), //LinerBorder() làm cho viền thẳng góc
+                                child: ListTile(
+                                  contentPadding: EdgeInsets.zero,
+                                  title: Text(
+                                    skillsList[index],
+                                    style: textTheme.titleMedium,
+                                  ),
+                                  visualDensity: VisualDensity.comfortable,
+                                  leading: Container(
+                                    width: 7,
+                                    decoration: BoxDecoration(
+                                        color: theme.primaryColor),
+                                  ),
+                                  trailing: IconButton(
+                                    icon: Icon(Icons.clear),
+                                    onPressed: () {
+                                      log('Xóa kỹ năng: ${skillsList[index]}');
+                                      final updatedList = List<String>.from(
+                                          _skillsListenable.value)
+                                        ..remove(
+                                            _skillsListenable.value[index]);
+                                      _skillsListenable.value = updatedList;
+                                    },
                                   ),
                                 ),
-                              );
-                            },
-                          )
-                        : Align(
-                            alignment: Alignment.topCenter,
-                            child: Text(
-                              'Hãy thêm kỹ năng mới vào',
-                              style: textTheme.bodyLarge,
-                            ),
-                          );
-                  },
-                ),
+                              ),
+                            );
+                          },
+                        )
+                      : Align(
+                          alignment: Alignment.topCenter,
+                          child: Text(
+                            'Hãy thêm kỹ năng mới vào',
+                            style: textTheme.bodyLarge,
+                          ),
+                        );
+                },
               ),
             ),
             const SizedBox(
               height: 10,
             ),
-            //TODO: Nút dùng để lưu những kỹ năng vào
+            //Nút dùng để lưu những kỹ năng vào
             ValueListenableBuilder(
                 valueListenable: _skillsListenable,
                 builder: (context, skillsList, child) {
@@ -256,9 +256,10 @@ class _SkillAdditionScreenState extends State<SkillAdditionScreen> {
                         ? null
                         : () async {
                             await _appendSkill();
-                            Navigator.of(context).pop();
+                            if (context.mounted) {
+                              Navigator.of(context).pop();
+                            }
                           },
-                    child: Text("LƯU"),
                     style: ElevatedButton.styleFrom(
                         disabledBackgroundColor: Colors.grey.shade300,
                         fixedSize: Size(deviceSize.width, 60),
@@ -269,6 +270,7 @@ class _SkillAdditionScreenState extends State<SkillAdditionScreen> {
                         ),
                         foregroundColor: theme.colorScheme.onPrimary,
                         textStyle: textTheme.titleMedium),
+                    child: Text("LƯU"),
                   );
                 }),
           ],

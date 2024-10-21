@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:dotted_border/dotted_border.dart';
@@ -36,7 +35,7 @@ class _ResumeUploadScreenState extends State<ResumeUploadScreen> {
     super.dispose();
   }
 
-  //TODO hàm dùng để thực hiện việc chọn file PDF
+  //hàm dùng để thực hiện việc chọn file PDF
   Future<void> _pickFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
@@ -47,12 +46,12 @@ class _ResumeUploadScreenState extends State<ResumeUploadScreen> {
         _selectedFile = File(result.files.single.path!);
         Utils.logMessage('File đã chọn ${_selectedFile!.path}');
         String filename = basename(_selectedFile!.path);
-        Utils.logMessage('Tên file la: ${filename}');
+        Utils.logMessage('Tên file la: $filename');
       });
     }
   }
 
-  //TODO Hàm upload file lên trên server
+  // Hàm upload file lên trên server
   Future<void> _uploadFile(BuildContext context) async {
     if (_selectedFile != null) {
       //Todo Thực hiện các dịch vụ upload file
@@ -63,9 +62,11 @@ class _ResumeUploadScreenState extends State<ResumeUploadScreen> {
             .read<JobseekerManager>()
             .uploadResume(filename, _selectedFile!);
         Utils.logMessage('Tải lên thành công');
-        Navigator.of(context).pop();
+        if (context.mounted) {
+          Navigator.of(context).pop();
+        }
       } catch (error) {
-        Utils.logMessage('Trong resume upload screen ' + error.toString());
+        Utils.logMessage('Trong resume upload screen: ${error.toString()}');
       }
     }
   }
@@ -73,9 +74,11 @@ class _ResumeUploadScreenState extends State<ResumeUploadScreen> {
   Future<void> _deleteFile(BuildContext context) async {
     try {
       await context.read<JobseekerManager>().deleteResume();
-      Navigator.pop(context);
+      if (context.mounted) {
+        Navigator.pop(context);
+      }
     } catch (error) {
-      Utils.logMessage('Trong resume delete file ' + error.toString());
+      Utils.logMessage('Trong resume delete file ${error.toString()}');
     }
   }
 
@@ -107,7 +110,7 @@ class _ResumeUploadScreenState extends State<ResumeUploadScreen> {
               height: 10,
             ),
             (_selectedFile != null || widget.resume != null)
-                ? resume_info_card(
+                ? ResumeInforCard(
                     resume: Resume(
                       fileName: (_selectedFile != null)
                           ? basename(_selectedFile!.path)
@@ -185,7 +188,7 @@ class _ResumeUploadScreenState extends State<ResumeUploadScreen> {
                       ),
                     ),
                   ),
-            //TODO: Nút dùng để lưu thay đổi vào cơ sở dữ liệu khi đã chọn file
+            //Nút dùng để lưu thay đổi vào cơ sở dữ liệu khi đã chọn file
             Expanded(
               child: Align(
                 alignment: Alignment.bottomCenter,
@@ -200,7 +203,6 @@ class _ResumeUploadScreenState extends State<ResumeUploadScreen> {
                       _deleteFile(context);
                     }
                   },
-                  child: Text("LƯU"),
                   style: ElevatedButton.styleFrom(
                       disabledBackgroundColor: Colors.grey.shade300,
                       fixedSize: Size(deviceSize.width, 60),
@@ -211,6 +213,7 @@ class _ResumeUploadScreenState extends State<ResumeUploadScreen> {
                       ),
                       foregroundColor: theme.colorScheme.onPrimary,
                       textStyle: textTheme.titleMedium),
+                  child: Text("LƯU"),
                 ),
               ),
             )
@@ -220,34 +223,32 @@ class _ResumeUploadScreenState extends State<ResumeUploadScreen> {
     );
   }
 
-  Container _buildActionButton({
+  ListView _buildActionButton({
     required BuildContext context,
     void Function()? onDelete,
     void Function()? onPreview,
   }) {
-    return Container(
-      child: ListView(
-        shrinkWrap: true,
-        children: [
-          ListTile(
-            title: Text(
-              'Xóa bỏ',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            leading: Icon(Icons.delete),
-            onTap: onDelete,
+    return ListView(
+      shrinkWrap: true,
+      children: [
+        ListTile(
+          title: Text(
+            'Xóa bỏ',
+            style: Theme.of(context).textTheme.titleMedium,
           ),
-          Divider(),
-          ListTile(
-            title: Text(
-              'Xem trước',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            leading: Icon(Icons.preview),
-            onTap: onPreview,
+          leading: Icon(Icons.delete),
+          onTap: onDelete,
+        ),
+        Divider(),
+        ListTile(
+          title: Text(
+            'Xem trước',
+            style: Theme.of(context).textTheme.titleMedium,
           ),
-        ],
-      ),
+          leading: Icon(Icons.preview),
+          onTap: onPreview,
+        ),
+      ],
     );
   }
 }

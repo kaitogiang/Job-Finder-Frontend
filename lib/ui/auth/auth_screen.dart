@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:blur/blur.dart';
 import 'package:job_finder_app/ui/auth/register_screen.dart';
@@ -73,7 +71,7 @@ class AuthScreen extends StatelessWidget {
                     backgroundColor: primaryColor,
                   ),
                   onPressed: () {
-                    print('Đăng nhập');
+                    debugPrint('Đăng nhập');
                     Navigator.of(context).push(
                       MaterialPageRoute(builder: (context) => LoginScreen()),
                     );
@@ -91,7 +89,7 @@ class AuthScreen extends StatelessWidget {
                     fixedSize: Size(300, 50),
                   ),
                   onPressed: () {
-                    print('Đăng ký');
+                    debugPrint('Đăng ký');
                     Navigator.of(context).push(
                       MaterialPageRoute(builder: (context) => RegisterScreen()),
                     );

@@ -22,7 +22,7 @@ class QuillEditorScreen extends StatefulWidget {
 
 class _QuillEditorScreenState extends State<QuillEditorScreen> {
   final QuillController _controller = QuillController.basic();
-  ValueNotifier<bool> _isShowToolBar = ValueNotifier(false);
+  final ValueNotifier<bool> _isShowToolBar = ValueNotifier(false);
   @override
   void initState() {
     //!Thay bằng code này sẽ fix được lỗi, không thể sử dụng chung Document bởi vì nó sẽ gây ra lỗi nếu một trong hai controller bị dispose
@@ -32,7 +32,7 @@ class _QuillEditorScreenState extends State<QuillEditorScreen> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
+    // implement dispose
     _controller.dispose();
     super.dispose();
   }

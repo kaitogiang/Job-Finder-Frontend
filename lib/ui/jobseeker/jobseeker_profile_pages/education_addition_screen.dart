@@ -41,7 +41,7 @@ class _EducationAdditionScreenState extends State<EducationAdditionScreen> {
   List<String> degrees = List<String>.from(getDegree());
   bool _isDoing = false;
   ValueNotifier<bool> isFull = ValueNotifier(false);
-  ValueNotifier<int> _selectedDegree = ValueNotifier(-1);
+  final ValueNotifier<int> _selectedDegree = ValueNotifier(-1);
   bool isEditScreen = true;
   int eduIndx = -1;
 
@@ -95,7 +95,7 @@ class _EducationAdditionScreenState extends State<EducationAdditionScreen> {
     log('School la: ${_schoolController.text}');
     log('Spec la: ${_specController.text}');
     log('From la: ${_fromController.text}');
-    log('Degree la: ${_selectedDegree}');
+    log('Degree la: $_selectedDegree');
   }
 
   Future<void> _addEducation() async {
@@ -109,9 +109,9 @@ class _EducationAdditionScreenState extends State<EducationAdditionScreen> {
       await context
           .read<JobseekerManager>()
           .addEducation(widget.edu!)
-          .whenComplete(() => Navigator.pop(context));
+          .whenComplete(() => mounted ? Navigator.pop(context) : null);
     } catch (error) {
-      log('Loi trong education: edu screen ${error}');
+      log('Loi trong education: edu screen $error');
     }
   }
 
@@ -126,9 +126,9 @@ class _EducationAdditionScreenState extends State<EducationAdditionScreen> {
       await context
           .read<JobseekerManager>()
           .updateEducation(eduIndx, widget.edu!)
-          .whenComplete(() => Navigator.pop(context));
+          .whenComplete(() => mounted ? Navigator.pop(context) : null);
     } catch (error) {
-      log('Loi trong education: edu screen ${error}');
+      log('Loi trong education: edu screen $error');
     }
   }
 
@@ -161,7 +161,7 @@ class _EducationAdditionScreenState extends State<EducationAdditionScreen> {
                 ValueListenableBuilder(
                     valueListenable: _selectedDegree,
                     builder: (context, selectedIndex, child) {
-                      return Container(
+                      return SizedBox(
                         width: deviceSize.width,
                         child: Wrap(
                           spacing: 10,
@@ -175,9 +175,9 @@ class _EducationAdditionScreenState extends State<EducationAdditionScreen> {
                                 overflow: TextOverflow.ellipsis,
                               ),
                               onPressed: () {
-                                //TODO nếu chip chưa được chọn, tức là _selectedDegree != index của chip
-                                //TODO thì sẽ thực thi lệnh else. Ngược lại nếu chip đã được chọn
-                                //TODO mà người dùng chọn lần nữa thì hủy chip đó bằng cách set giá trị = -1
+                                //nếu chip chưa được chọn, tức là _selectedDegree != index của chip
+                                //thì sẽ thực thi lệnh else. Ngược lại nếu chip đã được chọn
+                                //mà người dùng chọn lần nữa thì hủy chip đó bằng cách set giá trị = -1
                                 if (selectedIndex == index) {
                                   _selectedDegree.value = -1;
                                 } else {
@@ -301,7 +301,6 @@ class _EducationAdditionScreenState extends State<EducationAdditionScreen> {
                                         : (!isEditScreen)
                                             ? _addEducation
                                             : _updateEducation,
-                                child: Text("LƯU"),
                                 style: ElevatedButton.styleFrom(
                                     disabledBackgroundColor:
                                         Colors.grey.shade300,
@@ -314,6 +313,7 @@ class _EducationAdditionScreenState extends State<EducationAdditionScreen> {
                                     foregroundColor:
                                         theme.colorScheme.onPrimary,
                                     textStyle: textTheme.titleMedium),
+                                child: Text("LƯU"),
                               );
                             });
                       }),

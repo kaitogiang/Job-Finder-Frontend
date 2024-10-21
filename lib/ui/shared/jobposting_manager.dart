@@ -55,15 +55,11 @@ class JobpostingManager extends ChangeNotifier {
   }
 
   void jobpostingEventRunning() {
-    Utils.logMessage("Jobposting event running, socket: ${_socketService}");
+    Utils.logMessage("Jobposting event running, socket: $_socketService");
 
     _socketService?.socket?.on("jobposting:modified", (data) {
       Utils.logMessage("Xu ly jobposting socket event trong JobpostinManager");
     });
-  }
-
-  void _printSocketEvent(Map<String, dynamic> data) {
-    Utils.logMessage("Printout socket event");
   }
 
   List<Jobposting> get jobpostings => _jobpostings;

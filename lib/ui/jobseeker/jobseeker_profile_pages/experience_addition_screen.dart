@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:date_picker_plus/date_picker_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -101,8 +99,10 @@ class _ExperienceAdditionScreenState extends State<ExperienceAdditionScreen> {
       await context
           .read<JobseekerManager>()
           .appendExperience(data)
-          .whenComplete(() => Navigator.pop(context));
-      Navigator.pop(context);
+          .whenComplete(() => mounted ? Navigator.pop(context) : null);
+      if (mounted) {
+        Navigator.pop(context);
+      }
     } catch (error) {
       Utils.logMessage('Loi trong _addExperienece: exp_addiion_screen');
     }
@@ -125,8 +125,10 @@ class _ExperienceAdditionScreenState extends State<ExperienceAdditionScreen> {
       await context
           .read<JobseekerManager>()
           .updateExperience(expIndex, data)
-          .whenComplete(() => Navigator.pop(context));
-      Navigator.pop(context);
+          .whenComplete(() => mounted ? Navigator.pop(context) : null);
+      if (mounted) {
+        Navigator.pop(context);
+      }
     } catch (error) {
       Utils.logMessage('Loi trong _addExperienece: exp_addiion_screen');
     }
@@ -247,7 +249,6 @@ class _ExperienceAdditionScreenState extends State<ExperienceAdditionScreen> {
                               : (!isEditScreen)
                                   ? _addExperience
                                   : _updateExperience,
-                          child: Text("LƯU"),
                           style: ElevatedButton.styleFrom(
                               disabledBackgroundColor: Colors.grey.shade300,
                               fixedSize: Size(deviceSize.width, 60),
@@ -258,6 +259,7 @@ class _ExperienceAdditionScreenState extends State<ExperienceAdditionScreen> {
                               ),
                               foregroundColor: theme.colorScheme.onPrimary,
                               textStyle: textTheme.titleMedium),
+                          child: Text("LƯU"),
                         );
                       }),
                 ),

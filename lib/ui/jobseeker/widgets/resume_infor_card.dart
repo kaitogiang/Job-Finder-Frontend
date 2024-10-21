@@ -1,11 +1,10 @@
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:job_finder_app/models/resume.dart';
 
-class resume_info_card extends StatelessWidget {
-  const resume_info_card({
+class ResumeInforCard extends StatelessWidget {
+  const ResumeInforCard({
     super.key,
     required this.resume,
     this.onAction,

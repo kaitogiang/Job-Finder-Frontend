@@ -44,11 +44,11 @@ class ImageContainer extends StatelessWidget {
           IconButton(
             onPressed: onDelete,
             icon: CircleAvatar(
+                backgroundColor: Colors.white,
                 child: Icon(
                   Icons.clear_outlined,
                   color: Colors.grey.shade600,
-                ),
-                backgroundColor: Colors.white),
+                )),
           )
       ],
     );

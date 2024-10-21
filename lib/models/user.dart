@@ -53,9 +53,7 @@ class User {
   }
 
   String getImageUrl({String? uri}) {
-    if (uri == null) {
-      uri = dotenv.env['DATABASE_BASE_URL'];
-    }
+    uri ??= dotenv.env['DATABASE_BASE_URL'];
     return uri! + avatar;
   }
 }

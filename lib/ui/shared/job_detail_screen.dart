@@ -3,12 +3,8 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:intl/intl.dart';
-import 'package:job_finder_app/models/conversation.dart';
 import 'package:job_finder_app/models/jobposting.dart';
-import 'package:job_finder_app/models/user.dart';
-import 'package:job_finder_app/ui/employer/application_detail_screen.dart';
 import 'package:job_finder_app/ui/employer/application_manager.dart';
-import 'package:job_finder_app/ui/employer/employer_manager.dart';
 import 'package:job_finder_app/ui/shared/jobposting_manager.dart';
 import 'package:job_finder_app/ui/shared/message_manager.dart';
 import 'package:job_finder_app/ui/shared/utils.dart';
@@ -118,14 +114,16 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                           ) as bool;
                           if (isApply) {
                             log('Apply liền luôn bạn ơi');
+                            if (!context.mounted) return;
                             Employer? employer = await context
                                 .read<ApplicationManager>()
                                 .getEmployerByCompanyId(jobposting.company!.id);
+                            if (!context.mounted) return;
                             final result = await context
                                 .read<ApplicationManager>()
                                 .applyApplication(
                                     jobposting.id, employer!.email);
-                            if (result) {
+                            if (result && context.mounted) {
                               QuickAlert.show(
                                 context: context,
                                 type: QuickAlertType.success,
@@ -135,13 +133,16 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                                 confirmBtnText: 'Tôi biết rồi',
                               );
                             } else {
-                              QuickAlert.show(
-                                context: context,
-                                type: QuickAlertType.error,
-                                title: 'Ứng tuyển thất bại',
-                                text: 'Bạn không thể ứng tuyển vào vị trí này!',
-                                confirmBtnText: 'Tôi biết rồi',
-                              );
+                              if (context.mounted) {
+                                QuickAlert.show(
+                                  context: context,
+                                  type: QuickAlertType.error,
+                                  title: 'Ứng tuyển thất bại',
+                                  text:
+                                      'Bạn không thể ứng tuyển vào vị trí này!',
+                                  confirmBtnText: 'Tôi biết rồi',
+                                );
+                              }
                             }
                           } else {
                             log('Thôi để bữa khác');

@@ -1,13 +1,12 @@
 import 'dart:developer';
 import 'dart:io';
 
-import 'package:job_finder_app/models/auth_token.dart';
 import 'package:job_finder_app/models/company.dart';
 import 'package:job_finder_app/services/node_service.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 
 class CompanyService extends NodeService {
-  CompanyService([AuthToken? authToken]) : super(authToken);
+  CompanyService([super.authToken]);
 
   final headers = {'Content-Type': 'application/json; charset=UTF-8'};
 

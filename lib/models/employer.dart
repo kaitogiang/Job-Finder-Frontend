@@ -4,23 +4,15 @@ class Employer extends User {
   final String companyId;
   final String role;
   Employer(
-      {required String id,
-      required String firstName,
-      required String lastName,
-      required String email,
-      required String phone,
-      required String address,
-      required String avatar,
+      {required super.id,
+      required super.firstName,
+      required super.lastName,
+      required super.email,
+      required super.phone,
+      required super.address,
+      required super.avatar,
       required this.companyId,
-      required this.role})
-      : super(
-            id: id,
-            firstName: firstName,
-            lastName: lastName,
-            email: email,
-            phone: phone,
-            address: address,
-            avatar: avatar);
+      required this.role});
 
   factory Employer.fromJson(Map<String, dynamic> json) {
     return Employer(
@@ -35,6 +27,7 @@ class Employer extends User {
         role: json['role']);
   }
 
+  @override
   Map<String, dynamic> toJson() {
     return {
       'id': id,

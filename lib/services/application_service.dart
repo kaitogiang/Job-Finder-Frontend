@@ -47,7 +47,7 @@ class ApplicationService extends NodeService {
     log('Request is Call');
     try {
       if (Platform.isAndroid) {
-        final status = await Permission.manageExternalStorage.request();
+        final status = await Permission.storage.request();
         log('Status la: $status');
         return status.isGranted;
       } else {
@@ -174,7 +174,7 @@ class ApplicationService extends NodeService {
           responseMap.map((e) => ApplicationStorage.fromJson(e)).toList();
       return applicationStorageList;
     } catch (error) {
-      log('job service - fetchJobseekerApplication: ${error}');
+      log('job service - fetchJobseekerApplication: $error');
       return null;
     }
   }
@@ -189,7 +189,7 @@ class ApplicationService extends NodeService {
       final employer = Employer.fromJson(response);
       return employer;
     } catch (error) {
-      log('job service - getEmployerByCompanyId: ${error}');
+      log('job service - getEmployerByCompanyId: $error');
       return null;
     }
   }

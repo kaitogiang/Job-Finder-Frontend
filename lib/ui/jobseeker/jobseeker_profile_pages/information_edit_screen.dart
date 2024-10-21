@@ -1,6 +1,5 @@
 import 'dart:developer';
 import 'dart:io';
-import 'dart:isolate';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -49,7 +48,7 @@ class _InformationEditScreenState extends State<InformationEditScreen> {
     lastNameController.text = widget.jobseeker!.lastName;
     phoneController.text = widget.jobseeker!.phone;
     addressController.text = widget.jobseeker!.address;
-    //TODO: Tìm chỉ số tỉnh mà trùng với danh sách tỉnh
+    //Tìm chỉ số tỉnh mà trùng với danh sách tỉnh
     int selectedIndex = provinceListenable.value.indexWhere((element) {
       String alteredElement =
           Utils.removeVietnameseAccent(element).toLowerCase();
@@ -57,7 +56,7 @@ class _InformationEditScreenState extends State<InformationEditScreen> {
           Utils.removeVietnameseAccent(addressController.text).toLowerCase();
       return alteredElement.compareTo(alteredAddress) == 0;
     });
-    //TODO: Đặt chỉ số được chọn lại
+    //Đặt chỉ số được chọn lại
     selectedProvinceIndex.value = selectedIndex;
     searchController.addListener(() {
       String searchText = searchController.text;
@@ -108,9 +107,11 @@ class _InformationEditScreenState extends State<InformationEditScreen> {
       setState(() {
         _isLoading = false;
       });
-      Navigator.pop(context);
+      if (mounted) {
+        Navigator.pop(context);
+      }
     } catch (error) {
-      log('Lỗi trong infor edit ${error}');
+      log('Lỗi trong infor edit $error');
     }
   }
 
@@ -275,7 +276,6 @@ class _InformationEditScreenState extends State<InformationEditScreen> {
                       margin: EdgeInsets.only(bottom: 10),
                       child: ElevatedButton(
                         onPressed: _updateProfile,
-                        child: Text('Lưu thay đổi'),
                         style: ElevatedButton.styleFrom(
                           // side: BorderSide(color: theme.colorScheme.primary),
                           elevation: 0,
@@ -290,6 +290,7 @@ class _InformationEditScreenState extends State<InformationEditScreen> {
                             fontSize: 20,
                           ),
                         ),
+                        child: Text('Lưu thay đổi'),
                       ),
                     )
                   ],
@@ -326,10 +327,10 @@ class _InformationEditScreenState extends State<InformationEditScreen> {
                   child: ValueListenableBuilder<List<String>>(
                       valueListenable: provinceListenable,
                       builder: (context, provinces, child) {
-                        return !provinces.isEmpty
+                        return provinces.isNotEmpty
                             ? ListView.separated(
                                 shrinkWrap:
-                                    true, //TODO: Chỉ định kích thước của ListView bằng với cố lượng phần tử
+                                    true, //Chỉ định kích thước của ListView bằng với cố lượng phần tử
                                 itemCount: provinces.length,
                                 separatorBuilder:
                                     (BuildContext context, int index) =>

@@ -154,6 +154,9 @@ class ApplicantCard extends StatelessWidget {
                       }
 
                       int random = math.Random(10).nextInt(1000);
+                      final Map<String, String> data = {
+                        'type': 'download_notification',
+                      };
                       AwesomeNotifications().createNotification(
                         content: NotificationContent(
                           id: random,
@@ -162,6 +165,7 @@ class ApplicantCard extends StatelessWidget {
                           title: 'Tải xuống thành công',
                           body:
                               'Tại xuống tại thư mục /storage/emulated/0/Download/, nhấn vào để mở',
+                          payload: data,
                         ),
                       );
                     },

@@ -13,7 +13,7 @@ class ModalBottomSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
-    ThemeData theme = Theme.of(context);
+    // ThemeData theme = Theme.of(context);
 
     return FractionallySizedBox(
       heightFactor: heightFactor,
@@ -61,9 +61,9 @@ Future<void> showAdditionalScreen(
     isScrollControlled: true,
     builder: (context) {
       return ModalBottomSheet(
-        child: child,
         title: title,
         heightFactor: heightFactor,
+        child: child,
       );
     },
   );

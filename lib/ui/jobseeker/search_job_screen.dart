@@ -1,11 +1,8 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:job_finder_app/ui/shared/job_card.dart';
 import 'package:job_finder_app/ui/shared/jobposting_manager.dart';
 import 'package:provider/provider.dart';
-import 'package:quickalert/quickalert.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SearchJobScreen extends StatefulWidget {
@@ -19,7 +16,7 @@ class _SearchJobScreenState extends State<SearchJobScreen> {
   final _searchController = TextEditingController();
   final _focusNode = FocusNode();
   late SharedPreferences prefs;
-  ValueNotifier<List<String>> _historyListenable = ValueNotifier([]);
+  final ValueNotifier<List<String>> _historyListenable = ValueNotifier([]);
 
   @override
   void initState() {

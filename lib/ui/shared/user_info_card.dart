@@ -21,7 +21,7 @@ class UserInfoCard extends StatelessWidget {
       width: deviceSize.width - 30,
       // height: 300,
       decoration: BoxDecoration(
-        color: theme.colorScheme.background,
+        color: theme.colorScheme.surface,
         border: Border.all(color: theme.colorScheme.secondary),
         borderRadius: BorderRadius.circular(10),
         boxShadow: [
