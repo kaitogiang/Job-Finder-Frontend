@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:job_finder_app/models/auth_token.dart';
 import 'package:job_finder_app/models/conversation.dart';
 import 'package:job_finder_app/models/message.dart';
-import 'package:job_finder_app/models/user.dart';
 import 'package:job_finder_app/services/conversation.service.dart';
 import 'package:job_finder_app/services/socket_service.dart';
 import 'package:job_finder_app/ui/shared/utils.dart';
@@ -199,11 +198,11 @@ class MessageManager extends ChangeNotifier {
     notifyListeners();
   }
 
-  void _addMessageToConversation(Message newMessage) {
-    Conversation currentConversation =
-        getConversation(newMessage.conversationId);
-    currentConversation.messages.add(newMessage);
-  }
+  // void _addMessageToConversation(Message newMessage) {
+  //   Conversation currentConversation =
+  //       getConversation(newMessage.conversationId);
+  //   currentConversation.messages.add(newMessage);
+  // }
 
   //Hàm tham gia vào một cuộc trò chuyện
   void joinConversation(String conversationId) {
@@ -264,11 +263,11 @@ class MessageManager extends ChangeNotifier {
     Conversation conversation = getConversation(conversationId);
     List<Message> messages = conversation.messages;
     //Cập nhật trạng thái đã đọc của những tin nhắn được gửi tới mình
-    messages.forEach((message) {
+    for (var message in messages) {
       if (message.receiverId == userId && !message.isRead) {
         message.isRead = true;
       }
-    });
+    }
     //Cập nhật lại số lượng trong conversation và biến quan sát số lượng tin nhắn chưa đọc
     _resetUnseenMessages(conversation, userIsEmployer);
   }

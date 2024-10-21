@@ -1,19 +1,15 @@
 import 'dart:developer';
 
-import 'package:date_picker_plus/date_picker_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:job_finder_app/models/experience.dart';
 import 'package:job_finder_app/ui/auth/auth_manager.dart';
 import 'package:job_finder_app/ui/employer/employer_manager.dart';
 import 'package:job_finder_app/ui/jobseeker/jobseeker_manager.dart';
 import 'package:job_finder_app/ui/shared/combined_text_form_field.dart';
-import 'package:job_finder_app/ui/shared/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 import 'package:quickalert/quickalert.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
-  ChangePasswordScreen({super.key});
+  const ChangePasswordScreen({super.key});
 
   @override
   State<ChangePasswordScreen> createState() => _ChangePasswordScreenState();
@@ -73,7 +69,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
         final isChanged = await context
             .read<JobseekerManager>()
             .changePassword(oldPassword, newPassword);
-        if (isChanged) {
+        if (isChanged && mounted) {
           QuickAlert.show(
               context: context,
               type: QuickAlertType.success,
@@ -81,6 +77,18 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
               text: 'Bạn đã đổi mật khẩu thành công');
           clearAllField();
         } else {
+          if (mounted) {
+            QuickAlert.show(
+              context: context,
+              type: QuickAlertType.error,
+              title: 'Không thể đổi mật khẩu',
+              text: 'Mật khẩu chưa chính xác',
+              confirmBtnText: 'Tôi biết rồi',
+            );
+          }
+        }
+      } catch (error) {
+        if (mounted) {
           QuickAlert.show(
             context: context,
             type: QuickAlertType.error,
@@ -89,15 +97,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
             confirmBtnText: 'Tôi biết rồi',
           );
         }
-      } catch (error) {
-        QuickAlert.show(
-          context: context,
-          type: QuickAlertType.error,
-          title: 'Không thể đổi mật khẩu',
-          text: 'Mật khẩu chưa chính xác',
-          confirmBtnText: 'Tôi biết rồi',
-        );
-        log('Lỗi trong chagne email screen ${error}');
+        log('Lỗi trong chagne email screen $error');
       }
     }
   }
@@ -129,7 +129,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
         final isChanged = await context
             .read<EmployerManager>()
             .changePassword(oldPassword, newPassword);
-        if (isChanged) {
+        if (isChanged && mounted) {
           QuickAlert.show(
               context: context,
               type: QuickAlertType.success,
@@ -137,6 +137,18 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
               text: 'Bạn đã đổi mật khẩu thành công');
           clearAllField();
         } else {
+          if (mounted) {
+            QuickAlert.show(
+              context: context,
+              type: QuickAlertType.error,
+              title: 'Không thể đổi mật khẩu',
+              text: 'Mật khẩu chưa chính xác',
+              confirmBtnText: 'Tôi biết rồi',
+            );
+          }
+        }
+      } catch (error) {
+        if (mounted) {
           QuickAlert.show(
             context: context,
             type: QuickAlertType.error,
@@ -145,15 +157,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
             confirmBtnText: 'Tôi biết rồi',
           );
         }
-      } catch (error) {
-        QuickAlert.show(
-          context: context,
-          type: QuickAlertType.error,
-          title: 'Không thể đổi mật khẩu',
-          text: 'Mật khẩu chưa chính xác',
-          confirmBtnText: 'Tôi biết rồi',
-        );
-        log('Lỗi trong chagne email screen ${error}');
+        log('Lỗi trong chagne email screen $error');
       }
     }
   }
@@ -241,7 +245,6 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                               : (!isEmployer)
                                   ? _changePasswordForJobseeker
                                   : _changePasswordForEmployer,
-                          child: Text("ĐỔI MẬT KHẨU"),
                           style: ElevatedButton.styleFrom(
                               disabledBackgroundColor: Colors.grey.shade300,
                               fixedSize: Size(deviceSize.width, 60),
@@ -252,6 +255,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                               ),
                               foregroundColor: theme.colorScheme.onPrimary,
                               textStyle: textTheme.titleMedium),
+                          child: Text("ĐỔI MẬT KHẨU"),
                         );
                       }),
                 ),

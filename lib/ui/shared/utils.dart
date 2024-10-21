@@ -1,7 +1,7 @@
 import 'dart:developer';
 
 class Utils {
-  //TODO: Hàm loại bỏ dấu Tiếng Việt để dễ dàng trong tìm kiếm
+  //Hàm loại bỏ dấu Tiếng Việt để dễ dàng trong tìm kiếm
   static String removeVietnameseAccent(String origin) {
     Map<String, List<String>> template = {
       'a': [

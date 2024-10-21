@@ -11,13 +11,13 @@ class Jobseeker extends User {
   final List<Education> _education;
 
   Jobseeker({
-    required String id,
-    required String firstName,
-    required String lastName,
-    required String email,
-    required String phone,
-    required String address,
-    required String avatar,
+    required super.id,
+    required super.firstName,
+    required super.lastName,
+    required super.email,
+    required super.phone,
+    required super.address,
+    required super.avatar,
     List<Resume>? resume,
     List<String>? skills,
     List<Experience>? experience,
@@ -25,16 +25,7 @@ class Jobseeker extends User {
   })  : _resume = resume ?? [],
         _skills = skills ?? [],
         _experience = experience ?? [],
-        _education = education ?? [],
-        super(
-          id: id,
-          firstName: firstName,
-          lastName: lastName,
-          email: email,
-          phone: phone,
-          address: address,
-          avatar: avatar,
-        );
+        _education = education ?? [];
 
   factory Jobseeker.fromJson(Map<String, dynamic> json) {
     return Jobseeker(
@@ -71,6 +62,7 @@ class Jobseeker extends User {
   //Trả về học vấn của một người
   List<Education> get education => _education;
 
+  @override
   Map<String, dynamic> toJson() {
     return {
       'firstName': firstName,

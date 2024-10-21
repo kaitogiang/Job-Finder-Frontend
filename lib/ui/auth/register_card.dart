@@ -10,7 +10,7 @@ import '../shared/vietname_provinces.dart';
 enum UserType { jobseeker, employer }
 
 class RegisterCard extends StatefulWidget {
-  RegisterCard({super.key});
+  const RegisterCard({super.key});
 
   @override
   State<RegisterCard> createState() => _RegisterCardState();
@@ -23,8 +23,8 @@ class _RegisterCardState extends State<RegisterCard> {
   ValueNotifier<UserType> userType =
       ValueNotifier<UserType>(UserType.jobseeker);
   ValueNotifier<bool> isPasswordShown = ValueNotifier<bool>(false);
-  ValueNotifier<int> _currentIndexPage = ValueNotifier<int>(0);
-  ValueNotifier<bool> _isSendingOTP = ValueNotifier<bool>(false);
+  final ValueNotifier<int> _currentIndexPage = ValueNotifier<int>(0);
+  final ValueNotifier<bool> _isSendingOTP = ValueNotifier<bool>(false);
   final PageStorageBucket _bucket = PageStorageBucket();
 
   final firstNameController = TextEditingController();
@@ -67,7 +67,7 @@ class _RegisterCardState extends State<RegisterCard> {
         log('Tạo tài khoản thành công');
       });
     } catch (error) {
-      if (context.mounted) {
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(error.toString()),
         ));
@@ -136,7 +136,7 @@ class _RegisterCardState extends State<RegisterCard> {
                         padding: EdgeInsets.only(left: 6),
                         icon: Icon(Icons.arrow_back_ios),
                         onPressed: () {
-                          print('Back to AuthScreen');
+                          debugPrint('Back to AuthScreen');
                           Navigator.pop(context);
                         },
                       ),
@@ -397,10 +397,10 @@ class _RegisterCardState extends State<RegisterCard> {
                   child: ValueListenableBuilder<List<String>>(
                       valueListenable: provinceListenable,
                       builder: (context, provinces, child) {
-                        return !provinces.isEmpty
+                        return provinces.isNotEmpty
                             ? ListView.separated(
                                 shrinkWrap:
-                                    true, //TODO: Chỉ định kích thước của ListView bằng với cố lượng phần tử
+                                    true, //Chỉ định kích thước của ListView bằng với cố lượng phần tử
                                 itemCount: provinces.length,
                                 separatorBuilder:
                                     (BuildContext context, int index) =>
@@ -779,10 +779,12 @@ class _RegisterCardState extends State<RegisterCard> {
                         isEmployer: isEmployer)
                     .then((value) {
                   _isSendingOTP.value = false;
-                  return ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text('Gửi OTP thành công'),
-                    duration: const Duration(seconds: 3),
-                  ));
+                  return mounted
+                      ? ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text('Gửi OTP thành công'),
+                          duration: const Duration(seconds: 3),
+                        ))
+                      : null;
                 });
               },
               child: ValueListenableBuilder<bool>(

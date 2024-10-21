@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:go_router/go_router.dart';
-import 'package:job_finder_app/models/application_storage.dart';
 import 'package:job_finder_app/models/company.dart';
 import 'package:job_finder_app/models/education.dart';
 import 'package:job_finder_app/models/employer.dart';
@@ -30,15 +29,11 @@ import 'package:job_finder_app/ui/shared/change_email_screen.dart';
 import 'package:job_finder_app/ui/shared/change_password_screen.dart';
 import 'package:job_finder_app/ui/shared/chat_screen.dart';
 import 'package:job_finder_app/ui/shared/company_detail_screen.dart';
-import 'package:job_finder_app/ui/shared/image_fullscreen.dart';
 import 'package:job_finder_app/ui/shared/image_preview.dart';
 import 'package:job_finder_app/ui/shared/job_detail_screen.dart';
 import 'package:job_finder_app/ui/shared/jobseeker_detail_screen.dart';
 import 'package:job_finder_app/ui/shared/message_screen.dart';
 import 'package:job_finder_app/ui/shared/user_setting_screen.dart';
-import 'package:job_finder_app/ui/shared/utils.dart';
-import 'package:path/path.dart';
-import '../../models/application.dart';
 import '../employer/approved_application_screen.dart';
 import '../employer/company_screen.dart';
 import '../employer/employer_edit_screen.dart';
@@ -47,13 +42,12 @@ import '../jobseeker/company_list_screen.dart';
 import '../jobseeker/jobseeker_home.dart';
 import '../jobseeker/jobseeker_profile_pages/information_edit_screen.dart';
 import '../jobseeker/jobseeker_profile_screen.dart';
-import '../employer/employer_home.dart';
 import 'scaffold_with_navbar.dart';
 import 'splash_screen.dart';
 import '../auth/auth_screen.dart';
 
 final _rootNavigatorkey = GlobalKey<NavigatorState>(debugLabel: 'root');
-final _generalNavigatorkey = GlobalKey<NavigatorState>(debugLabel: 'general');
+// final _generalNavigatorkey = GlobalKey<NavigatorState>(debugLabel: 'general');
 final globalNavigatorKey = _rootNavigatorkey;
 
 GoRouter buildRouter(AuthManager authManager) {

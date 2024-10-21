@@ -106,10 +106,12 @@ class JobCard extends StatelessWidget {
                                               }) as bool;
                                           if (isAgreed) {
                                             log('Xóa nhe bồ');
+                                            if (!context.mounted) return;
                                             await context
                                                 .read<JobpostingManager>()
                                                 .deleteJobposting(
                                                     jobposting.id);
+                                            if (!context.mounted) return;
                                             await QuickAlert.show(
                                                 context: context,
                                                 type: QuickAlertType.success,
@@ -122,7 +124,9 @@ class JobCard extends StatelessWidget {
                                             log('Thôi đừng mà');
                                           }
 
-                                          Navigator.pop(context);
+                                          if (context.mounted) {
+                                            Navigator.pop(context);
+                                          }
                                         },
                                         onEdit: () {
                                           log('Xem trước file');
@@ -167,34 +171,32 @@ class JobCard extends StatelessWidget {
     );
   }
 
-  Container _buildActionButton({
+  ListView _buildActionButton({
     required BuildContext context,
     void Function()? onDelete,
     void Function()? onEdit,
   }) {
-    return Container(
-      child: ListView(
-        shrinkWrap: true,
-        children: [
-          ListTile(
-            title: Text(
-              'Xóa bỏ',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            leading: Icon(Icons.delete),
-            onTap: onDelete,
+    return ListView(
+      shrinkWrap: true,
+      children: [
+        ListTile(
+          title: Text(
+            'Xóa bỏ',
+            style: Theme.of(context).textTheme.titleMedium,
           ),
-          Divider(),
-          ListTile(
-            title: Text(
-              'Chỉnh sửa',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            leading: Icon(Icons.preview),
-            onTap: onEdit,
+          leading: Icon(Icons.delete),
+          onTap: onDelete,
+        ),
+        Divider(),
+        ListTile(
+          title: Text(
+            'Chỉnh sửa',
+            style: Theme.of(context).textTheme.titleMedium,
           ),
-        ],
-      ),
+          leading: Icon(Icons.preview),
+          onTap: onEdit,
+        ),
+      ],
     );
   }
 }

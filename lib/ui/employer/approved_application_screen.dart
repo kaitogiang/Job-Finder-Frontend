@@ -126,7 +126,7 @@ class ApprovedApplicationScreen extends StatelessWidget {
           const SizedBox(
             height: 10,
           ),
-          approvedApplications.length != 0
+          approvedApplications.isNotEmpty
               ? ListView.builder(
                   shrinkWrap: true,
                   itemCount: approvedApplications.length,

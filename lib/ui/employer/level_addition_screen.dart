@@ -172,7 +172,6 @@ class LevelAdditionScreen extends StatelessWidget {
                             onSaved.call(selectedLevel.value);
                             Navigator.of(context).pop();
                           },
-                    child: Text("LƯU"),
                     style: ElevatedButton.styleFrom(
                         disabledBackgroundColor: Colors.grey.shade300,
                         fixedSize: Size(deviceSize.width, 60),
@@ -183,6 +182,7 @@ class LevelAdditionScreen extends StatelessWidget {
                         ),
                         foregroundColor: theme.colorScheme.onPrimary,
                         textStyle: textTheme.titleMedium),
+                    child: Text("LƯU"),
                   );
                 }),
           ],

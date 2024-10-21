@@ -571,7 +571,7 @@ class _CompanyInfoScreenState extends State<CompanyInfoScreen> {
                     padding: const EdgeInsets.symmetric(
                       horizontal: 5,
                     ),
-                    child: widget.company.images.length != 0
+                    child: widget.company.images.isNotEmpty
                         ? ListView.builder(
                             scrollDirection: Axis.horizontal,
                             itemCount: widget.company.images.length,

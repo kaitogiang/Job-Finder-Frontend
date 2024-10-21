@@ -73,7 +73,7 @@ class _ImagePreviewState extends State<ImagePreview> {
           );
         },
         loadingBuilder: (context, progress) => Center(
-          child: Container(
+          child: SizedBox(
             width: 20.0,
             height: 20.0,
             child: CircularProgressIndicator(
