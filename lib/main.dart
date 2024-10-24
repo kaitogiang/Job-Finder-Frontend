@@ -1,4 +1,8 @@
+import 'dart:developer';
+
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:job_finder_app/admin/ui/router/admin_router.dart';
 import 'package:job_finder_app/ui/shared/message_notificaion_controller.dart';
 import 'firebase_options.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
@@ -12,10 +16,13 @@ import 'package:job_finder_app/ui/jobseeker/jobseeker_manager.dart';
 import 'package:job_finder_app/ui/shared/jobposting_manager.dart';
 import 'package:job_finder_app/ui/shared/message_manager.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 
 import 'ui/shared/build_router.dart';
 import 'ui/shared/utils.dart';
 import 'services/firebase_messaging_service.dart';
+
+import 'package:job_finder_app/admin/ui/manager/jobseeker_list_manager.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,49 +32,57 @@ Future<void> main() async {
 
   //load the .env file
   await dotenv.load(); //PHải định nghĩa file .env trong pubspec.yaml
-  //? Khởi tạo Notification cho ứng dụng
-  AwesomeNotifications().initialize(
-      // set the icon to null if you want to use the default app icon
-      'resource://drawable/notification',
-      [
-        NotificationChannel(
-          channelGroupKey: 'basic_channel_group',
-          channelKey: 'basic_channel',
-          channelName: 'Basic notifications',
-          channelDescription: 'Notification channel for basic tests',
-          defaultColor: const Color(0xFF9D50DD),
-          ledColor: Colors.white,
-        ),
-        NotificationChannel(
-          channelGroupKey: 'message_channel_group',
-          channelKey: 'message_channel',
-          channelName: 'Message notification',
-          channelDescription: 'Messages channel for receiving messages',
-          defaultColor: const Color(0xFF9D50DD),
-          ledColor: Colors.white,
-          groupKey: 'message_group_key',
-          importance: NotificationImportance.High,
-        ),
-      ],
-      // Channel groups are only visual and are not required
-      channelGroups: [
-        NotificationChannelGroup(
-            channelGroupKey: 'basic_channel_group',
-            channelGroupName: 'Basic group')
-      ],
-      debug: true);
 
-  FirebaseMessagingService firebaseAPI = FirebaseMessagingService();
-  await firebaseAPI.firebaseMessagingInit();
-  await firebaseAPI.setUpInteractedMessage();
-  //Thiết lập xử lý nhận thông báo tin nhắn khi ứng dụng
-  //đang ở foreground
-  MessageNotificaionController.initialize(globalNavigatorKey);
-  runApp(
-    MyApp(
-      firebaseAPI: firebaseAPI,
-    ),
-  );
+  debugPrint("Gia tri cua kIsWeb: $kIsWeb");
+  if (kIsWeb) {
+    log("Chay app admin");
+    //Gọi hàm này để chuyển url từ /#/admin/... thành /admin...
+    usePathUrlStrategy();
+    runApp(AdminApp());
+  } else {
+    //? Khởi tạo Notification cho ứng dụng
+    AwesomeNotifications().initialize(
+        // set the icon to null if you want to use the default app icon
+        'resource://drawable/notification',
+        [
+          NotificationChannel(
+            channelGroupKey: 'basic_channel_group',
+            channelKey: 'basic_channel',
+            channelName: 'Basic notifications',
+            channelDescription: 'Notification channel for basic tests',
+            defaultColor: const Color(0xFF9D50DD),
+            ledColor: Colors.white,
+          ),
+          NotificationChannel(
+            channelGroupKey: 'message_channel_group',
+            channelKey: 'message_channel',
+            channelName: 'Message notification',
+            channelDescription: 'Messages channel for receiving messages',
+            defaultColor: const Color(0xFF9D50DD),
+            ledColor: Colors.white,
+            groupKey: 'message_group_key',
+            importance: NotificationImportance.High,
+          ),
+        ],
+        // Channel groups are only visual and are not required
+        channelGroups: [
+          NotificationChannelGroup(
+              channelGroupKey: 'basic_channel_group',
+              channelGroupName: 'Basic group')
+        ],
+        debug: true);
+    FirebaseMessagingService firebaseAPI = FirebaseMessagingService();
+    await firebaseAPI.firebaseMessagingInit();
+    await firebaseAPI.setUpInteractedMessage();
+    //Thiết lập xử lý nhận thông báo tin nhắn khi ứng dụng
+    //đang ở foreground
+    MessageNotificaionController.initialize(globalNavigatorKey);
+    runApp(
+      MyApp(
+        firebaseAPI: firebaseAPI,
+      ),
+    );
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -201,6 +216,35 @@ class MyApp extends StatelessWidget {
           routerConfig: buildRouter(authManager),
         );
       }),
+    );
+  }
+}
+
+class AdminApp extends StatelessWidget {
+  const AdminApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = ColorScheme.fromSeed(
+        seedColor: Colors.blueAccent,
+        primary: const Color(0xFF0C5FBF),
+        secondary: Colors.grey.shade400,
+        surface: Colors.white,
+        // background: Colors.white, //lỗi thời
+        surfaceTint: Colors.grey,
+        onSecondary: Colors.black);
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => JobseekerListManager()),
+      ],
+      child: MaterialApp.router(
+        title: 'Admin App',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          colorScheme: colorScheme,
+        ),
+        routerConfig: buildAdminRouter(),
+      ),
     );
   }
 }
