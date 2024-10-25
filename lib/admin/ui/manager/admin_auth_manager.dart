@@ -9,6 +9,8 @@ class AdminAuthManager extends ChangeNotifier {
   AuthToken? _authToken;
   Timer? _authTimer;
 
+  String _name = '';
+
   final AuthService _authService = AuthService();
 
   bool get isAuth {
@@ -19,6 +21,10 @@ class AdminAuthManager extends ChangeNotifier {
     return _authToken;
   }
 
+  String get name {
+    return _name;
+  }
+
   Future<void> _setAuthToken(AuthToken token) async {
     _authToken = token;
     _autoLogout();
@@ -27,6 +33,7 @@ class AdminAuthManager extends ChangeNotifier {
 
   Future<void> login(String email, String password) async {
     Utils.logMessage('Đăng nhập admin');
+    _name = await _authService.getAdminName(email);
     await _setAuthToken(
       await _authService.signInAdmin(email, password),
     );
@@ -62,5 +69,13 @@ class AdminAuthManager extends ChangeNotifier {
       Duration(seconds: timeToExpiry),
       logout,
     );
+  }
+
+  Future<bool> sendOTP(String email) async {
+    return await _authService.sendOTPAdmin(email);
+  }
+
+  Future<bool> resetPassword(String email, String password, String otp) async {
+    return await _authService.resetAdminPassword(email, password, otp);
   }
 }

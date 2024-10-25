@@ -358,4 +358,78 @@ class AuthService {
       return false;
     }
   }
+
+  //Hàm gửi otp cho admin
+  Future<bool> sendOTPAdmin(String email) async {
+    String uri = '$_baseUrl/api/admin/send-otp';
+    try {
+      final url = Uri.parse(uri);
+      final response = await http.post(
+        url,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: json.encode({'email': email}),
+      );
+      Utils.logMessage('Trong sendOTPAdmin: ${response.statusCode}');
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        final json = jsonDecode(response.body) as Map<String, dynamic>;
+        Utils.logMessage(json['message']);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      Utils.logMessage(error.toString());
+      return false;
+    }
+  }
+
+  //Hàm khôi phục mật khẩu của admin
+  Future<bool> resetAdminPassword(
+      String email, String password, String otp) async {
+    String uri = '$_baseUrl/api/admin/reset-password';
+    try {
+      final url = Uri.parse(uri);
+      final response = await http.post(
+        url,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: json.encode({
+          'email': email,
+          'password': password,
+          'otp': otp,
+        }),
+      );
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        return true;
+      }
+      return false;
+    } catch (error) {
+      Utils.logMessage(error.toString());
+      rethrow;
+    }
+  }
+
+  Future<String> getAdminName(String email) async {
+    String uri = '$_baseUrl/api/admin/get-admin-name';
+    try {
+      final url = Uri.parse(uri);
+      final response = await http.post(
+        url,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: json.encode({'email': email}),
+      );
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        final json = jsonDecode(response.body) as Map<String, dynamic>;
+        return json['name'];
+      }
+      return '';
+    } catch (error) {
+      Utils.logMessage(error.toString());
+      rethrow;
+    }
+  }
 }

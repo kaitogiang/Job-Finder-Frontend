@@ -75,7 +75,7 @@ class _BaseLayoutPageState extends State<BaseLayoutPage> {
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
     final textTheme = Theme.of(context).textTheme;
-
+    final adminName = context.read<AdminAuthManager>().name;
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -153,7 +153,7 @@ class _BaseLayoutPageState extends State<BaseLayoutPage> {
           ),
           const SizedBox(width: 15.0),
           Text(
-            'Admin',
+            '$adminName',
             style: textTheme.titleSmall,
           ),
           const SizedBox(width: 10.0),
