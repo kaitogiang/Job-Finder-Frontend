@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:job_finder_app/admin/ui/manager/admin_auth_manager.dart';
 import 'package:job_finder_app/admin/ui/router/admin_router.dart';
 import 'package:job_finder_app/ui/shared/message_notificaion_controller.dart';
 import 'firebase_options.dart';
@@ -235,16 +236,27 @@ class AdminApp extends StatelessWidget {
         onSecondary: Colors.black);
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (context) => JobseekerListManager()),
-      ],
-      child: MaterialApp.router(
-        title: 'Admin App',
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          colorScheme: colorScheme,
+        ChangeNotifierProvider(create: (context) => AdminAuthManager()),
+        ChangeNotifierProxyProvider<AdminAuthManager, JobseekerListManager>(
+          create: (context) => JobseekerListManager(),
+          update: (context, adminAuthManager, jobseekerListManager) {
+            //Cập nhật lại authToken cho JobseekerListManager
+            jobseekerListManager!.authToken = adminAuthManager.authToken;
+            return jobseekerListManager;
+          },
         ),
-        routerConfig: buildAdminRouter(),
-      ),
+      ],
+      child: Consumer<AdminAuthManager>(
+          builder: (context, adminAuthManager, child) {
+        return MaterialApp.router(
+          title: 'Admin App',
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData(
+            colorScheme: colorScheme,
+          ),
+          routerConfig: buildAdminRouter(adminAuthManager),
+        );
+      }),
     );
   }
 }

@@ -18,11 +18,12 @@ class Utils {
     final stackTrace = StackTrace.current;
     //Chuyển thông tin stack trace thành một chuỗi và tách thành các phần tử
     final frames = stackTrace.toString().split('\n');
+
     //Nếu có nhiều hơn 1 phần tử thì lấy phần tử thứ 2
     if (frames.length > 1) {
       //Phần tử thứ hai chính là nơi nó được gọi gần nhất, thí dụ, nếu trong file main
       //gọi hàm logMessage thì phần tử thứ 2 sẽ là thông tin đường dẫn file main và dòng
-      final frame = frames[1];
+      final frame = frames[2];
       final fileInfo = _extractFileInfo(frame);
       log('$message ($fileInfo)\n');
     } else {
@@ -37,7 +38,7 @@ class Utils {
     //The \S+ matches one or more non-whitespace characters, which typically represent the file name.
     //The :(\d+):(\d+) matches a colon, followed by one or more digits (representing the line number), another colon, and one or more digits (representing the column number).
     //`(...)`: Parentheses create a capturing group, which allows us to extract the matched column number.
-    final fileInfoPattern = RegExp(r'(\S+\.dart):(\d+):(\d+)');
+    final fileInfoPattern = RegExp(r'(\S+\.dart)\s+(\d+):(\d+)');
     //Tìm kiếm mẫu trong chuỗi frame
     final match = fileInfoPattern.firstMatch(frame);
     if (match != null) {

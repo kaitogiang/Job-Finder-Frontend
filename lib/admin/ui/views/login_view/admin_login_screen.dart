@@ -1,10 +1,62 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:job_finder_app/admin/ui/base_layout_page.dart';
+import 'package:job_finder_app/admin/ui/manager/admin_auth_manager.dart';
+import 'package:job_finder_app/admin/ui/utils/utils.dart';
+import 'package:provider/provider.dart';
 import 'package:responsive_builder/responsive_builder.dart';
+import 'package:toastification/toastification.dart';
 
-class AdminLoginScreen extends StatelessWidget {
+class AdminLoginScreen extends StatefulWidget {
   const AdminLoginScreen({super.key});
+
+  @override
+  State<AdminLoginScreen> createState() => _AdminLoginScreenState();
+}
+
+class _AdminLoginScreenState extends State<AdminLoginScreen> {
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _login() async {
+    try {
+      final email = _emailController.text;
+      final password = _passwordController.text;
+      Utils.logMessage('email: $email, password: $password');
+      if (email.isEmpty || password.isEmpty) {
+        Utils.showNotification(
+          context: context,
+          title: 'Vui lòng nhập đẩy đủ thông tin',
+          type: ToastificationType.error,
+        );
+        return;
+      }
+      if (mounted) {
+        await context.read<AdminAuthManager>().login(email, password);
+        Utils.showNotification(
+          context: context,
+          title: 'Đăng nhập thành công',
+          type: ToastificationType.success,
+        );
+      }
+    } catch (error) {
+      Utils.logMessage(error.toString());
+      if (context.mounted) {
+        Utils.showNotification(
+          context: context,
+          title: 'Đăng nhập thất bại',
+          type: ToastificationType.error,
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -63,14 +115,16 @@ class AdminLoginScreen extends StatelessWidget {
                         style: textStyle.titleMedium,
                       ),
                       SizedBox(height: 20.0),
-                      TextField(
+                      TextFormField(
+                        controller: _emailController,
                         decoration: InputDecoration(
                           labelText: 'Email',
                           border: OutlineInputBorder(),
                         ),
                       ),
                       SizedBox(height: 20.0),
-                      TextField(
+                      TextFormField(
+                        controller: _passwordController,
                         obscureText: true,
                         decoration: InputDecoration(
                           labelText: 'Mật khẩu',
@@ -91,9 +145,7 @@ class AdminLoginScreen extends StatelessWidget {
                       ),
                       SizedBox(height: 20.0),
                       ElevatedButton(
-                        onPressed: () {
-                          // Handle login logic here
-                        },
+                        onPressed: _login,
                         style: ElevatedButton.styleFrom(
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8.0),

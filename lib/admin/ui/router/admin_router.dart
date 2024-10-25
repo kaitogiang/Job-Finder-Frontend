@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:job_finder_app/admin/ui/base_layout_page.dart';
+import 'package:job_finder_app/admin/ui/manager/admin_auth_manager.dart';
 import 'package:job_finder_app/admin/ui/views/application_view/application_screen.dart';
 import 'package:job_finder_app/admin/ui/views/dashboard_view/dashboard_screen.dart';
 import 'package:job_finder_app/admin/ui/views/employer_view/employer_screen.dart';
@@ -17,19 +18,26 @@ final GlobalKey<NavigatorState> _adminNavigatorKey =
 final GlobalKey<NavigatorState> _shellNavigatorKey =
     GlobalKey<NavigatorState>(debugLabel: 'shell');
 
-GoRouter buildAdminRouter() {
+GoRouter buildAdminRouter(AdminAuthManager adminAuthManager) {
   return GoRouter(
     navigatorKey: _adminNavigatorKey,
-    initialLocation: '/',
+    initialLocation: adminAuthManager.isAuth ? '/' : '/login',
     routes: <RouteBase>[
       GoRoute(
         path: '/login',
         builder: (context, state) {
-          return const AdminLoginScreen();
+          return FutureBuilder(
+            future: adminAuthManager.tryAutoLogin(),
+            builder: (context, snapshot) {
+              return snapshot.connectionState == ConnectionState.waiting
+                  ? const CircularProgressIndicator()
+                  : const AdminLoginScreen();
+            },
+          );
         },
-        pageBuilder: (context, state) {
-          return NoTransitionPage(child: const AdminLoginScreen());
-        },
+        // pageBuilder: (context, state) {
+        //   return NoTransitionPage(child: const AdminLoginScreen());
+        // },
       ),
       GoRoute(
         path: '/reset-password',

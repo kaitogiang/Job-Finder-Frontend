@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:job_finder_app/admin/ui/manager/admin_auth_manager.dart';
 import 'package:job_finder_app/admin/ui/utils/utils.dart';
 import 'package:job_finder_app/admin/ui/widgets/navigation_item.dart';
+import 'package:provider/provider.dart';
+import 'package:toastification/toastification.dart';
 
 class BaseLayoutPage extends StatefulWidget {
   const BaseLayoutPage({super.key, required this.child});
@@ -52,6 +55,20 @@ class _BaseLayoutPageState extends State<BaseLayoutPage> {
 
   void _changePageIndex(int index) {
     _currentPageIndex.value = index;
+  }
+
+  Future<void> _logout() async {
+    if (mounted) {
+      await context.read<AdminAuthManager>().logout();
+      //Hiển thị thông báo
+      if (mounted) {
+        Utils.showNotification(
+          context: context,
+          title: 'Đăng xuất thành công',
+          type: ToastificationType.success,
+        );
+      }
+    }
   }
 
   @override
@@ -298,9 +315,7 @@ class _BaseLayoutPageState extends State<BaseLayoutPage> {
                               NavigationItem(
                                 title: 'Đăng xuất',
                                 icon: Icons.logout,
-                                onPressed: () {
-                                  Utils.logMessage('Đăng xuất');
-                                },
+                                onPressed: _logout,
                                 isActive: false,
                               ),
                             ],

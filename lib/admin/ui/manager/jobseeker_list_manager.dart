@@ -1,8 +1,23 @@
 import 'package:job_finder_app/admin/ui/utils/sample.dart';
 import 'package:flutter/material.dart';
+import 'package:job_finder_app/admin/ui/utils/utils.dart';
+import 'package:job_finder_app/models/auth_token.dart';
+import 'package:job_finder_app/services/jobseeker_service.dart';
 
 class JobseekerListManager extends ChangeNotifier {
   final List<Map<String, dynamic>> _jobseekersList = jobseekers;
+
+  //khởi tạo dịch vụ
+  final JobseekerService _jobseekerService;
+
+  JobseekerListManager([AuthToken? authToken])
+      : _jobseekerService = JobseekerService(authToken);
+
+  set authToken(AuthToken? authToken) {
+    _jobseekerService.authToken = authToken;
+    Utils.logMessage('Cập nhật authToken cho JobseerService');
+    notifyListeners();
+  }
 
   List<Map<String, dynamic>> getJobseekers() => _jobseekersList;
 
