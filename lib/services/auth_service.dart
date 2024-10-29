@@ -15,7 +15,9 @@ class AuthService {
   late final String? _baseUrl;
 
   AuthService() {
-    _baseUrl = dotenv.env['DATABASE_BASE_URL'];
+    _baseUrl = kIsWeb
+        ? dotenv.env['DATABASE_BASE_URL_WEB']
+        : dotenv.env['DATABASE_BASE_URL'];
   }
   //Hàm xác định url dành cho loại người đăng nhập hiện tại
   //Nếu isEmployer là true tức là nhà tuyển dụng đăng nhập
@@ -24,6 +26,10 @@ class AuthService {
     return isEmployer
         ? '$_baseUrl/api/employer/sign-in'
         : '$_baseUrl/api/jobseeker/sign-in';
+  }
+
+  String _buildAdminUrl() {
+    return '$_baseUrl/api/admin/sign-in';
   }
 
   //Hàm xác thực đăng nhập
@@ -61,6 +67,44 @@ class AuthService {
       debugPrint('$error');
       rethrow;
     }
+  }
+
+  //Hàm xác thực đăng nhập dành cho admin
+  Future<AuthToken> _authenticateAdmin(String email, String password) async {
+    try {
+      final url = Uri.parse(_buildAdminUrl());
+      final response = await http.post(url,
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+          },
+          body: json.encode({'email': email, 'password': password}));
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        final responseJson = json.decode(response.body);
+        Utils.logMessage(responseJson.toString());
+        final token = responseJson['token'];
+        //decode token to get information
+        if (token != null) {
+          Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
+          Utils.logMessage('Admin AuthService, token: $decodedToken');
+          final authToken = _fromJson(responseJson);
+          await _saveAuthToken(authToken);
+          return authToken;
+        } else {
+          throw HttpException('Token not found');
+        }
+      } else {
+        final errorResponse = json.decode(response.body);
+        throw HttpException.fromJson(errorResponse);
+      }
+    } catch (error) {
+      debugPrint('$error');
+      rethrow;
+    }
+  }
+
+  //Hàm đăng nhập dành cho admin
+  Future<AuthToken> signInAdmin(String email, String password) async {
+    return _authenticateAdmin(email, password);
   }
 
   //Hàm đăng nhập vào ứng dụng
@@ -184,6 +228,7 @@ class AuthService {
     //Kiểm tra xem trong SharedPreferences có khóa 'authToken', nếu
     //Có tức là AuthToken được lưu trữ trong khóa 'authToken'. Trong
     //SharedPreferences thì lưu trữ theo được key-value
+    Utils.logMessage('Preferences: ${prefs.getString(_authTokenKey)}');
     if (!prefs.containsKey(_authTokenKey)) {
       return null;
     }
@@ -313,6 +358,80 @@ class AuthService {
     } catch (error) {
       Utils.logMessage(error.toString());
       return false;
+    }
+  }
+
+  //Hàm gửi otp cho admin
+  Future<bool> sendOTPAdmin(String email) async {
+    String uri = '$_baseUrl/api/admin/send-otp';
+    try {
+      final url = Uri.parse(uri);
+      final response = await http.post(
+        url,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: json.encode({'email': email}),
+      );
+      Utils.logMessage('Trong sendOTPAdmin: ${response.statusCode}');
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        final json = jsonDecode(response.body) as Map<String, dynamic>;
+        Utils.logMessage(json['message']);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      Utils.logMessage(error.toString());
+      return false;
+    }
+  }
+
+  //Hàm khôi phục mật khẩu của admin
+  Future<bool> resetAdminPassword(
+      String email, String password, String otp) async {
+    String uri = '$_baseUrl/api/admin/reset-password';
+    try {
+      final url = Uri.parse(uri);
+      final response = await http.post(
+        url,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: json.encode({
+          'email': email,
+          'password': password,
+          'otp': otp,
+        }),
+      );
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        return true;
+      }
+      return false;
+    } catch (error) {
+      Utils.logMessage(error.toString());
+      rethrow;
+    }
+  }
+
+  Future<String> getAdminName(String email) async {
+    String uri = '$_baseUrl/api/admin/get-admin-name';
+    try {
+      final url = Uri.parse(uri);
+      final response = await http.post(
+        url,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: json.encode({'email': email}),
+      );
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        final json = jsonDecode(response.body) as Map<String, dynamic>;
+        return json['name'];
+      }
+      return '';
+    } catch (error) {
+      Utils.logMessage(error.toString());
+      rethrow;
     }
   }
 }

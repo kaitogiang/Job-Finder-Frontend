@@ -13,7 +13,6 @@ import 'package:quickalert/quickalert.dart';
 
 import '../../models/jobseeker.dart';
 import 'modal_bottom_sheet.dart';
-import 'notification_controller.dart';
 
 class JobseekerDetailScreen extends StatefulWidget {
   const JobseekerDetailScreen({required this.jobseekerId, super.key});

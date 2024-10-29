@@ -22,7 +22,9 @@ abstract class NodeService {
   NodeService([AuthToken? authToken])
       : _token = authToken?.token,
         _userId = authToken?.userId {
-    databaseUrl = dotenv.env['DATABASE_BASE_URL'];
+    databaseUrl = kIsWeb
+        ? dotenv.env['DATABASE_BASE_URL_WEB']
+        : dotenv.env['DATABASE_BASE_URL'];
   }
 
   set authToken(AuthToken? authToken) {
