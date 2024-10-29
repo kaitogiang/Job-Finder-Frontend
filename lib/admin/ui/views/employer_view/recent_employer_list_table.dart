@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:job_finder_app/admin/ui/utils/utils.dart';
-import 'package:job_finder_app/admin/ui/views/jobseeker_view/empty_jobseeker_list_table.dart';
+import 'package:job_finder_app/admin/ui/views/employer_view/empty_employer_list_table.dart';
+import 'package:job_finder_app/admin/ui/views/jobseeker_view/jobseeker_tables/empty_jobseeker_list_table.dart';
 import 'package:job_finder_app/admin/ui/widgets/user_action_button.dart';
+import 'package:job_finder_app/models/employer.dart';
+import 'package:job_finder_app/models/jobseeker.dart';
 
-class RecentJobseekerListTable extends StatelessWidget {
-  const RecentJobseekerListTable({super.key, required this.jobseekers});
+class RecentEmployerListTable extends StatelessWidget {
+  const RecentEmployerListTable({super.key, required this.employers});
 
-  final List<Map<String, dynamic>> jobseekers;
+  final List<Employer> employers;
 
   @override
   Widget build(BuildContext context) {
@@ -18,8 +21,8 @@ class RecentJobseekerListTable extends StatelessWidget {
 
     final headers = ['Tên người dùng', 'Email', 'Số điện thoại', 'Hành động'];
 
-    return jobseekers.isEmpty
-        ? EmptyJobseekerListTable(headers: headers)
+    return employers.isEmpty
+        ? EmptyEmployerListTable(headers: headers)
         : Table(
             border: TableBorder.all(
               borderRadius: BorderRadius.circular(10),
@@ -77,11 +80,11 @@ class RecentJobseekerListTable extends StatelessWidget {
                   String fullName = '';
                   String email = '';
                   String phone = '';
-                  if (index < jobseekers.length) {
+                  if (index < employers.length) {
                     fullName =
-                        '${jobseekers[index]['firstName']} ${jobseekers[index]['lastName']}';
-                    email = jobseekers[index]['email'] ?? '';
-                    phone = jobseekers[index]['phone'] ?? '';
+                        '${employers[index].firstName} ${employers[index].lastName}';
+                    email = employers[index].email;
+                    phone = employers[index].phone;
                   }
 
                   return TableRow(
@@ -107,8 +110,9 @@ class RecentJobseekerListTable extends StatelessWidget {
                       TableCell(
                         child: Padding(
                           padding: EdgeInsets.all(20.0),
-                          child: index < jobseekers.length
+                          child: index < employers.length
                               ? UserActionButton(
+                                  paddingLeft: 15,
                                   onViewDetailsPressed: () {
                                     Utils.logMessage(
                                         'Xem chi tiết ứng viên $fullName');

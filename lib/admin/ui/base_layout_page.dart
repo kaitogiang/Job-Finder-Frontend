@@ -9,7 +9,7 @@ import 'package:toastification/toastification.dart';
 class BaseLayoutPage extends StatefulWidget {
   const BaseLayoutPage({super.key, required this.child});
 
-  final Widget child;
+  final StatefulNavigationShell child;
 
   @override
   State<BaseLayoutPage> createState() => _BaseLayoutPageState();
@@ -71,6 +71,11 @@ class _BaseLayoutPageState extends State<BaseLayoutPage> {
     }
   }
 
+  void _onTap(BuildContext context, int index) {
+    Router.neglect(
+        context, () => widget.child.goBranch(index, initialLocation: true));
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
@@ -84,7 +89,12 @@ class _BaseLayoutPageState extends State<BaseLayoutPage> {
               cursor: SystemMouseCursors.click,
               child: GestureDetector(
                 onTap: () {
-                  context.go('/');
+                  // context.go('/');
+                  // Router.neglect(
+                  //   context,
+                  //   () => context.go('/'),
+                  // );
+                  _onTap(context, 0);
                   _changePageIndex(0);
                 },
                 child: CircleAvatar(
@@ -153,7 +163,7 @@ class _BaseLayoutPageState extends State<BaseLayoutPage> {
           ),
           const SizedBox(width: 15.0),
           Text(
-            '$adminName',
+            adminName,
             style: textTheme.titleSmall,
           ),
           const SizedBox(width: 10.0),
@@ -196,7 +206,12 @@ class _BaseLayoutPageState extends State<BaseLayoutPage> {
                                 icon: Icons.dashboard,
                                 onPressed: () {
                                   Utils.logMessage('Bảng điều khiển');
-                                  context.go('/');
+                                  // context.go('/');
+                                  // Router.neglect(
+                                  //   context,
+                                  //   () => context.go('/'),
+                                  // );
+
                                   _changePageIndex(0);
                                 },
                                 isActive: _currentPageIndex.value == 0,
@@ -215,7 +230,12 @@ class _BaseLayoutPageState extends State<BaseLayoutPage> {
                                 icon: Icons.person,
                                 onPressed: () {
                                   Utils.logMessage('Quản lý ứng viên');
-                                  context.go('/jobseeker');
+                                  // context.go('/jobseeker');
+                                  // Router.neglect(
+                                  //   context,
+                                  //   () => context.go('/jobseeker'),
+                                  // );
+                                  _onTap(context, 1);
                                   _changePageIndex(1);
                                 },
                                 isActive: _currentPageIndex.value == 1,
@@ -228,7 +248,12 @@ class _BaseLayoutPageState extends State<BaseLayoutPage> {
                                 onPressed: () {
                                   Utils.logMessage('Quản lý nhà tuyển dụng');
                                   _changePageIndex(2);
-                                  context.go('/employer');
+                                  // context.go('/employer');
+                                  // Router.neglect(
+                                  //   context,
+                                  //   () => context.go('/employer'),
+                                  // );
+                                  _onTap(context, 2);
                                 },
                                 isActive: _currentPageIndex.value == 2,
                               ),
@@ -248,7 +273,12 @@ class _BaseLayoutPageState extends State<BaseLayoutPage> {
                                 onPressed: () {
                                   Utils.logMessage('Quản lý bài tuyển dụng');
                                   _changePageIndex(3);
-                                  context.go('/jobposting');
+                                  // context.go('/jobposting');
+                                  // Router.neglect(
+                                  //   context,
+                                  //   () => context.go('/jobposting'),
+                                  // );
+                                  _onTap(context, 3);
                                 },
                                 isActive: _currentPageIndex.value == 3,
                               ),
@@ -259,8 +289,13 @@ class _BaseLayoutPageState extends State<BaseLayoutPage> {
                                 icon: Icons.card_travel_sharp,
                                 onPressed: () {
                                   Utils.logMessage('Quản lý hồ sơ ứng tuyển');
-                                  context.go('/application');
                                   _changePageIndex(4);
+                                  // context.go('/application');
+                                  // Router.neglect(
+                                  //   context,
+                                  //   () => context.go('/application'),
+                                  // );
+                                  _onTap(context, 4);
                                 },
                                 isActive: _currentPageIndex.value == 4,
                               ),
@@ -278,8 +313,13 @@ class _BaseLayoutPageState extends State<BaseLayoutPage> {
                                 icon: Icons.notifications,
                                 onPressed: () {
                                   Utils.logMessage('Quản lý thông báo');
-                                  context.go('/notification');
                                   _changePageIndex(5);
+                                  // context.go('/notification');
+                                  // Router.neglect(
+                                  //   context,
+                                  //   () => context.go('/notification'),
+                                  // );
+                                  _onTap(context, 5);
                                 },
                                 isActive: _currentPageIndex.value == 5,
                               ),
@@ -291,7 +331,12 @@ class _BaseLayoutPageState extends State<BaseLayoutPage> {
                                 onPressed: () {
                                   Utils.logMessage('Quản lý phản hồi');
                                   _changePageIndex(6);
-                                  context.go('/feedback');
+                                  // context.go('/feedback');
+                                  // Router.neglect(
+                                  //   context,
+                                  //   () => context.go('/feedback'),
+                                  // );
+                                  _onTap(context, 6);
                                 },
                                 isActive: _currentPageIndex.value == 6,
                               ),
@@ -302,22 +347,23 @@ class _BaseLayoutPageState extends State<BaseLayoutPage> {
                                 thickness: 1,
                                 height: 20,
                               ),
-                              NavigationItem(
-                                title: 'Thông tin cá nhân',
-                                icon: Icons.admin_panel_settings,
-                                onPressed: () {
-                                  Utils.logMessage(
-                                      'Truy cap thong tin ca nhan');
-                                },
-                                isActive: false,
-                              ),
-                              const SizedBox(height: 10.0),
+                              // NavigationItem(
+                              //   title: 'Thông tin cá nhân',
+                              //   icon: Icons.admin_panel_settings,
+                              //   onPressed: () {
+                              //     Utils.logMessage(
+                              //         'Truy cap thong tin ca nhan');
+                              //   },
+                              //   isActive: false,
+                              // ),
+                              // const SizedBox(height: 10.0),
                               NavigationItem(
                                 title: 'Đăng xuất',
                                 icon: Icons.logout,
                                 onPressed: _logout,
                                 isActive: false,
                               ),
+                              const SizedBox(height: 80.0),
                             ],
                           ),
                         );

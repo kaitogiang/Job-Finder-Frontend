@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'dart:io';
 import 'package:job_finder_app/models/education.dart';
 import 'package:job_finder_app/models/experience.dart';
+import 'package:job_finder_app/models/locked_users.dart';
 import 'package:job_finder_app/models/resume.dart';
 import 'package:job_finder_app/services/node_service.dart';
 
@@ -267,4 +268,98 @@ class JobseekerService extends NodeService {
   // Future<bool> saveRegistrationToken() async {
 
   // }
+
+  //-------PHẦN QUẢN LÝ DÀNH CHO ADMIN--------
+  Future<List<Jobseeker>> getAllJobseekers() async {
+    try {
+      final result =
+          await httpFetch('$databaseUrl/api/jobseeker') as List<dynamic>;
+      List<Map<String, dynamic>> jobseekers =
+          result.map((e) => e as Map<String, dynamic>).toList();
+      List<Jobseeker> jobseekerList =
+          jobseekers.map((e) => Jobseeker.fromJson(e)).toList();
+      return jobseekerList;
+    } catch (error) {
+      Utils.logMessage('job service in getAllJobseekers: $error');
+      return [];
+    }
+  }
+
+  Future<List<Jobseeker>> getAllRecentJobseekers() async {
+    try {
+      final result =
+          await httpFetch('$databaseUrl/api/jobseeker/recent') as List<dynamic>;
+      List<Map<String, dynamic>> jobseekers =
+          result.map((e) => e as Map<String, dynamic>).toList();
+      List<Jobseeker> jobseekerList =
+          jobseekers.map((e) => Jobseeker.fromJson(e)).toList();
+      return jobseekerList;
+    } catch (error) {
+      Utils.logMessage('job service in getAllRecentJobseekers: $error');
+      return [];
+    }
+  }
+
+  Future<List<LockedUser>> getAllLockedJobseekers() async {
+    try {
+      final result =
+          await httpFetch('$databaseUrl/api/jobseeker/locked') as List<dynamic>;
+      List<Map<String, dynamic>> users =
+          result.map((e) => e as Map<String, dynamic>).toList();
+      List<LockedUser> lockedUsersList =
+          users.map((e) => LockedUser.fromJson(e)).toList();
+      List<LockedUser> lockedJobseekersList = lockedUsersList
+          .where((e) => e.userType == UserType.jobseeker)
+          .toList();
+
+      return lockedJobseekersList;
+    } catch (error) {
+      Utils.logMessage('job service in getAllLockedJobseekers: $error');
+      return [];
+    }
+  }
+
+  Future<LockedUser?> lockAccount(LockedUser lockedUser) async {
+    try {
+      final result = await httpFetch('$databaseUrl/api/jobseeker/lock',
+          method: HttpMethod.post,
+          headers: {'Content-Type': 'application/json; charset=UTF-8'},
+          body: jsonEncode(lockedUser.toJson())) as Map<String, dynamic>;
+      if (result['result'] != null) {
+        final lockedUserMap = result['result'] as Map<String, dynamic>;
+        return LockedUser.fromJson(lockedUserMap);
+      } else {
+        return null;
+      }
+    } catch (error) {
+      Utils.logMessage('job service in lockAccount: $error');
+      return null;
+    }
+  }
+
+  Future<bool> unlockAccount(String userId) async {
+    try {
+      final result = await httpFetch(
+          '$databaseUrl/api/jobseeker/$userId/unlock',
+          method: HttpMethod.delete) as Map<String, dynamic>;
+      final isUnlock = result['isUnlock'] as bool? ?? false;
+      return isUnlock;
+    } catch (error) {
+      Utils.logMessage('job service in unlockAccount: $error');
+      return false;
+    }
+  }
+
+  Future<bool> deleteAccount(String userId) async {
+    try {
+      final result = await httpFetch(
+          '$databaseUrl/api/jobseeker/$userId/delete',
+          method: HttpMethod.delete) as Map<String, dynamic>;
+      final isDeleted = result['isDeleted'] as bool? ?? false;
+      return isDeleted;
+    } catch (error) {
+      Utils.logMessage('job service in deleteAccount: $error');
+      return false;
+    }
+  }
 }

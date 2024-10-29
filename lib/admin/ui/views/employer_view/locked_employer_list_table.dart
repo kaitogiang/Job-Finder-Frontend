@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:job_finder_app/admin/ui/manager/jobseeker_list_manager.dart';
 import 'package:job_finder_app/admin/ui/utils/utils.dart';
-import 'package:job_finder_app/admin/ui/views/jobseeker_view/empty_jobseeker_list_table.dart';
+import 'package:job_finder_app/admin/ui/views/employer_view/empty_employer_list_table.dart';
+import 'package:job_finder_app/admin/ui/views/jobseeker_view/jobseeker_tables/empty_jobseeker_list_table.dart';
+import 'package:job_finder_app/admin/ui/widgets/custom_alert.dart';
 import 'package:job_finder_app/admin/ui/widgets/user_action_button.dart';
+import 'package:job_finder_app/models/employer.dart';
+import 'package:job_finder_app/models/jobseeker.dart';
+import 'package:provider/provider.dart';
+import 'package:toastification/toastification.dart';
 
-class JobseekerListTable extends StatelessWidget {
-  const JobseekerListTable({super.key, required this.jobseekers});
+class LockedEmployerListTable extends StatelessWidget {
+  const LockedEmployerListTable({super.key, required this.employers});
 
-  final List<Map<String, dynamic>> jobseekers;
+  final List<Employer> employers;
 
   @override
   Widget build(BuildContext context) {
@@ -15,16 +22,11 @@ class JobseekerListTable extends StatelessWidget {
       color: theme.colorScheme.onSurface.withOpacity(0.6),
       fontWeight: FontWeight.w600,
     );
-    //Danh sách tiêu đề của các cột trong bảng trong trường hợp bảng rỗng
-    final headers = [
-      'Tên người dùng',
-      'Email',
-      'Tỉnh/thành phố',
-      'Số điện thoại',
-      'Hành động'
-    ];
-    return jobseekers.isEmpty
-        ? EmptyJobseekerListTable(headers: headers)
+
+    final headers = ['Tên người dùng', 'Email', 'Số điện thoại', 'Hành động'];
+
+    return employers.isEmpty
+        ? EmptyEmployerListTable(headers: headers)
         : Table(
             border: TableBorder.all(
               borderRadius: BorderRadius.circular(10),
@@ -35,7 +37,6 @@ class JobseekerListTable extends StatelessWidget {
               1: FlexColumnWidth(),
               2: FlexColumnWidth(),
               3: FlexColumnWidth(),
-              4: FlexColumnWidth(),
             },
             children: [
               TableRow(
@@ -65,13 +66,6 @@ class JobseekerListTable extends StatelessWidget {
                     child: Padding(
                       padding:
                           EdgeInsets.only(left: 20.0, top: 10.0, bottom: 10.0),
-                      child: Text('Tỉnh/thành phố', style: headerTextStyle),
-                    ),
-                  ),
-                  TableCell(
-                    child: Padding(
-                      padding:
-                          EdgeInsets.only(left: 20.0, top: 10.0, bottom: 10.0),
                       child: Text('Số điện thoại', style: headerTextStyle),
                     ),
                   ),
@@ -87,66 +81,72 @@ class JobseekerListTable extends StatelessWidget {
               ...List<TableRow>.generate(
                 5,
                 (index) {
-                  //Quá trình trích xuất dữ liệu từng ổ của mỗi cột
                   String fullName = '';
                   String email = '';
-                  String province = '';
                   String phone = '';
-                  //Kiểm tra xem index hợp lệ thì mới gán lại các giá trị đó
-                  if (index < jobseekers.length) {
+                  if (index < employers.length) {
                     fullName =
-                        '${jobseekers[index]['firstName']} ${jobseekers[index]['lastName']}';
-                    email = jobseekers[index]['email'] ?? '';
-                    province = jobseekers[index]['province'] ?? '';
-                    phone = jobseekers[index]['phone'] ?? '';
+                        '${employers[index].firstName} ${employers[index].lastName}';
+                    email = employers[index].email;
+                    phone = employers[index].phone;
                   }
+
                   return TableRow(
                     children: [
                       TableCell(
                         child: Padding(
-                            padding: EdgeInsets.all(20.0),
-                            child: Text(
-                              fullName,
-                            )),
-                      ),
-                      TableCell(
-                        child: Padding(
-                            padding: EdgeInsets.all(20.0),
-                            child: Text(
-                              email,
-                            )),
-                      ),
-                      TableCell(
-                        child: Padding(
-                            padding: EdgeInsets.all(20.0),
-                            child: Text(
-                              province,
-                            )),
-                      ),
-                      TableCell(
-                        child: Padding(
-                            padding: EdgeInsets.all(20.0),
-                            child: Text(
-                              phone,
-                            )),
+                          padding: EdgeInsets.all(20.0),
+                          child: Text(fullName),
+                        ),
                       ),
                       TableCell(
                         child: Padding(
                           padding: EdgeInsets.all(20.0),
-                          child: index < jobseekers.length
+                          child: Text(email),
+                        ),
+                      ),
+                      TableCell(
+                        child: Padding(
+                          padding: EdgeInsets.all(20.0),
+                          child: Text(phone),
+                        ),
+                      ),
+                      TableCell(
+                        child: Padding(
+                          padding: EdgeInsets.all(20.0),
+                          child: index < employers.length
                               ? UserActionButton(
                                   onViewDetailsPressed: () {
                                     Utils.logMessage(
-                                        'Xem chi tiết ứng viên ${jobseekers[index]['firstName']} ${jobseekers[index]['lastName']}');
+                                        'Xem chi tiết ứng viên $fullName');
                                   },
-                                  onLockAccountPressed: () {
-                                    Utils.logMessage(
-                                        'Khóa tài khoản ứng viên ${jobseekers[index]['firstName']} ${jobseekers[index]['lastName']}');
+                                  onUnlockAccountPressed: () async {
+                                    final choice = await confirmActionDialog(
+                                        context,
+                                        'Mở khóa tài khoản',
+                                        'Bạn có chắc chắn muốn mở khóa tài khoản công ty ${employers[index].firstName} ${employers[index].lastName} không?',
+                                        'Sau khi mở khóa, người này sẽ có thể đăng nhập vào hệ thống',
+                                        CustomAlertType.unlock);
+                                    if (choice == true) {
+                                      if (context.mounted) {
+                                        await context
+                                            .read<JobseekerListManager>()
+                                            .unlockAccount(
+                                                employers[index].id);
+                                        if (context.mounted) {
+                                          Utils.showNotification(
+                                            context: context,
+                                            title:
+                                                'Mở khóa tài khoản thành công',
+                                            type: ToastificationType.success,
+                                          );
+                                        }
+                                      }
+                                    } else {
+                                      Utils.logMessage('Hủy mở khóa tài khoản');
+                                    }
                                   },
-                                  onDeleteAccountPressed: () {
-                                    Utils.logMessage(
-                                        'Xóa tài khoản ứng viên ${jobseekers[index]['firstName']} ${jobseekers[index]['lastName']}');
-                                  },
+                                  isLocked: true,
                                 )
                               : SizedBox.shrink(),
                         ),

@@ -27,7 +27,9 @@ class OverviewCard extends StatelessWidget {
         padding: const EdgeInsets.all(20),
         alignment: Alignment.center,
         width: 300,
+        height: 120,
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Image.asset(
               imagePath,
@@ -35,24 +37,27 @@ class OverviewCard extends StatelessWidget {
               height: 70,
             ),
             const SizedBox(width: 10),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: textTheme.bodyMedium!.copyWith(
-                    color: Colors.grey.shade600,
-                    fontWeight: FontWeight.w600,
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: textTheme.bodyMedium!.copyWith(
+                      color: Colors.grey.shade600,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  value,
-                  style: textTheme.titleLarge!.copyWith(
-                    fontWeight: FontWeight.w600,
+                  const SizedBox(height: 10),
+                  Text(
+                    value,
+                    style: textTheme.titleLarge!.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         ),

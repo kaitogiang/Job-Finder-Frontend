@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class FilterBox extends StatelessWidget {
-  const FilterBox({
+class SortBox extends StatelessWidget {
+  const SortBox({
     super.key,
-    required this.filterOptions,
+    required this.sortOptions,
     required this.selectedIndex,
   });
 
-  final Map<String, void Function()> filterOptions;
+  final Map<String, void Function()> sortOptions;
   final int selectedIndex;
 
   @override
@@ -23,13 +23,12 @@ class FilterBox extends StatelessWidget {
     );
 
     //Lấy thông tin về tiêu đề các option
-    final optionTitles = filterOptions.keys.toList();
+    final optionTitles = sortOptions.keys.toList();
     //Lấy thông tin về xử lý khi chọn vào từng option
-    final optionHandlers = filterOptions.values.toList();
+    final optionHandlers = sortOptions.values.toList();
 
     return MenuAnchor(
-      menuChildren:
-          List<MenuItemButton>.generate(filterOptions.length, (index) {
+      menuChildren: List<MenuItemButton>.generate(sortOptions.length, (index) {
         return MenuItemButton(
           style: menuButtonStyle,
           onPressed: optionHandlers[index],
@@ -70,14 +69,14 @@ class FilterBox extends StatelessWidget {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(5),
             ),
-            fixedSize: Size(100, 38),
+            fixedSize: Size(130, 38),
           ),
           icon: Icon(
-            Icons.filter_alt_outlined,
+            Icons.sort,
             color: Colors.grey.shade600,
           ),
           label: Text(
-            'Lọc',
+            'Sắp xếp',
             style: textTheme.bodyMedium!.copyWith(color: Colors.grey.shade600),
           ),
           onPressed: () {

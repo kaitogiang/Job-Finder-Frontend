@@ -134,7 +134,11 @@ class JobpostingManager extends ChangeNotifier {
     } else if (operationType == "update") {
       final index =
           _jobpostings.indexWhere((job) => job.id == updatedJobposting.id);
-      _jobpostings[index] = updatedJobposting;
+      if (index != -1) {
+        _jobpostings[index] = updatedJobposting;
+      } else {
+        Utils.logMessage("Không tìm thấy jobposting cần cập nhật");
+      }
     } else if (operationType == "delete") {
       _jobpostings.removeWhere((job) => job.id == updatedJobposting.id);
     } else {

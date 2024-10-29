@@ -15,7 +15,9 @@ class AuthService {
   late final String? _baseUrl;
 
   AuthService() {
-    _baseUrl = dotenv.env['DATABASE_BASE_URL'];
+    _baseUrl = kIsWeb
+        ? dotenv.env['DATABASE_BASE_URL_WEB']
+        : dotenv.env['DATABASE_BASE_URL'];
   }
   //Hàm xác định url dành cho loại người đăng nhập hiện tại
   //Nếu isEmployer là true tức là nhà tuyển dụng đăng nhập
