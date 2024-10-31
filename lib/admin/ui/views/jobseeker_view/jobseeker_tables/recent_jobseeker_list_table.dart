@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:job_finder_app/admin/ui/utils/utils.dart';
 import 'package:job_finder_app/admin/ui/views/jobseeker_view/jobseeker_tables/empty_jobseeker_list_table.dart';
 import 'package:job_finder_app/admin/ui/widgets/user_action_button.dart';
@@ -134,6 +135,8 @@ class RecentJobseekerListTable extends StatelessWidget {
                                   onViewDetailsPressed: () {
                                     Utils.logMessage(
                                         'Xem chi tiết ứng viên $fullName');
+                                    context.go(
+                                        '/jobseeker/profile/${jobseekers[index].id}');
                                   },
                                 )
                               : SizedBox.shrink(),

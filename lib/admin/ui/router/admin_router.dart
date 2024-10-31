@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:job_finder_app/admin/ui/base_layout_page.dart';
 import 'package:job_finder_app/admin/ui/manager/admin_auth_manager.dart';
+import 'package:job_finder_app/admin/ui/manager/jobseeker_list_manager.dart';
+import 'package:job_finder_app/admin/ui/utils/utils.dart';
 import 'package:job_finder_app/admin/ui/views/application_view/application_screen.dart';
 import 'package:job_finder_app/admin/ui/views/dashboard_view/dashboard_screen.dart';
 import 'package:job_finder_app/admin/ui/views/employer_view/employer_screen.dart';
@@ -10,11 +12,14 @@ import 'package:job_finder_app/admin/ui/views/jobposting_view/jobposting_screen.
 import 'package:job_finder_app/admin/ui/views/jobseeker_view/jobseeker_detail_screen.dart';
 import 'package:job_finder_app/admin/ui/views/jobseeker_view/jobseeker_info_screen.dart';
 import 'package:job_finder_app/admin/ui/views/jobseeker_view/jobseeker_screen.dart';
+import 'package:job_finder_app/admin/ui/views/jobseeker_view/locked_jobseeker_detail_screen.dart';
 import 'package:job_finder_app/admin/ui/views/login_view/admin_login_screen.dart';
 import 'package:job_finder_app/admin/ui/views/login_view/reset_password_screen.dart';
 import 'package:job_finder_app/admin/ui/views/notification_view/notification_screen.dart';
 import 'package:job_finder_app/admin/ui/widgets/custom_alert.dart';
 import 'package:job_finder_app/admin/ui/widgets/dialog_page.dart';
+import 'package:job_finder_app/admin/ui/widgets/modal.dart';
+import 'package:provider/provider.dart';
 
 final GlobalKey<NavigatorState> _adminNavigatorKey =
     GlobalKey<NavigatorState>(debugLabel: 'admin');
@@ -183,11 +188,54 @@ GoRouter buildAdminRouter(AdminAuthManager adminAuthManager) {
                   return NoTransitionPage(child: const JobseekerScreen());
                 },
                 routes: [
+                  //Route hiển thị xem chi tiết thông tin Jobseeker
                   GoRoute(
                     parentNavigatorKey: _adminNavigatorKey,
-                    path: 'detail',
+                    path: 'profile/:id',
                     pageBuilder: (context, state) {
-                      return DialogPage(builder: (context) => AlertDialog());
+                      final jobseekerId = state.pathParameters['id'];
+                      Utils.logMessage('Context: $context');
+                      Utils.logMessage('Jobseeker ID: $jobseekerId');
+                      //Caching future để tránh việc JobseekerDetailScreen bị rebuild
+                      final jobseekeFuture = context
+                          .read<JobseekerListManager>()
+                          .getJobseekerById(jobseekerId!);
+
+                      return DialogPage(
+                        builder: (context) => Modal(
+                          title: 'Thông tin chi tiết ứng viên',
+                          headerIcon: 'assets/images/jobseeker.png',
+                          content: JobseekerDetailScreen(
+                            jobseekerFuture: jobseekeFuture,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  //Route hiển thị xem thông tin về tài khoản bị Khóa
+                  GoRoute(
+                    parentNavigatorKey: _adminNavigatorKey,
+                    path: 'locked-user/:id',
+                    pageBuilder: (context, state) {
+                      final jobseekerId = state.pathParameters['id']!;
+                      Utils.logMessage('Context: $context');
+                      Utils.logMessage('Jobseeker ID: $jobseekerId');
+                      //Caching future để tránh việc JobseekerDetailScreen bị rebuild
+                      final basicInfoFuture =
+                          context.read<JobseekerListManager>().getJobseekerById(jobseekerId);
+                      final lockedInfoFuture =
+                          context.read<JobseekerListManager>().getLockedJobseekerById(jobseekerId);
+
+                      return DialogPage(
+                        builder: (context) => Modal(
+                          title: 'Thông tin ứng viên bị khóa',
+                          headerIcon: 'assets/images/locked-user.png',
+                          content: LockedJobseekerDetailScreen(
+                            basicInfoFuture: basicInfoFuture,
+                            lockedInfoFuture: lockedInfoFuture,
+                          ),
+                        ),
+                      );
                     },
                   ),
                 ],

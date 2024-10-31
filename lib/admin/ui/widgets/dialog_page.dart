@@ -23,16 +23,35 @@ class DialogPage<T> extends Page<T> {
     super.restorationId,
   });
 
+  // @override
+  // Route<T> createRoute(BuildContext context) => DialogRoute<T>(
+  //       context: context,
+  //       settings: this,
+  //       builder: builder, // Pass the builder directly
+  //       anchorPoint: anchorPoint,
+  //       barrierColor: barrierColor,
+  //       barrierDismissible: barrierDismissible,
+  //       barrierLabel: barrierLabel,
+  //       useSafeArea: useSafeArea,
+  //       themes: themes,
+  //     );
+
+  //Tạo route cho DialogPage để thêm hiệu ứng fade transition
   @override
-  Route<T> createRoute(BuildContext context) => DialogRoute<T>(
-        context: context,
+  Route<T> createRoute(BuildContext context) => PageRouteBuilder<T>(
         settings: this,
-        builder: builder, // Pass the builder directly
-        anchorPoint: anchorPoint,
+        pageBuilder: (context, animation, secondaryAnimation) {
+          return FadeTransition(
+            opacity: animation,
+            child: builder(context),
+          );
+        },
         barrierColor: barrierColor,
         barrierDismissible: barrierDismissible,
         barrierLabel: barrierLabel,
-        useSafeArea: useSafeArea,
-        themes: themes,
+        opaque: false,
+        transitionDuration: const Duration(
+            milliseconds: 300), // Adjust duration for smoother transition
+        reverseTransitionDuration: const Duration(milliseconds: 300),
       );
 }

@@ -167,17 +167,8 @@ class JobseekerListTable extends StatelessWidget {
                                     onViewDetailsPressed: () {
                                       Utils.logMessage(
                                           'Xem chi tiết ứng viên ${jobseekers[index].firstName} ${jobseekers[index].lastName}');
-                                      // showAdditionalInfoDialog(
-                                      //   context: context,
-                                      //   title: 'Thông tin ứng viên',
-                                      //   headerIcon: 'assets/images/info.png',
-                                      //   content: JobseekerDetailScreen(),
-                                      // );
-                                      context.go('/jobseeker/detail');
-                                      // Router.neglect(
-                                      //   context,
-                                      //   () => context.go('/jobseeker/detail'),
-                                      // );
+                                      context.go(
+                                          '/jobseeker/profile/${jobseekers[index].id}');
                                     },
                                     onLockAccountPressed: () async {
                                       final choice = await confirmActionDialog(

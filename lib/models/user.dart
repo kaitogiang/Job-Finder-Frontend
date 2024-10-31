@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class User {
@@ -53,7 +54,9 @@ class User {
   }
 
   String getImageUrl({String? uri}) {
-    uri ??= dotenv.env['DATABASE_BASE_URL'];
+    uri ??= kIsWeb
+        ? dotenv.env['DATABASE_BASE_URL_WEB']
+        : dotenv.env['DATABASE_BASE_URL'];
     return uri! + avatar;
   }
 }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:job_finder_app/admin/ui/utils/utils.dart';
-import 'package:job_finder_app/admin/ui/utils/vietname_provinces.dart';
 import 'package:job_finder_app/models/auth_token.dart';
 import 'package:job_finder_app/models/jobseeker.dart';
 import 'package:job_finder_app/models/locked_users.dart';
@@ -163,5 +162,24 @@ class JobseekerListManager extends ChangeNotifier {
       Utils.logMessage(_filteredJobseekersList.toString());
     }
     notifyListeners();
+  }
+
+  //Hàm lấy jobseeker theo id
+  Future<Jobseeker?> getJobseekerById(String id) async {
+    //Nếu người dùng sử dụng url trực tiếp để truy cập vào chi tiết ứng viên
+    //Mà không qua trang chứa tất cả ứng viên thì sẽ không có jobseeker nào
+    //Do đó sẽ trả về null, nên cần kiểm tra list có rỗng hay không, nếu rỗng thì mình sẽ
+    //truy xuất trực tiếp tới server để lấy thông tin jobseeker
+    if (_jobseekersList.isEmpty) {
+      final jobseeker = await _jobseekerService.findJobseekerById(id);
+      return jobseeker;
+    }
+    return _jobseekersList.firstWhere((jobseeker) => jobseeker.id == id);
+  }
+
+  //Hàm tìm kiếm thông tin của locked user
+  Future<LockedUser?> getLockedJobseekerById(String userId) async {
+    final lockedUser = await _jobseekerService.findLockedJobseekerById(userId);
+    return lockedUser;
   }
 }
