@@ -61,4 +61,17 @@ class CompanyService extends NodeService {
       return [];
     }
   }
+
+  Future<Company?> getCompanyById(String companyId) async {
+    try {
+      final response = await httpFetch(
+        '$databaseUrl/api/company/$companyId',
+        method: HttpMethod.get,
+      ) as Map<String, dynamic>;
+      return Company.fromJson(response);
+    } catch (error) {
+      log('Error in getCompanyById - service: $error');
+      return null;
+    }
+  }
 }

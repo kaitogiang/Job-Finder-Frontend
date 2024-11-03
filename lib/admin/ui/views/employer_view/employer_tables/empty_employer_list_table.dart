@@ -63,7 +63,7 @@ class EmptyEmployerListTable extends StatelessWidget {
 
   Widget _buildEmptyState(ThemeData theme) {
     return Container(
-      height: 100,
+      height: 445,
       alignment: Alignment.center,
       decoration: BoxDecoration(
         border: Border(

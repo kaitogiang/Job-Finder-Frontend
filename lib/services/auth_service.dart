@@ -314,7 +314,7 @@ class AuthService {
       if (response.statusCode >= 200 && response.statusCode < 300) {
         final json = jsonDecode(response.body);
         if (json['saveSuccess'] == true) {
-          String message = json['message'];
+          String message = json['message'] ?? 'Something went wrong!!';
           Utils.logMessage(message);
           return true;
         }

@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:job_finder_app/admin/ui/base_layout_page.dart';
 import 'package:job_finder_app/admin/ui/manager/admin_auth_manager.dart';
+import 'package:job_finder_app/admin/ui/manager/employer_list_manager.dart';
 import 'package:job_finder_app/admin/ui/manager/jobseeker_list_manager.dart';
 import 'package:job_finder_app/admin/ui/utils/utils.dart';
 import 'package:job_finder_app/admin/ui/views/application_view/application_screen.dart';
 import 'package:job_finder_app/admin/ui/views/dashboard_view/dashboard_screen.dart';
+import 'package:job_finder_app/admin/ui/views/employer_view/employer_account_screen.dart';
+import 'package:job_finder_app/admin/ui/views/employer_view/employer_detail_screen.dart';
 import 'package:job_finder_app/admin/ui/views/employer_view/employer_screen.dart';
 import 'package:job_finder_app/admin/ui/views/feedback_view/feedback_screen.dart';
 import 'package:job_finder_app/admin/ui/views/jobposting_view/jobposting_screen.dart';
@@ -221,10 +224,12 @@ GoRouter buildAdminRouter(AdminAuthManager adminAuthManager) {
                       Utils.logMessage('Context: $context');
                       Utils.logMessage('Jobseeker ID: $jobseekerId');
                       //Caching future để tránh việc JobseekerDetailScreen bị rebuild
-                      final basicInfoFuture =
-                          context.read<JobseekerListManager>().getJobseekerById(jobseekerId);
-                      final lockedInfoFuture =
-                          context.read<JobseekerListManager>().getLockedJobseekerById(jobseekerId);
+                      final basicInfoFuture = context
+                          .read<JobseekerListManager>()
+                          .getJobseekerById(jobseekerId);
+                      final lockedInfoFuture = context
+                          .read<JobseekerListManager>()
+                          .getLockedJobseekerById(jobseekerId);
 
                       return DialogPage(
                         builder: (context) => Modal(
@@ -248,8 +253,67 @@ GoRouter buildAdminRouter(AdminAuthManager adminAuthManager) {
               GoRoute(
                 path: '/employer',
                 pageBuilder: (context, state) {
-                  return NoTransitionPage(child: EmployerScreen());
+                  return NoTransitionPage(child: const EmployerScreen());
                 },
+                routes: [
+                  GoRoute(
+                    parentNavigatorKey: _adminNavigatorKey,
+                    path: 'company-info/:id',
+                    pageBuilder: (context, state) {
+                      //Tạo một future để lấy thông tin của company và gửi vào EmployerDetailScreen
+                      String companyId = state.pathParameters['id']!;
+                      final companyFuture = context
+                          .read<EmployerListManager>()
+                          .getCompanyById(companyId);
+                      //Tạo một future để lấy danh sách các bài tuyển dụng của công ty
+                      final jobpostingsFuture = context
+                          .read<EmployerListManager>()
+                          .getCompanyJobpostings(companyId);
+
+                      return DialogPage(
+                        builder: (context) => Modal(
+                          title: 'Thông tin chi tiết công ty',
+                          headerIcon: 'assets/images/company.png',
+                          content: EmployerDetailScreen(
+                            companyFuture: companyFuture,
+                            jobpostingsFuture: jobpostingsFuture,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  GoRoute(
+                    parentNavigatorKey: _adminNavigatorKey,
+                    path: 'employer-account/:id',
+                    pageBuilder: (context, state) {
+                      final employerId = state.pathParameters['id']!;
+                      //Tạo một future để lấy thông tin của một employer dựa vào employerId
+                      final employerFuture = context
+                          .read<EmployerListManager>()
+                          .getEmployerById(employerId);
+                      //Tạo một future để lấy thông tin của một company dựa vào employerId
+                      final companyFuture = context
+                          .read<EmployerListManager>()
+                          .getCompanyByEmployerId(employerId);
+                      //Tạo một future để kiểm tra xem tài khoản có bị khóa không
+                      final isLockedFuture = context
+                          .read<EmployerListManager>()
+                          .checkLockedAccount(employerId);
+
+                      return DialogPage(
+                        builder: (context) => Modal(
+                          title: 'Thông tin tài khoản nhà tuyển dụng',
+                          headerIcon: 'assets/images/company.png',
+                          content: EmployerAccountScreen(
+                            employerFuture: employerFuture,
+                            companyFuture: companyFuture,
+                            isLockedFuture: isLockedFuture,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ],
               ),
             ],
           ),

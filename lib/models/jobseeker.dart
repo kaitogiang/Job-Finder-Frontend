@@ -107,6 +107,6 @@ class Jobseeker extends User {
 
   @override
   String toString() {
-    return 'Jobseeker(id: $id, firstName: $firstName, lastName: $lastName, email: $email, phone: $phone, address: $address, avatar: $avatar, resume: $resume, skills: $skills, experience: $experience, education: $education)';
+    return '$id $firstName $lastName $email $phone $address $avatar $resume $skills $experience $education';
   }
 }

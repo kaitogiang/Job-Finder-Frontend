@@ -84,20 +84,9 @@ class _JobseekerScreenState extends State<JobseekerScreen>
 
   @override
   void didChangeDependencies() {
-    // TODO: implement didChangeDependencies
     super.didChangeDependencies();
     Utils.logMessage('Jobseeker Screen didChangeDependencies');
   }
-
-  // void _loadFirstTablePage() {
-  //   //cần đổi lại cách lấy dữ liệu từ manager
-  //   _jobseekers.value =
-  //       context.read<JobseekerListManager>().getJobseekerByPage(1, 5);
-  //   _recentJobseekers.value =
-  //       context.read<JobseekerListManager>().getJobseekerByPage(1, 5);
-  //   _lockedJobseekers.value =
-  //       context.read<JobseekerListManager>().getJobseekerByPage(1, 5);
-  // }
 
   @override
   Widget build(BuildContext context) {

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class Company {
@@ -46,7 +47,9 @@ class Company {
 
   Map<String, String>? get policy => _policy;
 
-  String get avatarLink => '${dotenv.env['DATABASE_BASE_URL']}$avatar';
+  String get avatarLink => kIsWeb
+      ? '${dotenv.env['DATABASE_BASE_URL_WEB']}$avatar'
+      : '${dotenv.env['DATABASE_BASE_URL']}$avatar';
 
   factory Company.fromJson(Map<String, dynamic> json) {
     return Company(
@@ -124,7 +127,9 @@ class Company {
     };
   }
 
-  String get imageLink => '${dotenv.env['DATABASE_BASE_URL']}$avatar';
+  String get imageLink => kIsWeb
+      ? '${dotenv.env['DATABASE_BASE_URL_WEB']}$avatar'
+      : '${dotenv.env['DATABASE_BASE_URL']}$avatar';
 
   static Map<String, String>? contactInformationFromJson(
       Map<String, dynamic> contactInfo) {

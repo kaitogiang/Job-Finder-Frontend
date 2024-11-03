@@ -211,7 +211,7 @@ class _BaseLayoutPageState extends State<BaseLayoutPage> {
                                   //   context,
                                   //   () => context.go('/'),
                                   // );
-
+                                  _onTap(context, 0);
                                   _changePageIndex(0);
                                 },
                                 isActive: _currentPageIndex.value == 0,
