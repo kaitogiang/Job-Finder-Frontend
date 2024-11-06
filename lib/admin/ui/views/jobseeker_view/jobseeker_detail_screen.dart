@@ -12,8 +12,12 @@ class JobseekerDetailScreen extends StatelessWidget {
 
   final Future<Jobseeker?> jobseekerFuture;
 
-  void _downloadResume() {
+  Future<void> _downloadResume(
+      BuildContext context, String url, String fileName) async {
     Utils.logMessage('Tải CV');
+    if (context.mounted) {
+      await context.read<JobseekerListManager>().downloadCV(url, fileName);
+    }
   }
 
   @override
@@ -215,8 +219,18 @@ class JobseekerDetailScreen extends StatelessWidget {
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: 30, vertical: 15),
                                     ),
-                                    onPressed:
-                                        isEmptyResum ? null : _downloadResume,
+                                    onPressed: isEmptyResum
+                                        ? null
+                                        : () async {
+                                            if (jobseeker.resume.isEmpty) {
+                                              return;
+                                            }
+                                            final url = jobseeker.resume[0].url;
+                                            final fileName =
+                                                '${jobseeker.firstName}_${jobseeker.lastName}_${jobseeker.id}_resume.pdf';
+                                            await _downloadResume(
+                                                context, url, fileName);
+                                          },
                                     child: Text('Tải CV'),
                                   ),
                                 )

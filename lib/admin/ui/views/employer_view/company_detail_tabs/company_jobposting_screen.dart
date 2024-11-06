@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_quill/flutter_quill.dart';
 import 'package:job_finder_app/models/company.dart';
 import 'package:job_finder_app/models/jobposting.dart';
 import 'package:job_finder_app/ui/shared/job_card.dart';

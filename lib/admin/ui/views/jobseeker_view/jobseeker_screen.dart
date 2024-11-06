@@ -66,10 +66,10 @@ class _JobseekerScreenState extends State<JobseekerScreen>
           _jobseekers.value =
               context.read<JobseekerListManager>().filteredJobseekers;
         },
-        'Theo ngày đăng ký': () {
-          Utils.logMessage('Theo ngày đăng ký');
-          _selectedSortOption.value = 3;
-        },
+        // 'Theo ngày đăng ký': () {
+        //   Utils.logMessage('Theo ngày đăng ký');
+        //   _selectedSortOption.value = 3;
+        // },
       });
     });
   }

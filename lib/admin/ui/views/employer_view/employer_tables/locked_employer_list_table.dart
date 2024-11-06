@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:job_finder_app/admin/ui/manager/employer_list_manager.dart';
-import 'package:job_finder_app/admin/ui/manager/jobseeker_list_manager.dart';
 import 'package:job_finder_app/admin/ui/utils/utils.dart';
 import 'package:job_finder_app/admin/ui/views/employer_view/employer_tables/empty_employer_list_table.dart';
-import 'package:job_finder_app/admin/ui/views/jobseeker_view/jobseeker_tables/empty_jobseeker_list_table.dart';
 import 'package:job_finder_app/admin/ui/widgets/custom_alert.dart';
 import 'package:job_finder_app/admin/ui/widgets/user_action_button.dart';
 import 'package:job_finder_app/models/employer.dart';
-import 'package:job_finder_app/models/jobseeker.dart';
 import 'package:provider/provider.dart';
 import 'package:toastification/toastification.dart';
 

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:job_finder_app/models/jobposting.dart';
 import 'package:job_finder_app/services/node_service.dart';
+import 'package:job_finder_app/ui/shared/utils.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 
 class JobpostingService extends NodeService {
@@ -152,6 +153,82 @@ class JobpostingService extends NodeService {
     } catch (error) {
       log('Error in deletePost - jobposting service: $error');
       return false;
+    }
+  }
+
+  //Các dịch vụ thêm cho admin
+  //Hàm lấy tất cả các jobposting bao gồm cả những bài đăng hết hạn
+  Future<List<Jobposting>> getAllJobpostings() async {
+    try {
+      final response = await httpFetch(
+        '$databaseUrl/api/jobposting/all',
+        headers: headers,
+        method: HttpMethod.get,
+      ) as List<dynamic>;
+      if (response.isEmpty) {
+        return [];
+      }
+      //Chuyển mỗi phần tử sang kiểu Map<String, dynamic>
+      List<Map<String, dynamic>> jobpostingMapList =
+          List<Map<String, dynamic>>.from(response);
+      //Chuyển mỗi phần tử sang kiểu jobposting
+      List<Jobposting> jobpostingList = jobpostingMapList
+          .map((jobposting) => Jobposting.fromJson(jobposting))
+          .toList();
+      return jobpostingList;
+    } catch (error) {
+      Utils.logMessage(
+          'Error in getAllJobpostings - Jobposting Service: $error');
+      return [];
+    }
+  }
+
+  //Hàm nạp danh sách bài tuyển dụng gần đây, trong một tuần
+  Future<List<Jobposting>> getRecentJobpostings() async {
+    try {
+      final response = await httpFetch(
+        '$databaseUrl/api/jobposting/recent',
+        headers: headers,
+        method: HttpMethod.get,
+      ) as List<dynamic>;
+      //Chuyển mỗi phần tử trong list thành kiểu Map<String, dynamic>
+      final recentJobpostingMapList = List<Map<String, dynamic>>.from(response);
+      //Chuyển mỗi phần tử trong mảng trên từ Map sang Jobposting
+      final recentJobpostingList = recentJobpostingMapList
+          .map((jobposting) => Jobposting.fromJson(jobposting))
+          .toList();
+      return recentJobpostingList;
+    } catch (error) {
+      Utils.logMessage(
+          'Error in getRecentJobposting - Jobposting Service: $error');
+      return [];
+    }
+  }
+
+  //Hàm trả về số lượng yêu thích của mỗi JobpostingId
+  Future<List<Map<String, dynamic>>> getFavoriteNumberOfJobpostings() async {
+    try {
+      final response = await httpFetch(
+        '$databaseUrl/api/jobposting/all/favorite-numbers',
+        headers: headers,
+        method: HttpMethod.get,
+      ) as List<dynamic>;
+      //Chuyển mỗi phần tử sang kiểu map
+      final responseMap = List<Map<String, dynamic>>.from(response);
+      //Chỉ trả về những phần tử mà có lượt yêu thích
+      final favoriteList = responseMap.where((favorite) {
+        final favoriteCount = favorite['favoriteCount'] as int;
+        return favoriteCount > 0;
+      }).toList();
+      //Chuyển đổi List sang Map<String, int> và trả về nó có phần tử
+      if (favoriteList.isEmpty) {
+        return [];
+      } else {
+        return favoriteList;
+      }
+    } catch (error) {
+      Utils.logMessage('Errro in getFavoriteNumberOfJobpostings: $error');
+      return [];
     }
   }
 }

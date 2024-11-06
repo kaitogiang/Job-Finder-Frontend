@@ -34,7 +34,6 @@ class _CompanyDetailScreenState extends State<CompanyDetailScreen>
     final imageList = widget.company?.images
         .map((e) => '${dotenv.env['DATABASE_BASE_URL_WEB']}/${e.toString()}')
         .toList();
-    final companyAvatar = widget.company?.avatarLink;
     final policy = widget.company?.policy;
     Utils.logMessage(
         'Rebuilt CompanyDetailScreen: ${widget.company?.companyName}');

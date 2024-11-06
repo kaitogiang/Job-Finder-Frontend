@@ -3,6 +3,7 @@ import 'package:job_finder_app/admin/ui/utils/utils.dart';
 import 'package:job_finder_app/models/auth_token.dart';
 import 'package:job_finder_app/models/jobseeker.dart';
 import 'package:job_finder_app/models/locked_users.dart';
+import 'package:job_finder_app/services/application_service.dart';
 import 'package:job_finder_app/services/jobseeker_service.dart';
 
 class JobseekerListManager extends ChangeNotifier {
@@ -14,12 +15,15 @@ class JobseekerListManager extends ChangeNotifier {
 
   //khởi tạo dịch vụ
   final JobseekerService _jobseekerService;
+  final ApplicationService _applicationService;
 
   JobseekerListManager([AuthToken? authToken])
-      : _jobseekerService = JobseekerService(authToken);
+      : _jobseekerService = JobseekerService(authToken),
+        _applicationService = ApplicationService(authToken);
 
   set authToken(AuthToken? authToken) {
     _jobseekerService.authToken = authToken;
+    _applicationService.authToken = authToken;
     Utils.logMessage('Cập nhật authToken cho JobseerService');
     notifyListeners();
   }
@@ -181,5 +185,19 @@ class JobseekerListManager extends ChangeNotifier {
   Future<LockedUser?> getLockedJobseekerById(String userId) async {
     final lockedUser = await _jobseekerService.findLockedJobseekerById(userId);
     return lockedUser;
+  }
+
+  //Hàm tải xuống cv của ứng viên
+  Future<void> downloadCV(String url, String fileName) async {
+    try {
+      await _applicationService.downloadFileFromWeb(url, fileName).then((_) {
+        Utils.logMessage('Download CV success');
+      }).onError((error, stackTrace) {
+        Utils.logMessage(
+            'Error in jobseeker list manager - downloadCV: $error');
+      });
+    } catch (error) {
+      Utils.logMessage('Error in jobseeker list manager - downloadCV: $error');
+    }
   }
 }

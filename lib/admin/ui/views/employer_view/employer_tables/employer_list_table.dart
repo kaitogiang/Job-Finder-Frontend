@@ -107,7 +107,6 @@ class EmployerListTable extends StatelessWidget {
                   String imageLink = '';
                   //Kiểm tra xem index hợp lệ thì mới gán lại các giá trị đó
                   if (index < companies.length) {
-                    //TODO: thay đổi cho phù hợp
                     fullName = companies[index].companyName;
                     email = companies[index].companyEmail;
                     province = companies[index].companyAddress;

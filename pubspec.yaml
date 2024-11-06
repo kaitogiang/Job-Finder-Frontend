@@ -51,6 +51,7 @@ dependencies:
   responsive_builder: ^0.7.1
   toastification: ^2.3.0
   number_pagination: ^1.1.5
+  universal_html: ^2.2.4
 
 dependency_overrides:
   flutter_plugin_android_lifecycle: 2.0.23

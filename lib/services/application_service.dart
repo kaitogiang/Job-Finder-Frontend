@@ -2,9 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'package:universal_html/html.dart' as html;
 
 import 'package:job_finder_app/models/application_storage.dart';
 import 'package:job_finder_app/services/node_service.dart';
+import 'package:job_finder_app/ui/shared/utils.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:http/http.dart' as http;
@@ -40,6 +42,41 @@ class ApplicationService extends NodeService {
     } catch (error) {
       log('Error in application service: $error');
       return null;
+    }
+  }
+
+  Future<void> downloadFileFromWeb(String url, String filename) async {
+    final link = '$databaseUrl/$url';
+    try {
+      final response = await http.get(Uri.parse(link));
+      if (response.statusCode == 200) {
+        //Blob một một đối tượng đại diện cho dữ liệu thô được lưu trữ dưới dạng
+        //mảng các byte. Blob có thể được dùng để tạo ra một file có thể tải được
+        //Lệnh này tạo một đối tượng Blob từ mảng byte của response.bodyBytes
+        final blob = html.Blob([response.bodyBytes]);
+        //Tạo một url tạm thời mà cho phép browser có thể truy cập được
+        //đối tượng blob. URL này chỉ tồn tại khi trang còn mở
+        final objectUrl = html.Url.createObjectUrlFromBlob(blob);
+
+        //Tạo một thẻ <a> trong html với thuộc tính href là objectUrl, có nghĩa
+        //là tạo liên kết đến url tạm thời của file blob. Đồng thời, nó
+        //đặt thuộc tính download của thẻ <a> là filename, filename là tên của
+        //file sẽ được tải về. Thẻ <a> trong html sẽ có dạng như sau:
+        //<a href="objectUrl" download="filename"></a>
+        //Thêm nữa, nó kích hoạt sự kiện tải xuống tự động khi gọi click(), giúp
+        //tự động tải về mà không cần người dùng click vào liên kết
+        html.AnchorElement(href: objectUrl)
+          ..setAttribute("download", filename)
+          ..click();
+        //Giải phóng objectUrl để tránh rò rỉ bộ nhớ
+        html.Url.revokeObjectUrl(objectUrl);
+      } else {
+        Utils.logMessage(
+            'Error in application service - downloadFileFromWeb: $response');
+      }
+    } catch (error) {
+      Utils.logMessage(
+          'Error in application service - downloadFileFromWeb: $error');
     }
   }
 
