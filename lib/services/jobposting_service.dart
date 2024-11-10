@@ -231,4 +231,34 @@ class JobpostingService extends NodeService {
       return [];
     }
   }
+
+  Future<Jobposting?> getJobpostingById(String jobpostingId) async {
+    try {
+      final response = await httpFetch(
+          '$databaseUrl/api/jobposting/$jobpostingId',
+          headers: headers,
+          method: HttpMethod.get) as Map<String, dynamic>;
+      //Chuyển kiểu của response sang Jobposting
+      final receivedJobposting = Jobposting.fromJson(response);
+
+      return receivedJobposting;
+    } catch (error) {
+      Utils.logMessage('Error in getJobpostingById: $error');
+      return null;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getJobpostingFavoriteCount(String id) async {
+    try {
+      final response = await httpFetch(
+        '$databaseUrl/api/jobposting/$id/favorite-number',
+        headers: headers,
+        method: HttpMethod.get,
+      ) as Map<String, dynamic>;
+      return response;
+    } catch (error) {
+      Utils.logMessage('Error in getJobpostingFavoriteCount: $error');
+      return null;
+    }
+  }
 }

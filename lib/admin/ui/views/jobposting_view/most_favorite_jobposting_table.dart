@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:job_finder_app/admin/ui/manager/jobposting_list_manager.dart';
 import 'package:job_finder_app/admin/ui/views/jobposting_view/empty_jobposting_table.dart';
@@ -212,7 +213,10 @@ class MostFavoriteJobpostingTable extends StatelessWidget {
                           child: index < jobpostings.length
                               ? UserActionButton(
                                   paddingLeft: 10,
-                                  onViewDetailsPressed: () {},
+                                  onViewDetailsPressed: () {
+                                    context.go(
+                                        '/jobposting/detail-info/${jobpostings[index].id}');
+                                  },
                                   isLocked: false,
                                 )
                               : SizedBox.shrink(),

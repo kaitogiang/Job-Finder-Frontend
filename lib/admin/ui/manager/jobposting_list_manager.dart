@@ -349,4 +349,25 @@ class JobpostingListManager with ChangeNotifier {
       List<Jobposting> jobposting) {
     return [];
   }
+
+  //Hàm lấy jobposting cụ thể dựa vào id
+  Future<Jobposting?> getJobpostingById(String id) async {
+    try {
+      return _jobpostingService.getJobpostingById(id);
+    } catch (error) {
+      Utils.logMessage('Error in getJObpostingById in Manager: $error');
+      return null;
+    }
+  }
+
+  //Hàm lấy số lượng yêu thích của một bài đăng dựa vào id
+  Future<int> getFavoriteNumberOfSpecificJobposting(String id) async {
+    try {
+      final result = await _jobpostingService.getJobpostingFavoriteCount(id);
+      final favoriteCount = result?['favoriteCount'] as int;
+      return favoriteCount;
+    } catch (error) {
+      return 0;
+    }
+  }
 }

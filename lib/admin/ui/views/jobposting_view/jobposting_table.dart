@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:job_finder_app/admin/ui/utils/admin_enum.dart';
 import 'package:job_finder_app/admin/ui/utils/utils.dart';
@@ -309,6 +310,8 @@ class JobpostingTable extends StatelessWidget {
                               paddingLeft: 22,
                               onViewDetailsPressed: () {
                                 Utils.logMessage('Xem chi tiet bai dang');
+                                context.go(
+                                    '/jobposting/detail-info/${jobpostings[index].id}');
                               },
                             )
                           : SizedBox.shrink(),

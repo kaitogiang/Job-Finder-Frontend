@@ -33,3 +33,12 @@ enum FilterByJobLevel {
   final String value;
   const FilterByJobLevel(this.value);
 }
+
+//Enum cho biết trạng thái của hồ sơ ứng tuyển của ứng viên bên
+//admin
+
+enum ApplicationState {
+  accepted,
+  rejected,
+  pending,
+}

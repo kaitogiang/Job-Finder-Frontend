@@ -80,6 +80,31 @@ class ApplicationService extends NodeService {
     }
   }
 
+  //Hàm xem thông tin CV trong một tab mới
+  Future<void> openCVInNewTab(String url) async {
+    final link = '$databaseUrl/$url';
+    try {
+      final response = await http.get(Uri.parse(link));
+      if (response.statusCode == 200) {
+        final blob = html.Blob(
+            [response.bodyBytes], 'application/pdf'); //Đảm bảo blob là file PDF
+        final objectUrl = html.Url.createObjectUrlFromBlob(blob);
+
+        //Đặt targe="_blank" để mở cv trong tab mới thay vì tải về
+        html.AnchorElement(href: objectUrl)
+          ..setAttribute("target", "_blank")
+          ..click();
+
+        //Giải phóng objectUrl để tránh rò rĩ bộ nhớ
+        html.Url.revokeObjectUrl(objectUrl);
+      } else {
+        Utils.logMessage('Error in onpenCVInNewTab service');
+      }
+    } catch (error) {
+      Utils.logMessage('Error in openCVInNewTab service: $error');
+    }
+  }
+
   Future<bool> _requestPermission() async {
     log('Request is Call');
     try {
@@ -227,6 +252,44 @@ class ApplicationService extends NodeService {
       return employer;
     } catch (error) {
       log('job service - getEmployerByCompanyId: $error');
+      return null;
+    }
+  }
+
+  Future<List<ApplicationStorage>> fetchAllApplicatons() async {
+    try {
+      final response = await httpFetch(
+        '$databaseUrl/api/application/',
+        headers: headers,
+        method: HttpMethod.get,
+      ) as List<dynamic>;
+      //Chuyển mỗi phần tử trong List<dynamic> sang List<Map<String, dynamic>>
+      final responseMapList = List<Map<String, dynamic>>.from(response);
+      //Chuyển mỗi phần tử của thành kiểu ApplicationStorage,
+      //Mỗi storage ứng với một jobposting
+      final storageList = responseMapList
+          .map((storage) => ApplicationStorage.fromJson(storage))
+          .toList();
+      return storageList;
+    } catch (error) {
+      Utils.logMessage('Error in fetchAllApplications: $error');
+      return [];
+    }
+  }
+
+  //Hàm lấy thông tin của ApplicationStorage dựa vào id
+  Future<ApplicationStorage?> getApplicationStorageById(String id) async {
+    try {
+      final response = await httpFetch(
+        '$databaseUrl/api/application/$id',
+        headers: headers,
+        method: HttpMethod.get,
+      ) as Map<String, dynamic>;
+      //Chuyển đổi response sang kiểu ApplicationStorage
+      final storage = ApplicationStorage.fromJson(response);
+      return storage;
+    } catch (error) {
+      Utils.logMessage('Error in getApplicationStorage server: $error');
       return null;
     }
   }

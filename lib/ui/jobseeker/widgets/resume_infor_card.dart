@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:job_finder_app/models/resume.dart';
@@ -30,31 +29,34 @@ class ResumeInforCard extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             //Cột chứa thông tin tên CV và ngày tải lên
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  resume.fileName,
-                  style: textTheme.titleMedium!.copyWith(fontSize: 20),
-                ),
-                RichText(
-                  text: TextSpan(
-                      children: [
-                        WidgetSpan(child: Icon(Icons.attach_file)),
-                        WidgetSpan(
-                            child: const SizedBox(
-                          width: 10,
-                        )),
-                        TextSpan(
-                            text:
-                                'Đã tải lên: ${formatter.format(resume.uploadedDate)}')
-                      ],
-                      style: textTheme.bodyLarge!.copyWith(
-                          color: Colors.grey.shade700,
-                          fontFamily: 'Lato',
-                          fontSize: 15)),
-                )
-              ],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    resume.fileName,
+                    style: textTheme.titleMedium!.copyWith(fontSize: 20),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  RichText(
+                    text: TextSpan(
+                        children: [
+                          WidgetSpan(child: Icon(Icons.attach_file)),
+                          WidgetSpan(
+                              child: const SizedBox(
+                            width: 10,
+                          )),
+                          TextSpan(
+                              text:
+                                  'Đã tải lên: ${formatter.format(resume.uploadedDate)}')
+                        ],
+                        style: textTheme.bodyLarge!.copyWith(
+                            color: Colors.grey.shade700,
+                            fontFamily: 'Lato',
+                            fontSize: 15)),
+                  )
+                ],
+              ),
             ),
             //Cột chứa tùy chọn hành động tải xuống hoặc xem
             Column(

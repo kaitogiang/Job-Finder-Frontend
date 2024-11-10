@@ -7,14 +7,17 @@ class Application {
   String phone;
   String resume;
   int status;
+  String submittedAt;
 
-  Application(
-      {required this.jobseekerId,
-      required this.name,
-      required this.email,
-      required this.phone,
-      required this.resume,
-      required this.status});
+  Application({
+    required this.jobseekerId,
+    required this.name,
+    required this.email,
+    required this.phone,
+    required this.resume,
+    required this.status,
+    required this.submittedAt,
+  });
   factory Application.fromJson(Map<String, dynamic> json) {
     log('FromJson cua Application: ${json.toString()}');
     return Application(
@@ -24,6 +27,7 @@ class Application {
       phone: json['phone'],
       resume: json['resume'],
       status: json['status'],
+      submittedAt: json['submittedAt'],
     );
   }
 
@@ -36,5 +40,10 @@ class Application {
       'resume': resume,
       'status': status,
     };
+  }
+
+  @override
+  String toString() {
+    return '$jobseekerId $name $email $phone $submittedAt';
   }
 }

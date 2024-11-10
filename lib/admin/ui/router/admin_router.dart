@@ -2,24 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:job_finder_app/admin/ui/base_layout_page.dart';
 import 'package:job_finder_app/admin/ui/manager/admin_auth_manager.dart';
+import 'package:job_finder_app/admin/ui/manager/application_list_manager.dart';
 import 'package:job_finder_app/admin/ui/manager/employer_list_manager.dart';
+import 'package:job_finder_app/admin/ui/manager/jobposting_list_manager.dart';
 import 'package:job_finder_app/admin/ui/manager/jobseeker_list_manager.dart';
 import 'package:job_finder_app/admin/ui/utils/utils.dart';
+import 'package:job_finder_app/admin/ui/views/application_view/application_detail_screen.dart';
 import 'package:job_finder_app/admin/ui/views/application_view/application_screen.dart';
 import 'package:job_finder_app/admin/ui/views/dashboard_view/dashboard_screen.dart';
 import 'package:job_finder_app/admin/ui/views/employer_view/employer_account_screen.dart';
 import 'package:job_finder_app/admin/ui/views/employer_view/employer_detail_screen.dart';
 import 'package:job_finder_app/admin/ui/views/employer_view/employer_screen.dart';
 import 'package:job_finder_app/admin/ui/views/feedback_view/feedback_screen.dart';
+import 'package:job_finder_app/admin/ui/views/jobposting_view/jobposting_detail_screen.dart';
 import 'package:job_finder_app/admin/ui/views/jobposting_view/jobposting_screen.dart';
 import 'package:job_finder_app/admin/ui/views/jobseeker_view/jobseeker_detail_screen.dart';
-import 'package:job_finder_app/admin/ui/views/jobseeker_view/jobseeker_info_screen.dart';
 import 'package:job_finder_app/admin/ui/views/jobseeker_view/jobseeker_screen.dart';
 import 'package:job_finder_app/admin/ui/views/jobseeker_view/locked_jobseeker_detail_screen.dart';
 import 'package:job_finder_app/admin/ui/views/login_view/admin_login_screen.dart';
 import 'package:job_finder_app/admin/ui/views/login_view/reset_password_screen.dart';
 import 'package:job_finder_app/admin/ui/views/notification_view/notification_screen.dart';
-import 'package:job_finder_app/admin/ui/widgets/custom_alert.dart';
 import 'package:job_finder_app/admin/ui/widgets/dialog_page.dart';
 import 'package:job_finder_app/admin/ui/widgets/modal.dart';
 import 'package:provider/provider.dart';
@@ -321,22 +323,71 @@ GoRouter buildAdminRouter(AdminAuthManager adminAuthManager) {
             routes: <RouteBase>[
               //Hiển thị trang quản lý bài tuyển dụng
               GoRoute(
-                path: '/jobposting',
-                pageBuilder: (context, state) {
-                  return NoTransitionPage(child: JobpostingScreen());
-                },
-              ),
+                  path: '/jobposting',
+                  pageBuilder: (context, state) {
+                    return NoTransitionPage(child: const JobpostingScreen());
+                  },
+                  routes: <RouteBase>[
+                    GoRoute(
+                      parentNavigatorKey: _adminNavigatorKey,
+                      path: 'detail-info/:id',
+                      pageBuilder: (context, state) {
+                        //Lấy id của jobposting
+                        String id = state.pathParameters['id']!;
+                        //Caching lại Future để tránh build lại
+                        final jobpostingFuture = context
+                            .read<JobpostingListManager>()
+                            .getJobpostingById(id);
+                        final favoriteCountFuture = context
+                            .read<JobpostingListManager>()
+                            .getFavoriteNumberOfSpecificJobposting(id);
+                        return DialogPage(
+                          builder: (context) => Modal(
+                            title: 'Chi tiết bài tuyển dụng',
+                            headerIcon: 'assets/images/company.png',
+                            content: JobpostingDetailScreen(
+                              jobpostingFuture: jobpostingFuture,
+                              favoriteCountFuture: favoriteCountFuture,
+                            ),
+                          ),
+                        );
+                      },
+                    )
+                  ]),
             ],
           ),
           StatefulShellBranch(
             routes: <RouteBase>[
               //Hiển thị trang quản lý feedback
               GoRoute(
-                path: '/application',
-                pageBuilder: (context, state) {
-                  return NoTransitionPage(child: ApplicationScreen());
-                },
-              ),
+                  path: '/application',
+                  pageBuilder: (context, state) {
+                    return NoTransitionPage(child: const ApplicationScreen());
+                  },
+                  routes: <RouteBase>[
+                    GoRoute(
+                      parentNavigatorKey: _adminNavigatorKey,
+                      path: 'application-info/:id',
+                      pageBuilder: (context, state) {
+                        //Lấy id của ApplicationStorage
+                        String id = state.pathParameters['id']!;
+                        //Caching lại Future để tránh build lại
+                        final applicationFuture = context
+                            .read<ApplicationListManager>()
+                            .getApplicationStorageById(id);
+
+                        return DialogPage(
+                          builder: (context) => Modal(
+                            title: 'Chi tiết bài tuyển dụng',
+                            headerIcon: 'assets/images/company.png',
+                            content: ApplicationDetailScreen(
+                              applicationFuture: applicationFuture,
+                            ),
+                          ),
+                        );
+                      },
+                    )
+                  ]),
             ],
           ),
           StatefulShellBranch(

@@ -132,9 +132,10 @@ class _LoginCardState extends State<LoginCard> {
     _formKey.currentState!.save();
     try {
       QuickAlert.show(
-          context: context,
-          type: QuickAlertType.loading,
-          text: 'Đang đăng nhập');
+        context: context,
+        type: QuickAlertType.loading,
+        text: 'Đang đăng nhập',
+      );
       if (userType == UserType.employee) {
         //Đăng nhập cho người tìm việc
         await context
@@ -147,6 +148,16 @@ class _LoginCardState extends State<LoginCard> {
           // }
         }).catchError((error) {
           Utils.logMessage("Loi khi dang dang nhap");
+
+          if (mounted) {
+            Navigator.pop(context);
+            QuickAlert.show(
+                context: context,
+                type: QuickAlertType.error,
+                title: 'Đăng nhập thất bại',
+                text: 'Email hoặc mật khẩu không đúng',
+                confirmBtnText: 'Tôi biết rồi');
+          }
         });
       } else {
         await context
@@ -156,6 +167,16 @@ class _LoginCardState extends State<LoginCard> {
           // if (mounted) {
           //   Navigator.pop(context);
           // }
+        }).catchError((error) {
+          if (mounted) {
+            Navigator.of(context, rootNavigator: true).pop();
+            QuickAlert.show(
+                context: context,
+                type: QuickAlertType.error,
+                title: 'Đăng nhập thất bại',
+                text: 'Email hoặc mật khẩu không đúng',
+                confirmBtnText: 'Tôi biết rồi');
+          }
         });
       }
     } catch (error) {

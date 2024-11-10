@@ -115,6 +115,10 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                           if (isApply) {
                             log('Apply liền luôn bạn ơi');
                             if (!context.mounted) return;
+                            QuickAlert.show(
+                                context: context,
+                                type: QuickAlertType.loading,
+                                text: 'Đang ứng tuyển');
                             Employer? employer = await context
                                 .read<ApplicationManager>()
                                 .getEmployerByCompanyId(jobposting.company!.id);
@@ -124,6 +128,8 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                                 .applyApplication(
                                     jobposting.id, employer!.email);
                             if (result && context.mounted) {
+                              //Loại bỏ màn hình loading
+                              Navigator.of(context, rootNavigator: true).pop();
                               QuickAlert.show(
                                 context: context,
                                 type: QuickAlertType.success,
@@ -134,6 +140,9 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                               );
                             } else {
                               if (context.mounted) {
+                                //Loại bỏ màn hình đăng nhập
+                                Navigator.of(context, rootNavigator: true)
+                                    .pop();
                                 QuickAlert.show(
                                   context: context,
                                   type: QuickAlertType.error,
