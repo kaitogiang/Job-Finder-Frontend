@@ -29,7 +29,7 @@ enum FilterByJobLevel {
   senior('Senior'),
   manager('Manager'),
   leader('Leader');
-  
+
   final String value;
   const FilterByJobLevel(this.value);
 }
@@ -41,4 +41,33 @@ enum ApplicationState {
   accepted,
   rejected,
   pending,
+}
+
+//Enum cho biết loại biểu đồ của "Tổng người dùng đăng ký"
+enum ChartTypeInUserStats {
+  barChart('Biểu đồ cột'),
+  lineChart('Biểu đồ đường');
+
+  final String value;
+  const ChartTypeInUserStats(this.value);
+}
+
+//Enum cho biết mốc thời gian của "Tổng người dùng đăng ký"
+enum TimeRange {
+  thisWeek('Tuần này'),
+  thisMonth('Tháng này'),
+  thisYear('Năm này');
+
+  final String value;
+  const TimeRange(this.value);
+}
+
+//Enum cho biết mốc thời gian của "Công việc mới được đăng tải"
+enum JobPostTimeRange {
+  past7Days('7 ngày qua'), // 7 ngày qua
+  past4Weeks('4 tuần qua'), // 4 tuần qua
+  past5Month('5 tháng qua'); // 5 tháng qua
+
+  final String value;
+  const JobPostTimeRange(this.value);
 }
