@@ -31,7 +31,7 @@ class LevelAdditionScreen extends StatelessWidget {
         ValueNotifier(existingLevel ?? []);
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Công nghệ yêu cầu"),
+        title: const Text("Trình độ"),
       ),
       body: Container(
         padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),

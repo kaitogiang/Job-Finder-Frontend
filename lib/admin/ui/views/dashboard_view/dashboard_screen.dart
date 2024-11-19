@@ -14,6 +14,7 @@ import 'package:job_finder_app/admin/ui/widgets/content_container.dart';
 import 'package:job_finder_app/admin/ui/widgets/screen_header.dart';
 import 'package:job_finder_app/admin/ui/widgets/stats_card.dart';
 import 'package:job_finder_app/admin/ui/widgets/stats_card_container.dart';
+import 'package:job_finder_app/models/account_status_data.dart';
 import 'package:job_finder_app/models/user_registration_data.dart';
 import 'package:provider/provider.dart';
 
@@ -218,9 +219,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                 selectedTimeRange, child) {
                                               //TODO gán lại giá trị tổng và trung bình ở đây
                                               //Hiển thị tổng người dùng trong khoảng thời gian nhất định
-                                              final totalUsers = 147;
+                                              int totalUsers = 0;
                                               //Hiển thị trung bình so với mốc thời gian
-                                              final averageUsers = 14;
+                                              int averageUsers = 0;
+                                              if (selectedTimeRange ==
+                                                  TimeRange.thisWeek) {
+                                                totalUsers = statsManager
+                                                    .totalUserRegistrationInWeek;
+                                                averageUsers = statsManager
+                                                    .averageUserRegistrationInWeek;
+                                              } else if (selectedTimeRange ==
+                                                  TimeRange.thisMonth) {
+                                                totalUsers = statsManager
+                                                    .totalUserRegistrationInMonth;
+                                                averageUsers = statsManager
+                                                    .averageUserRegistrationInMonth;
+                                              } else if (selectedTimeRange ==
+                                                  TimeRange.thisYear) {
+                                                totalUsers = statsManager
+                                                    .totalUserRegistrationInYear;
+                                                averageUsers = statsManager
+                                                    .averageUserRegistrationInYear;
+                                              }
+
                                               String totalString = '';
                                               String avgString = '';
                                               switch (selectedTimeRange) {
@@ -394,7 +415,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                     child: SizedBox(
                                                   width: 5,
                                                 )),
-                                                TextSpan(text: 'Người tìm việc')
+                                                TextSpan(text: 'Nhà tuyển dụng')
                                               ]),
                                             ),
                                           ],
@@ -757,19 +778,41 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                           const SizedBox(
                                             height: 10,
                                           ),
-                                          AccountStatusChart(
-                                            chartName: 'Nhà tuyển dụng',
-                                            activeCount: 23,
-                                            lockedCount: 3,
-                                          ),
+                                          Selector<StatsManager,
+                                                  AccountStatusData>(
+                                              selector:
+                                                  (context, statsManager) =>
+                                                      statsManager
+                                                          .accountStatusData,
+                                              builder: (context,
+                                                  acountStatusData, child) {
+                                                return AccountStatusChart(
+                                                  chartName: 'Nhà tuyển dụng',
+                                                  activeCount: acountStatusData
+                                                      .activeEmployer,
+                                                  lockedCount: acountStatusData
+                                                      .lockedEmployer,
+                                                );
+                                              }),
                                           const SizedBox(
                                             height: 10,
                                           ),
-                                          AccountStatusChart(
-                                            chartName: 'Người tìm việc',
-                                            activeCount: 26,
-                                            lockedCount: 0,
-                                          ),
+                                          Selector<StatsManager,
+                                                  AccountStatusData>(
+                                              selector:
+                                                  (context, statsManager) =>
+                                                      statsManager
+                                                          .accountStatusData,
+                                              builder: (context, statsManager,
+                                                  child) {
+                                                return AccountStatusChart(
+                                                  chartName: 'Người tìm việc',
+                                                  activeCount: statsManager
+                                                      .activeJobseeker,
+                                                  lockedCount: statsManager
+                                                      .lockedJobseeker,
+                                                );
+                                              }),
                                         ],
                                       ),
                                     ),

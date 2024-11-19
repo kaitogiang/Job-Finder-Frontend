@@ -6,4 +6,11 @@ class UserRegistrationData {
       {required this.label,
       required this.jobseekerCount,
       required this.employerCount});
+  factory UserRegistrationData.fromJson(Map<String, dynamic> json) {
+    return UserRegistrationData(
+      label: json['label'],
+      jobseekerCount: json['jobseekerCount'],
+      employerCount: json['employerCount'],
+    );
+  }
 }

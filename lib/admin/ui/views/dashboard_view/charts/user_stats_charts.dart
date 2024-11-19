@@ -107,7 +107,7 @@ class _UserStatsChartsState extends State<UserStatsCharts> {
         style: TextStyle(
           fontSize: 12,
         ),
-        textAlign: TextAlign.left,
+        // textAlign: TextAlign.left,
       ),
     );
   }
@@ -121,154 +121,182 @@ class _UserStatsChartsState extends State<UserStatsCharts> {
       height: 300,
       padding: const EdgeInsets.only(right: 10),
       child: isShowBarChart
-          ? BarChart(
-              BarChartData(
-                alignment: BarChartAlignment.spaceBetween,
-                titlesData: FlTitlesData(
-                  show: true,
-                  leftTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      reservedSize: 30,
-                      getTitlesWidget: (value, meta) {
-                        if (value == meta.max) {
-                          return Container();
-                        }
-                        const style = TextStyle(
-                          fontSize: 10,
-                        );
-                        return SideTitleWidget(
-                          axisSide: meta.axisSide,
-                          //Dùng meta.formattedValue để cho char tự động điều chỉnh lại giá trị
-                          //Nếu nó quá lớn, nếu là 1500 thì nó sẽ format lại là 1.5k
-                          child: Text(
-                            meta.formattedValue,
-                            textAlign: TextAlign.left,
-                            style: style,
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      reservedSize: 36,
-                      getTitlesWidget: (value, meta) {
-                        final index = value.toInt();
-                        final label = widget.statsData[index].label;
-
-                        return SideTitleWidget(
-                          axisSide: meta.axisSide,
-                          child: Text(
-                            label,
-                            style: TextStyle(
-                              fontSize: 12,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  rightTitles: const AxisTitles(),
-                  topTitles: const AxisTitles(),
-                ),
-                gridData: FlGridData(
-                  show: true,
-                  drawVerticalLine: true,
-                  drawHorizontalLine: true,
-                ),
-                borderData: FlBorderData(
+          ? Padding(
+              padding: const EdgeInsets.only(right: 10),
+              child: BarChart(
+                BarChartData(
+                  alignment: BarChartAlignment.spaceBetween,
+                  titlesData: FlTitlesData(
                     show: true,
-                    border: Border(
-                        left: BorderSide(color: Colors.black, width: 1),
-                        bottom: BorderSide(color: Colors.black, width: 1))),
-                barGroups: List<BarChartGroupData>.generate(
-                    widget.statsData.length, (index) {
-                  final jobseekerValue = widget.statsData[index].jobseekerCount;
-                  final employerValue = widget.statsData[index].employerCount;
-                  return generateBarGroup(index, jobseekerValue, employerValue);
-                }).toList(),
-                barTouchData: BarTouchData(
-                  touchTooltipData: BarTouchTooltipData(
-                      getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                    return BarTooltipItem(
-                      '${rod.toY} người',
-                      TextStyle(
-                        color: Colors.white, // Text color
-                        fontWeight: FontWeight.bold, // Text weight
+                    leftTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 30,
+                        getTitlesWidget: (value, meta) {
+                          if (value == meta.max) {
+                            return Container();
+                          }
+                          const style = TextStyle(
+                            fontSize: 10,
+                          );
+                          return SideTitleWidget(
+                            axisSide: meta.axisSide,
+                            //Dùng meta.formattedValue để cho char tự động điều chỉnh lại giá trị
+                            //Nếu nó quá lớn, nếu là 1500 thì nó sẽ format lại là 1.5k
+                            child: Text(
+                              meta.formattedValue,
+                              textAlign: TextAlign.left,
+                              style: style,
+                            ),
+                          );
+                        },
                       ),
-                    );
-                  }),
+                    ),
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 36,
+                        getTitlesWidget: (value, meta) {
+                          final index = value.toInt();
+                          final label = widget.statsData[index].label;
+
+                          return SideTitleWidget(
+                            axisSide: meta.axisSide,
+                            child: Text(
+                              label,
+                              style: TextStyle(
+                                fontSize: 12,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    rightTitles: const AxisTitles(),
+                    topTitles: const AxisTitles(),
+                  ),
+                  gridData: FlGridData(
+                    show: true,
+                    drawVerticalLine: true,
+                    drawHorizontalLine: true,
+                  ),
+                  borderData: FlBorderData(
+                      show: true,
+                      border: Border(
+                          left: BorderSide(color: Colors.black, width: 1),
+                          bottom: BorderSide(color: Colors.black, width: 1))),
+                  barGroups: List<BarChartGroupData>.generate(
+                      widget.statsData.length, (index) {
+                    final jobseekerValue =
+                        widget.statsData[index].jobseekerCount;
+                    final employerValue = widget.statsData[index].employerCount;
+                    return generateBarGroup(
+                        index, jobseekerValue, employerValue);
+                  }).toList(),
+                  barTouchData: BarTouchData(
+                    touchTooltipData: BarTouchTooltipData(
+                        getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                      return BarTooltipItem(
+                        '${rod.toY} người',
+                        TextStyle(
+                          color: Colors.white, // Text color
+                          fontWeight: FontWeight.bold, // Text weight
+                        ),
+                      );
+                    }),
+                  ),
+                  // maxY: getTheMaximumYAxis(widget.statsData),
                 ),
-                // maxY: getTheMaximumYAxis(widget.statsData),
               ),
             )
           //Biểu đồ đường
           : Padding(
-              padding: const EdgeInsets.only(right: 10),
+              padding: const EdgeInsets.only(right: 16),
               child: LineChart(
                 LineChartData(
-                    titlesData: FlTitlesData(
-                      leftTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          reservedSize: 30,
-                          getTitlesWidget: (value, meta) {
-                            if (value == meta.max) {
-                              return Container();
-                            }
-                            const style = TextStyle(
-                              fontSize: 10,
-                            );
-                            return SideTitleWidget(
-                              axisSide: meta.axisSide,
-                              //Dùng meta.formattedValue để cho char tự động điều chỉnh lại giá trị
-                              //Nếu nó quá lớn, nếu là 1500 thì nó sẽ format lại là 1.5k
-                              child: Text(
-                                meta.formattedValue,
-                                textAlign: TextAlign.left,
-                                style: style,
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                      bottomTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          reservedSize: 36,
-                          interval:
-                              1, //Thiết lập mỗi giá trị cách nhau một đơn vị
-                          getTitlesWidget: bottomTitleWidgets,
-                        ),
-                      ),
-                      rightTitles: const AxisTitles(),
-                      topTitles: const AxisTitles(),
-                    ),
-                    gridData: FlGridData(
-                      show: true,
-                      drawVerticalLine: true,
-                      drawHorizontalLine: true,
-                    ),
-                    borderData: FlBorderData(
-                      show: true,
-                      border: Border(
-                        left: BorderSide(
-                          color: Colors.black,
-                          width: 1,
-                        ),
-                        bottom: BorderSide(color: Colors.black, width: 1),
+                  titlesData: FlTitlesData(
+                    leftTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 30,
+                        getTitlesWidget: (value, meta) {
+                          if (value == meta.max) {
+                            return Container();
+                          }
+                          const style = TextStyle(
+                            fontSize: 10,
+                          );
+                          return SideTitleWidget(
+                            axisSide: meta.axisSide,
+                            //Dùng meta.formattedValue để cho char tự động điều chỉnh lại giá trị
+                            //Nếu nó quá lớn, nếu là 1500 thì nó sẽ format lại là 1.5k
+                            child: Text(
+                              meta.formattedValue,
+                              textAlign: TextAlign.left,
+                              style: style,
+                            ),
+                          );
+                        },
                       ),
                     ),
-                    lineBarsData: generateLineGroup(widget.statsData),
-                    minX: 0,
-                    maxX: widget.statsData.length.toDouble() - 1,
-                    minY: 0,
-                    lineTouchData: LineTouchData(
-                        touchTooltipData: LineTouchTooltipData(
-                      getTooltipColor: (touchoSpot) => Colors.grey[200]!,
-                    ))),
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 36,
+                        interval:
+                            1, //Thiết lập mỗi giá trị cách nhau một đơn vị
+                        getTitlesWidget: bottomTitleWidgets,
+                      ),
+                    ),
+                    rightTitles: const AxisTitles(),
+                    topTitles: const AxisTitles(),
+                  ),
+                  gridData: FlGridData(
+                    show: true,
+                    drawVerticalLine: true,
+                    drawHorizontalLine: true,
+                  ),
+                  borderData: FlBorderData(
+                    show: true,
+                    border: Border(
+                      left: BorderSide(
+                        color: Colors.black,
+                        width: 1,
+                      ),
+                      bottom: BorderSide(color: Colors.black, width: 1),
+                    ),
+                  ),
+                  lineBarsData: generateLineGroup(widget.statsData),
+                  minX: 0,
+                  maxX: widget.statsData.length.toDouble() - 1,
+                  minY: 0,
+                  lineTouchData: LineTouchData(
+                    touchTooltipData: LineTouchTooltipData(
+                        getTooltipColor: (touchoSpot) => Colors.grey[200]!,
+                        getTooltipItems: (touchedBarSports) {
+                          return touchedBarSports.map((barSpot) {
+                            final flSpot = barSpot;
+                            Utils.logMessage('BarIndex: ${flSpot.barIndex}');
+                            return LineTooltipItem(
+                                '',
+                                TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                children: [
+                                  TextSpan(
+                                    text: flSpot.y.toString(),
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w900,
+                                      color: flSpot.barIndex == 0
+                                          ? Colors.orange
+                                          : Colors.blue,
+                                    ),
+                                  ),
+                                ]);
+                          }).toList();
+                        }),
+                  ),
+                ),
               ),
             ),
     );

@@ -295,8 +295,8 @@ class AuthService {
 
   //Hàm lưu thông tin của FCM registration token lên DB để sử dụng cho việc
   //nhận tin nhắn
-  Future<bool> saveRegistrationToken(
-      bool isEmployer, String userId, String fcmToken) async {
+  Future<bool> saveRegistrationToken(bool isEmployer, String userId,
+      String fcmToken, int loginExpiresIn) async {
     String uri = !isEmployer
         ? '$_baseUrl/api/jobseeker/$userId/fcmToken'
         : '$_baseUrl/api/employer/$userId/fcmToken';
@@ -308,7 +308,10 @@ class AuthService {
           'Content-Type': 'application/json; charset=UTF-8'
         },
         body: json.encode(
-          {'fcmToken': fcmToken},
+          {
+            'fcmToken': fcmToken,
+            'loginExpiresIn': loginExpiresIn,
+          },
         ),
       );
       if (response.statusCode >= 200 && response.statusCode < 300) {
@@ -336,7 +339,7 @@ class AuthService {
   //đang nhập vào app. Nếu thiết bị chưa đăng nhập nhưng thông báo đến thì sẽ không nhận
   //được, sau khi đăng nhập trở lại thì tất cả thông báo sẽ hiển thị lại bình thường.
   Future<bool> markLoginState(bool isEmployer, String userId,
-      String registrationToken, bool isLogin) async {
+      String registrationToken, int loginExpiresIn) async {
     String uri = !isEmployer
         ? '$_baseUrl/api/jobseeker/$userId/update-login-state-fcm'
         : '$_baseUrl/api/employer/$userId/update-login-state-fcm';
@@ -348,7 +351,7 @@ class AuthService {
           },
           body: json.encode({
             'fcmToken': registrationToken,
-            'loginState': isLogin,
+            'loginExpiresIn': loginExpiresIn,
           }));
       if (response.statusCode >= 200 && response.statusCode < 300) {
         final json = jsonDecode(response.body) as Map<String, dynamic>;
