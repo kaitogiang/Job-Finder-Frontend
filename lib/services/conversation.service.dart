@@ -10,7 +10,10 @@ class ConversationService extends NodeService {
   final headers = {'Content-Type': 'application/json; charset=UTF-8'};
 
   //Hàm tạo mới một conversation từ phía jobseeker
-  Future<Conversation?> createConversation(String companyId) async {
+  Future<Conversation?> createConversation(String companyId,
+      [String? userId]) async {
+    //Gán lại userId nếu nó bị null
+    userId = userId ?? super.userId;
     try {
       final response = await httpFetch('$databaseUrl/api/conversation',
           headers: headers,
@@ -43,17 +46,20 @@ class ConversationService extends NodeService {
   //Khi gửi companyId vào thì server tự động truy xuất employerId dựa vào companyId
   //Sau đó dựa vào cặp jobseekerId và employerId để truy xuất conversationId
   //Nếu tồn tại conversation thì trả về conversationId, ngược lại trả về null
-  Future<String?> isExistingConversation(String companyId) async {
+  Future<String?> isExistingConversation(String companyId,
+      [String? userId]) async {
+    //Gán lại userId nếu nó bị null
+    userId = userId ?? super.userId;
     try {
       final response = await httpFetch(
           '$databaseUrl/api/conversation/participants?jobseekerId=$userId&companyId=$companyId',
           headers: headers,
           method: HttpMethod.get) as Map<String, dynamic>?;
       Utils.logMessage(response.toString());
-      if (response == null) {
-        return null;
-      }
-      return response['_id'] as String;
+      // if (response == null) {
+      //   return null;
+      // }
+      return response?['_id'] as String?;
     } catch (error) {
       Utils.logMessage(
           'Error in getConversationByParticipantId method of ConversationService: $error');

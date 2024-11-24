@@ -61,4 +61,9 @@ class Employer extends User {
         companyId: companyId,
         role: role ?? this.role);
   }
+
+  @override
+  String toString() {
+    return '$id $firstName $lastName $email $phone $address $avatar $companyId $role';
+  }
 }

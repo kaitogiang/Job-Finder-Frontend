@@ -2,19 +2,29 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:job_finder_app/admin/ui/base_layout_page.dart';
 import 'package:job_finder_app/admin/ui/manager/admin_auth_manager.dart';
+import 'package:job_finder_app/admin/ui/manager/application_list_manager.dart';
+import 'package:job_finder_app/admin/ui/manager/employer_list_manager.dart';
+import 'package:job_finder_app/admin/ui/manager/jobposting_list_manager.dart';
+import 'package:job_finder_app/admin/ui/manager/jobseeker_list_manager.dart';
+import 'package:job_finder_app/admin/ui/utils/utils.dart';
+import 'package:job_finder_app/admin/ui/views/application_view/application_detail_screen.dart';
 import 'package:job_finder_app/admin/ui/views/application_view/application_screen.dart';
 import 'package:job_finder_app/admin/ui/views/dashboard_view/dashboard_screen.dart';
+import 'package:job_finder_app/admin/ui/views/employer_view/employer_account_screen.dart';
+import 'package:job_finder_app/admin/ui/views/employer_view/employer_detail_screen.dart';
 import 'package:job_finder_app/admin/ui/views/employer_view/employer_screen.dart';
 import 'package:job_finder_app/admin/ui/views/feedback_view/feedback_screen.dart';
+import 'package:job_finder_app/admin/ui/views/jobposting_view/jobposting_detail_screen.dart';
 import 'package:job_finder_app/admin/ui/views/jobposting_view/jobposting_screen.dart';
 import 'package:job_finder_app/admin/ui/views/jobseeker_view/jobseeker_detail_screen.dart';
-import 'package:job_finder_app/admin/ui/views/jobseeker_view/jobseeker_info_screen.dart';
 import 'package:job_finder_app/admin/ui/views/jobseeker_view/jobseeker_screen.dart';
+import 'package:job_finder_app/admin/ui/views/jobseeker_view/locked_jobseeker_detail_screen.dart';
 import 'package:job_finder_app/admin/ui/views/login_view/admin_login_screen.dart';
 import 'package:job_finder_app/admin/ui/views/login_view/reset_password_screen.dart';
 import 'package:job_finder_app/admin/ui/views/notification_view/notification_screen.dart';
-import 'package:job_finder_app/admin/ui/widgets/custom_alert.dart';
 import 'package:job_finder_app/admin/ui/widgets/dialog_page.dart';
+import 'package:job_finder_app/admin/ui/widgets/modal.dart';
+import 'package:provider/provider.dart';
 
 final GlobalKey<NavigatorState> _adminNavigatorKey =
     GlobalKey<NavigatorState>(debugLabel: 'admin');
@@ -183,11 +193,56 @@ GoRouter buildAdminRouter(AdminAuthManager adminAuthManager) {
                   return NoTransitionPage(child: const JobseekerScreen());
                 },
                 routes: [
+                  //Route hiển thị xem chi tiết thông tin Jobseeker
                   GoRoute(
                     parentNavigatorKey: _adminNavigatorKey,
-                    path: 'detail',
+                    path: 'profile/:id',
                     pageBuilder: (context, state) {
-                      return DialogPage(builder: (context) => AlertDialog());
+                      final jobseekerId = state.pathParameters['id'];
+                      Utils.logMessage('Context: $context');
+                      Utils.logMessage('Jobseeker ID: $jobseekerId');
+                      //Caching future để tránh việc JobseekerDetailScreen bị rebuild
+                      final jobseekeFuture = context
+                          .read<JobseekerListManager>()
+                          .getJobseekerById(jobseekerId!);
+
+                      return DialogPage(
+                        builder: (context) => Modal(
+                          title: 'Thông tin chi tiết ứng viên',
+                          headerIcon: 'assets/images/jobseeker.png',
+                          content: JobseekerDetailScreen(
+                            jobseekerFuture: jobseekeFuture,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  //Route hiển thị xem thông tin về tài khoản bị Khóa
+                  GoRoute(
+                    parentNavigatorKey: _adminNavigatorKey,
+                    path: 'locked-user/:id',
+                    pageBuilder: (context, state) {
+                      final jobseekerId = state.pathParameters['id']!;
+                      Utils.logMessage('Context: $context');
+                      Utils.logMessage('Jobseeker ID: $jobseekerId');
+                      //Caching future để tránh việc JobseekerDetailScreen bị rebuild
+                      final basicInfoFuture = context
+                          .read<JobseekerListManager>()
+                          .getJobseekerById(jobseekerId);
+                      final lockedInfoFuture = context
+                          .read<JobseekerListManager>()
+                          .getLockedJobseekerById(jobseekerId);
+
+                      return DialogPage(
+                        builder: (context) => Modal(
+                          title: 'Thông tin ứng viên bị khóa',
+                          headerIcon: 'assets/images/locked-user.png',
+                          content: LockedJobseekerDetailScreen(
+                            basicInfoFuture: basicInfoFuture,
+                            lockedInfoFuture: lockedInfoFuture,
+                          ),
+                        ),
+                      );
                     },
                   ),
                 ],
@@ -200,8 +255,67 @@ GoRouter buildAdminRouter(AdminAuthManager adminAuthManager) {
               GoRoute(
                 path: '/employer',
                 pageBuilder: (context, state) {
-                  return NoTransitionPage(child: EmployerScreen());
+                  return NoTransitionPage(child: const EmployerScreen());
                 },
+                routes: [
+                  GoRoute(
+                    parentNavigatorKey: _adminNavigatorKey,
+                    path: 'company-info/:id',
+                    pageBuilder: (context, state) {
+                      //Tạo một future để lấy thông tin của company và gửi vào EmployerDetailScreen
+                      String companyId = state.pathParameters['id']!;
+                      final companyFuture = context
+                          .read<EmployerListManager>()
+                          .getCompanyById(companyId);
+                      //Tạo một future để lấy danh sách các bài tuyển dụng của công ty
+                      final jobpostingsFuture = context
+                          .read<EmployerListManager>()
+                          .getCompanyJobpostings(companyId);
+
+                      return DialogPage(
+                        builder: (context) => Modal(
+                          title: 'Thông tin chi tiết công ty',
+                          headerIcon: 'assets/images/company.png',
+                          content: EmployerDetailScreen(
+                            companyFuture: companyFuture,
+                            jobpostingsFuture: jobpostingsFuture,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  GoRoute(
+                    parentNavigatorKey: _adminNavigatorKey,
+                    path: 'employer-account/:id',
+                    pageBuilder: (context, state) {
+                      final employerId = state.pathParameters['id']!;
+                      //Tạo một future để lấy thông tin của một employer dựa vào employerId
+                      final employerFuture = context
+                          .read<EmployerListManager>()
+                          .getEmployerById(employerId);
+                      //Tạo một future để lấy thông tin của một company dựa vào employerId
+                      final companyFuture = context
+                          .read<EmployerListManager>()
+                          .getCompanyByEmployerId(employerId);
+                      //Tạo một future để kiểm tra xem tài khoản có bị khóa không
+                      final isLockedFuture = context
+                          .read<EmployerListManager>()
+                          .checkLockedAccount(employerId);
+
+                      return DialogPage(
+                        builder: (context) => Modal(
+                          title: 'Thông tin tài khoản nhà tuyển dụng',
+                          headerIcon: 'assets/images/company.png',
+                          content: EmployerAccountScreen(
+                            employerFuture: employerFuture,
+                            companyFuture: companyFuture,
+                            isLockedFuture: isLockedFuture,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ],
               ),
             ],
           ),
@@ -209,22 +323,71 @@ GoRouter buildAdminRouter(AdminAuthManager adminAuthManager) {
             routes: <RouteBase>[
               //Hiển thị trang quản lý bài tuyển dụng
               GoRoute(
-                path: '/jobposting',
-                pageBuilder: (context, state) {
-                  return NoTransitionPage(child: JobpostingScreen());
-                },
-              ),
+                  path: '/jobposting',
+                  pageBuilder: (context, state) {
+                    return NoTransitionPage(child: const JobpostingScreen());
+                  },
+                  routes: <RouteBase>[
+                    GoRoute(
+                      parentNavigatorKey: _adminNavigatorKey,
+                      path: 'detail-info/:id',
+                      pageBuilder: (context, state) {
+                        //Lấy id của jobposting
+                        String id = state.pathParameters['id']!;
+                        //Caching lại Future để tránh build lại
+                        final jobpostingFuture = context
+                            .read<JobpostingListManager>()
+                            .getJobpostingById(id);
+                        final favoriteCountFuture = context
+                            .read<JobpostingListManager>()
+                            .getFavoriteNumberOfSpecificJobposting(id);
+                        return DialogPage(
+                          builder: (context) => Modal(
+                            title: 'Chi tiết bài tuyển dụng',
+                            headerIcon: 'assets/images/company.png',
+                            content: JobpostingDetailScreen(
+                              jobpostingFuture: jobpostingFuture,
+                              favoriteCountFuture: favoriteCountFuture,
+                            ),
+                          ),
+                        );
+                      },
+                    )
+                  ]),
             ],
           ),
           StatefulShellBranch(
             routes: <RouteBase>[
               //Hiển thị trang quản lý feedback
               GoRoute(
-                path: '/application',
-                pageBuilder: (context, state) {
-                  return NoTransitionPage(child: ApplicationScreen());
-                },
-              ),
+                  path: '/application',
+                  pageBuilder: (context, state) {
+                    return NoTransitionPage(child: const ApplicationScreen());
+                  },
+                  routes: <RouteBase>[
+                    GoRoute(
+                      parentNavigatorKey: _adminNavigatorKey,
+                      path: 'application-info/:id',
+                      pageBuilder: (context, state) {
+                        //Lấy id của ApplicationStorage
+                        String id = state.pathParameters['id']!;
+                        //Caching lại Future để tránh build lại
+                        final applicationFuture = context
+                            .read<ApplicationListManager>()
+                            .getApplicationStorageById(id);
+
+                        return DialogPage(
+                          builder: (context) => Modal(
+                            title: 'Chi tiết bài tuyển dụng',
+                            headerIcon: 'assets/images/company.png',
+                            content: ApplicationDetailScreen(
+                              applicationFuture: applicationFuture,
+                            ),
+                          ),
+                        );
+                      },
+                    )
+                  ]),
             ],
           ),
           StatefulShellBranch(

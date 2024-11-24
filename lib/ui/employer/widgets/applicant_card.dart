@@ -2,7 +2,9 @@ import 'dart:math' as math;
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:job_finder_app/ui/auth/auth_manager.dart';
 import 'package:job_finder_app/ui/employer/application_manager.dart';
+import 'package:job_finder_app/ui/shared/message_manager.dart';
 import 'package:provider/provider.dart';
 import 'package:quickalert/quickalert.dart';
 
@@ -176,14 +178,51 @@ class ApplicantCard extends StatelessWidget {
                             _showMyDialog(context, application);
                           }
                         : null,
+                    onChat: isRead
+                        ? () async {
+                            Utils.logMessage('Đến chat');
+                            await _chatWithJobseeker(context, application);
+                          }
+                        : null,
                   );
                 }),
-                heightFactor: !isRead ? 0.4 : 0.3);
+                heightFactor: 0.4);
           },
           child: const Text('Tùy chọn'),
         ),
       ),
     );
+  }
+
+  Future<void> _chatWithJobseeker(
+      BuildContext context, Application application) async {
+    //Trích xuất id của jobseeker
+    final jobseekerId = application.jobseekerId;
+    //Trích xuất thông tin companyId của employer
+    final companyId = context.read<AuthManager>().employer!.companyId;
+    //Kiểm tra xem có cuộc trò chuyện nào giữa jobseeker và nhà tuyển dụng chưa
+    final conversationId = await context
+        .read<MessageManager>()
+        .verifyExistingConversation(companyId, jobseekerId);
+    //Nếu đã tồn tại conversation thì lấy conversation trong MessageManager
+    if (conversationId != null) {
+      //Truy xuất đến conversation trong danh sách sẳn có
+      if (!context.mounted) return;
+      context.pushNamed('chat', extra: conversationId);
+    } else {
+      //Ngược lại chưa từng tồn tại cuộc trò chuyện, tạo mới cuộc
+      //trò chuyện
+      if (context.mounted) {
+        String? conversationId = await context
+            .read<MessageManager>()
+            .createConversation(companyId, jobseekerId);
+        if (conversationId != null && context.mounted) {
+          context.pushNamed('chat', extra: conversationId);
+        }
+      } else {
+        Utils.logMessage('The widget tree is removed');
+      }
+    }
   }
 
   Future<void> _showMyDialog(
@@ -346,6 +385,7 @@ class ApplicantCard extends StatelessWidget {
     void Function()? onDownload,
     void Function()? onPreview,
     void Function()? onUpdate,
+    void Function()? onChat,
   }) {
     return ListView(
       shrinkWrap: true,
@@ -376,6 +416,15 @@ class ApplicantCard extends StatelessWidget {
             ),
             leading: const Icon(Icons.update),
             onTap: onUpdate,
+          ),
+        if (onChat != null)
+          ListTile(
+            title: Text(
+              'Nhắn tin với ứng viên',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            leading: const Icon(Icons.chat),
+            onTap: onChat,
           ),
       ],
     );

@@ -1,19 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:job_finder_app/admin/ui/manager/employer_list_manager.dart';
-import 'package:job_finder_app/admin/ui/manager/jobseeker_list_manager.dart';
 import 'package:job_finder_app/admin/ui/utils/utils.dart';
-import 'package:job_finder_app/admin/ui/views/employer_view/empty_employer_list_table.dart';
-import 'package:job_finder_app/admin/ui/views/jobseeker_view/jobseeker_tables/empty_jobseeker_list_table.dart';
+import 'package:job_finder_app/admin/ui/views/employer_view/employer_tables/empty_employer_list_table.dart';
 import 'package:job_finder_app/admin/ui/widgets/custom_alert.dart';
 import 'package:job_finder_app/admin/ui/widgets/user_action_button.dart';
 import 'package:job_finder_app/models/employer.dart';
-import 'package:job_finder_app/models/jobseeker.dart';
 import 'package:job_finder_app/models/locked_users.dart';
 import 'package:provider/provider.dart';
 import 'package:toastification/toastification.dart';
 
-class EmployerListTable extends StatelessWidget {
-  const EmployerListTable({super.key, required this.employers});
+class EmployerAccountListTable extends StatelessWidget {
+  const EmployerAccountListTable({super.key, required this.employers});
 
   final List<Employer> employers;
 
@@ -27,11 +25,14 @@ class EmployerListTable extends StatelessWidget {
     //Danh sách tiêu đề của các cột trong bảng trong trường hợp bảng rỗng
     final headers = [
       'Tên công ty',
-      'Email',
+      'Tên tài khoản',
+      'Email đăng nhập',
       'Tỉnh/thành phố',
       'Số điện thoại',
       'Hành động'
     ];
+    final cellHeight = 80.0;
+
     final employerListManager = context.read<EmployerListManager>();
     return employers.isEmpty
         ? EmptyEmployerListTable(headers: headers)
@@ -46,6 +47,7 @@ class EmployerListTable extends StatelessWidget {
               2: FlexColumnWidth(),
               3: FlexColumnWidth(),
               4: FlexColumnWidth(),
+              5: FlexColumnWidth(),
             },
             children: [
               TableRow(
@@ -68,7 +70,14 @@ class EmployerListTable extends StatelessWidget {
                     child: Padding(
                       padding:
                           EdgeInsets.only(left: 20.0, top: 10.0, bottom: 10.0),
-                      child: Text('Email', style: headerTextStyle),
+                      child: Text('Tên người dùng', style: headerTextStyle),
+                    ),
+                  ),
+                  TableCell(
+                    child: Padding(
+                      padding:
+                          EdgeInsets.only(left: 20.0, top: 10.0, bottom: 10.0),
+                      child: Text('Email đăng nhập', style: headerTextStyle),
                     ),
                   ),
                   TableCell(
@@ -99,6 +108,7 @@ class EmployerListTable extends StatelessWidget {
                 (index) {
                   //Quá trình trích xuất dữ liệu từng ổ của mỗi cột
                   String fullName = '';
+                  String companyName = '';
                   String email = '';
                   String province = '';
                   String phone = '';
@@ -106,6 +116,8 @@ class EmployerListTable extends StatelessWidget {
                   if (index < employers.length) {
                     //TODO: thay đổi cho phù hợp
                     fullName = employers[index].firstName;
+                    companyName = employerListManager
+                        .getCompanyName(employers[index].companyId);
                     email = employers[index].email;
                     province = employers[index].address;
                     phone = employers[index].phone;
@@ -113,41 +125,73 @@ class EmployerListTable extends StatelessWidget {
                   return TableRow(
                     children: [
                       TableCell(
-                        child: Padding(
-                            padding: EdgeInsets.all(20.0),
-                            child: Text(
-                              fullName,
-                            )),
+                        verticalAlignment: TableCellVerticalAlignment.middle,
+                        child: Container(
+                          height: cellHeight,
+                          padding: EdgeInsets.symmetric(horizontal: 10.0),
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            companyName,
+                          ),
+                        ),
                       ),
                       TableCell(
-                        child: Padding(
-                            padding: EdgeInsets.all(20.0),
-                            child: Text(
-                              email,
-                            )),
+                        verticalAlignment: TableCellVerticalAlignment.middle,
+                        child: Container(
+                          height: cellHeight,
+                          padding: EdgeInsets.symmetric(horizontal: 10.0),
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            fullName,
+                          ),
+                        ),
                       ),
                       TableCell(
-                        child: Padding(
-                            padding: EdgeInsets.all(20.0),
-                            child: Text(
-                              province,
-                            )),
+                        verticalAlignment: TableCellVerticalAlignment.middle,
+                        child: Container(
+                          height: cellHeight,
+                          padding: EdgeInsets.symmetric(horizontal: 10.0),
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            email,
+                          ),
+                        ),
                       ),
                       TableCell(
-                        child: Padding(
-                            padding: EdgeInsets.all(20.0),
-                            child: Text(
-                              phone,
-                            )),
+                        verticalAlignment: TableCellVerticalAlignment.middle,
+                        child: Container(
+                          height: cellHeight,
+                          padding: EdgeInsets.symmetric(horizontal: 10.0),
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            province,
+                          ),
+                        ),
                       ),
                       TableCell(
-                        child: Padding(
-                          padding: EdgeInsets.all(20.0),
+                        verticalAlignment: TableCellVerticalAlignment.middle,
+                        child: Container(
+                          height: cellHeight,
+                          padding: EdgeInsets.symmetric(horizontal: 10.0),
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            phone,
+                          ),
+                        ),
+                      ),
+                      TableCell(
+                        verticalAlignment: TableCellVerticalAlignment.middle,
+                        child: Container(
+                          height: cellHeight,
+                          padding: EdgeInsets.symmetric(horizontal: 10.0),
+                          alignment: Alignment.centerLeft,
                           child: index < employers.length
                               ? UserActionButton(
                                   onViewDetailsPressed: () {
                                     Utils.logMessage(
                                         'Xem chi tiết công ty ${employers[index].firstName} ${employers[index].lastName}');
+                                    context.go(
+                                        '/employer/employer-account/${employers[index].id}');
                                   },
                                   onLockAccountPressed: () async {
                                     final choice = await confirmActionDialog(
@@ -166,7 +210,7 @@ class EmployerListTable extends StatelessWidget {
                                       );
                                       if (context.mounted) {
                                         await context
-                                            .read<JobseekerListManager>()
+                                            .read<EmployerListManager>()
                                             .lockAccount(lockedUser);
 
                                         if (context.mounted) {
@@ -191,9 +235,8 @@ class EmployerListTable extends StatelessWidget {
                                     if (choice == true) {
                                       if (context.mounted) {
                                         await context
-                                            .read<JobseekerListManager>()
-                                            .unlockAccount(
-                                                employers[index].id);
+                                            .read<EmployerListManager>()
+                                            .unlockAccount(employers[index].id);
                                         if (context.mounted) {
                                           Utils.showNotification(
                                             context: context,
@@ -206,18 +249,6 @@ class EmployerListTable extends StatelessWidget {
                                     } else {
                                       Utils.logMessage('Hủy mở khóa tài khoản');
                                     }
-                                  },
-                                  onDeleteAccountPressed: () async {
-                                    final choice = await confirmActionDialog(
-                                        context,
-                                        'Xóa tài khoản công ty',
-                                        'Bạn có chắc chắn muốn xóa tài khoản công ty ${employers[index].firstName} ${employers[index].lastName} không?',
-                                        'Sau khi xóa, bạn không thể hoàn tác hành động',
-                                        CustomAlertType.delete);
-                                    Utils.logMessage(choice.toString());
-                                    Utils.logMessage(
-                                      'Xóa tài khoản công ty ${employers[index].firstName} ${employers[index].lastName}',
-                                    );
                                   },
                                   isLocked: employerListManager
                                       .isLocked(employers[index].id),

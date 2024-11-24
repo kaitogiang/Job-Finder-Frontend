@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:job_finder_app/admin/ui/base_layout_page.dart';
 
 class Modal extends StatelessWidget {
   const Modal({
@@ -19,6 +20,7 @@ class Modal extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
       ),
+      backgroundColor: const Color(0xFFF2F6FF),
       title: Row(
         children: [
           Image.asset(
@@ -39,7 +41,7 @@ class Modal extends StatelessWidget {
               alignment: Alignment.topRight,
               child: IconButton(
                 onPressed: () {
-                  Navigator.of(context).pop(false);
+                  Navigator.of(context, rootNavigator: true).pop();
                 },
                 icon: const Icon(Icons.close),
               ),

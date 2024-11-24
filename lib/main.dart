@@ -3,8 +3,10 @@ import 'dart:developer';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:job_finder_app/admin/ui/manager/admin_auth_manager.dart';
+import 'package:job_finder_app/admin/ui/manager/application_list_manager.dart';
 import 'package:job_finder_app/admin/ui/manager/employer_list_manager.dart';
 import 'package:job_finder_app/admin/ui/manager/jobposting_list_manager.dart';
+import 'package:job_finder_app/admin/ui/manager/stats_manager.dart';
 import 'package:job_finder_app/admin/ui/router/admin_router.dart';
 import 'package:job_finder_app/ui/shared/message_notificaion_controller.dart';
 import 'firebase_options.dart';
@@ -259,6 +261,20 @@ class AdminApp extends StatelessWidget {
           update: (context, adminAuthManager, jobpostingListManager) {
             jobpostingListManager!.authToken = adminAuthManager.authToken;
             return jobpostingListManager;
+          },
+        ),
+        ChangeNotifierProxyProvider<AdminAuthManager, ApplicationListManager>(
+          create: (context) => ApplicationListManager(),
+          update: (context, adminAuthManager, aplicationListManager) {
+            aplicationListManager!.authToken = adminAuthManager.authToken;
+            return aplicationListManager;
+          },
+        ),
+        ChangeNotifierProxyProvider<AdminAuthManager, StatsManager>(
+          create: (context) => StatsManager(),
+          update: (context, adminAuthManager, statsManager) {
+            statsManager!.authToken = adminAuthManager.authToken;
+            return statsManager;
           },
         ),
       ],

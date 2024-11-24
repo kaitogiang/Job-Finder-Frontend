@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class EmptyEmployerListTable extends StatelessWidget {
-  const EmptyEmployerListTable({
+class EmptyApplicationTable extends StatelessWidget {
+  const EmptyApplicationTable({
     super.key,
     required this.headers,
   });
@@ -16,7 +16,9 @@ class EmptyEmployerListTable extends StatelessWidget {
       fontWeight: FontWeight.w600,
     );
 
-    final titleList = headers.isEmpty ? ['Title 1', 'Title 2'] : headers;
+    final titleList = headers.isEmpty
+        ? ['Tên công ty', 'Tiêu đề', 'Ngày đăng', 'Ngày hết hạn', 'Hành động']
+        : headers;
 
     return Column(
       children: [
@@ -74,7 +76,7 @@ class EmptyEmployerListTable extends StatelessWidget {
         borderRadius: BorderRadius.vertical(bottom: Radius.circular(10)),
       ),
       child: Text(
-        'Chưa có ứng viên nào đăng ký tài khoản',
+        'Chưa nhận được bất kỳ hồ sơ nào',
         style: theme.textTheme.bodyMedium,
       ),
     );

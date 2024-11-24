@@ -121,28 +121,28 @@ class _BaseLayoutPageState extends State<BaseLayoutPage> {
           ],
         ),
         actions: [
-          PopupMenuButton(
-            tooltip: 'Hiển thị thông báo',
-            position: PopupMenuPosition.under,
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                value: 'item1',
-                child: Column(
-                  children: [
-                    Text('Có ứng viên vừa trúng tuyển thành công'),
-                    Text('Có người gian lận'),
-                    Text('Có người gian lận'),
-                    Text('Xử lý trường hợp gian lận'),
-                  ],
-                ),
-              ),
-            ],
-            child: Badge(
-              label: Text('10'),
-              child: Icon(Icons.notifications),
-            ),
-          ),
-          const SizedBox(width: 15.0),
+          // PopupMenuButton(
+          //   tooltip: 'Hiển thị thông báo',
+          //   position: PopupMenuPosition.under,
+          //   itemBuilder: (context) => [
+          //     PopupMenuItem(
+          //       value: 'item1',
+          //       child: Column(
+          //         children: [
+          //           Text('Có ứng viên vừa trúng tuyển thành công'),
+          //           Text('Có người gian lận'),
+          //           Text('Có người gian lận'),
+          //           Text('Xử lý trường hợp gian lận'),
+          //         ],
+          //       ),
+          //     ),
+          //   ],
+          //   child: Badge(
+          //     label: Text('10'),
+          //     child: Icon(Icons.notifications),
+          //   ),
+          // ),
+          // const SizedBox(width: 15.0),
           Stack(
             children: [
               CircleAvatar(
@@ -187,6 +187,7 @@ class _BaseLayoutPageState extends State<BaseLayoutPage> {
             //Phần điều hướng
             SizedBox(
               width: 280,
+              height: double.maxFinite,
               child: Card(
                 color: Colors.white,
                 elevation: 2,
@@ -211,7 +212,7 @@ class _BaseLayoutPageState extends State<BaseLayoutPage> {
                                   //   context,
                                   //   () => context.go('/'),
                                   // );
-
+                                  _onTap(context, 0);
                                   _changePageIndex(0);
                                 },
                                 isActive: _currentPageIndex.value == 0,
@@ -299,54 +300,55 @@ class _BaseLayoutPageState extends State<BaseLayoutPage> {
                                 },
                                 isActive: _currentPageIndex.value == 4,
                               ),
-                              Padding(
-                                padding: const EdgeInsets.only(
-                                    left: 16.0, top: 10.0),
-                                child: Text(
-                                  'Thông báo và phản hồi',
-                                  style: textTheme.titleMedium,
-                                ),
-                              ),
+                              // Padding(
+                              //   padding: const EdgeInsets.only(
+                              //       left: 16.0, top: 10.0),
+                              //   child: Text(
+                              //     'Thông báo và phản hồi',
+                              //     style: textTheme.titleMedium,
+                              //   ),
+                              // ),
                               //Quản lý thông báo
-                              NavigationItem(
-                                title: 'Quản lý thông báo',
-                                icon: Icons.notifications,
-                                onPressed: () {
-                                  Utils.logMessage('Quản lý thông báo');
-                                  _changePageIndex(5);
-                                  // context.go('/notification');
-                                  // Router.neglect(
-                                  //   context,
-                                  //   () => context.go('/notification'),
-                                  // );
-                                  _onTap(context, 5);
-                                },
-                                isActive: _currentPageIndex.value == 5,
-                              ),
-                              const SizedBox(height: 4.0),
-                              //Quản lý phản hồi
-                              NavigationItem(
-                                title: 'Quản lý phản hồi',
-                                icon: Icons.feedback,
-                                onPressed: () {
-                                  Utils.logMessage('Quản lý phản hồi');
-                                  _changePageIndex(6);
-                                  // context.go('/feedback');
-                                  // Router.neglect(
-                                  //   context,
-                                  //   () => context.go('/feedback'),
-                                  // );
-                                  _onTap(context, 6);
-                                },
-                                isActive: _currentPageIndex.value == 6,
-                              ),
+                              // NavigationItem(
+                              //   title: 'Quản lý thông báo',
+                              //   icon: Icons.notifications,
+                              //   onPressed: () {
+                              //     Utils.logMessage('Quản lý thông báo');
+                              //     _changePageIndex(5);
+                              //     // context.go('/notification');
+                              //     // Router.neglect(
+                              //     //   context,
+                              //     //   () => context.go('/notification'),
+                              //     // );
+                              //     _onTap(context, 5);
+                              //   },
+                              //   isActive: _currentPageIndex.value == 5,
+                              // ),
+                              // const SizedBox(height: 4.0),
+                              // //Quản lý phản hồi
+                              // NavigationItem(
+                              //   title: 'Quản lý phản hồi',
+                              //   icon: Icons.feedback,
+                              //   onPressed: () {
+                              //     Utils.logMessage('Quản lý phản hồi');
+                              //     _changePageIndex(6);
+                              //     // context.go('/feedback');
+                              //     // Router.neglect(
+                              //     //   context,
+                              //     //   () => context.go('/feedback'),
+                              //     // );
+                              //     _onTap(context, 6);
+                              //   },
+                              //   isActive: _currentPageIndex.value == 6,
+                              // ),
                               //Nếu parent của Divider không đặt width thì Divider sẽ không hiển thị được
                               //bởi vì nó không biết chiều rộng của nó là bao nhiêu
-                              Divider(
-                                color: Colors.grey,
-                                thickness: 1,
-                                height: 20,
-                              ),
+
+                              // Divider(
+                              //   color: Colors.grey,
+                              //   thickness: 1,
+                              //   height: 20,
+                              // ),
                               // NavigationItem(
                               //   title: 'Thông tin cá nhân',
                               //   icon: Icons.admin_panel_settings,
@@ -357,6 +359,9 @@ class _BaseLayoutPageState extends State<BaseLayoutPage> {
                               //   isActive: false,
                               // ),
                               // const SizedBox(height: 10.0),
+                              const SizedBox(
+                                height: 230,
+                              ),
                               NavigationItem(
                                 title: 'Đăng xuất',
                                 icon: Icons.logout,

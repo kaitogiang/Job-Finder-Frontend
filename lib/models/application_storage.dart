@@ -61,4 +61,13 @@ class ApplicationStorage {
       deadline: json['deadline'],
     );
   }
+
+  @override
+  String toString() {
+    final applicationListString = applications
+        .map((application) => application.toString())
+        .toList()
+        .join(" ");
+    return '$jobposting $applicationListString $deadline';
+  }
 }

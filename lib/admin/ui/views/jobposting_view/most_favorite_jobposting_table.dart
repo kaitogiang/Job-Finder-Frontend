@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:job_finder_app/admin/ui/manager/jobposting_list_manager.dart';
-import 'package:job_finder_app/admin/ui/manager/jobseeker_list_manager.dart';
-import 'package:job_finder_app/admin/ui/utils/utils.dart';
 import 'package:job_finder_app/admin/ui/views/jobposting_view/empty_jobposting_table.dart';
-import 'package:job_finder_app/admin/ui/views/jobseeker_view/jobseeker_tables/empty_jobseeker_list_table.dart';
-import 'package:job_finder_app/admin/ui/widgets/custom_alert.dart';
 import 'package:job_finder_app/admin/ui/widgets/user_action_button.dart';
 import 'package:job_finder_app/models/jobposting.dart';
-import 'package:job_finder_app/models/locked_users.dart';
 import 'package:provider/provider.dart';
-import 'package:toastification/toastification.dart';
 
 class MostFavoriteJobpostingTable extends StatelessWidget {
   const MostFavoriteJobpostingTable({super.key, required this.jobpostings});
@@ -27,15 +23,15 @@ class MostFavoriteJobpostingTable extends StatelessWidget {
     final headers = [
       'Tên công ty',
       'Tiêu đề',
-      'Số lượng yêu thích',
       'Ngày đăng',
+      'Ngày hết hạn',
+      'Số lượng yêu thích',
       'Hành động'
     ];
-    final jobpostingListManager = context.read<JobpostingListManager>();
-    // Use the sort method from JobpostingListManager
-    final sortedJobpostings =
-        jobpostingListManager.sortJobpostingsByFavoriteCount(jobpostings);
-    return sortedJobpostings.isEmpty
+
+    final cellHeight = 80.0;
+
+    return jobpostings.isEmpty
         ? EmptyJobpostingTable(headers: headers)
         : Table(
             border: TableBorder.all(
@@ -43,11 +39,13 @@ class MostFavoriteJobpostingTable extends StatelessWidget {
               color: Colors.grey.shade400,
             ),
             columnWidths: const <int, TableColumnWidth>{
-              0: FlexColumnWidth(),
+              0: IntrinsicColumnWidth(),
               1: FlexColumnWidth(),
               2: FlexColumnWidth(),
               3: FlexColumnWidth(),
               4: FlexColumnWidth(),
+              5: IntrinsicColumnWidth(),
+              6: IntrinsicColumnWidth(),
             },
             children: [
               TableRow(
@@ -58,54 +56,170 @@ class MostFavoriteJobpostingTable extends StatelessWidget {
                     topRight: Radius.circular(10),
                   ),
                 ),
-                children: headers.map((header) {
-                  return TableCell(
+                children: [
+                  TableCell(
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                          left: 10.0, top: 10.0, bottom: 10.0, right: 10),
+                      child: Text('Số thứ tự', style: headerTextStyle),
+                    ),
+                  ),
+                  TableCell(
                     child: Padding(
                       padding:
                           EdgeInsets.only(left: 20.0, top: 10.0, bottom: 10.0),
-                      child: Text(header, style: headerTextStyle),
+                      child: Text('Tên công ty', style: headerTextStyle),
                     ),
-                  );
-                }).toList(),
+                  ),
+                  TableCell(
+                    child: Padding(
+                      padding:
+                          EdgeInsets.only(left: 20.0, top: 10.0, bottom: 10.0),
+                      child: Text('Tiêu đề', style: headerTextStyle),
+                    ),
+                  ),
+                  TableCell(
+                    child: Padding(
+                      padding:
+                          EdgeInsets.only(left: 20.0, top: 10.0, bottom: 10.0),
+                      child: Text('Ngày đăng', style: headerTextStyle),
+                    ),
+                  ),
+                  TableCell(
+                    child: Padding(
+                      padding:
+                          EdgeInsets.only(left: 20.0, top: 10.0, bottom: 10.0),
+                      child: Text('Ngày hết hạn', style: headerTextStyle),
+                    ),
+                  ),
+                  TableCell(
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                        left: 10.0,
+                        top: 10.0,
+                        bottom: 10.0,
+                        right: 10,
+                      ),
+                      child: Text('Số lượng yêu thích', style: headerTextStyle),
+                    ),
+                  ),
+                  TableCell(
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                        left: 10.0,
+                        top: 10.0,
+                        bottom: 10.0,
+                        right: 10,
+                      ),
+                      child: Text('Hành động', style: headerTextStyle),
+                    ),
+                  ),
+                ],
               ),
               ...List<TableRow>.generate(
-                sortedJobpostings.length,
+                5,
                 (index) {
-                  // Extract data for each job posting
-                  final jobposting = sortedJobpostings[index];
+                  String companyName = '';
+                  String title = '';
+                  String favoriteCount = '';
+                  String createdAt = '';
+                  String deadline = '';
+                  //Kiểm tra xem index có hợp lệ không thì mới gán lại giá trị đó
+                  if (index < jobpostings.length) {
+                    companyName = jobpostings[index].company?.companyName ?? '';
+                    title = jobpostings[index].title;
+                    createdAt = DateFormat('dd/MM/yyyy\nh:mm a')
+                        .format(DateTime.parse(jobpostings[index].createdAt));
+                    deadline = DateFormat('dd/MM/yyyy\nh:mm a')
+                        .format(DateTime.parse(jobpostings[index].deadline));
+                    favoriteCount = context
+                        .read<JobpostingListManager>()
+                        .getJobpostingFavoriteCount(jobpostings[index].id)
+                        .toString();
+                  }
                   return TableRow(
                     children: [
                       TableCell(
-                        child: Padding(
-                          padding: EdgeInsets.all(20.0),
-                          child: Text(jobposting.company!.companyName),
+                        verticalAlignment: TableCellVerticalAlignment.middle,
+                        child: Container(
+                          height: cellHeight,
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          alignment: Alignment.center,
+                          child: Text(
+                              index < jobpostings.length ? '${index + 1}' : ''),
                         ),
                       ),
                       TableCell(
-                        child: Padding(
-                          padding: EdgeInsets.all(20.0),
-                          child: Text(jobposting.title),
-                        ),
-                      ),
-                      TableCell(
-                        child: Padding(
-                          padding: EdgeInsets.all(20.0),
-                          child: Text('0'),
-                        ),
-                      ),
-                      TableCell(
-                        child: Padding(
-                          padding: EdgeInsets.all(20.0),
-                          child: Text(jobposting.createdAt),
-                        ),
-                      ),
-                      TableCell(
-                        child: Padding(
-                          padding: EdgeInsets.all(20.0),
-                          child: UserActionButton(
-                            onViewDetailsPressed: () {},
-                            isLocked: false,
+                        verticalAlignment: TableCellVerticalAlignment.middle,
+                        child: Container(
+                          height: cellHeight,
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            companyName,
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
                           ),
+                        ),
+                      ),
+                      TableCell(
+                        verticalAlignment: TableCellVerticalAlignment.middle,
+                        child: Container(
+                          height: cellHeight,
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          alignment: Alignment.centerLeft,
+                          child: Text(title),
+                        ),
+                      ),
+                      TableCell(
+                        verticalAlignment: TableCellVerticalAlignment.middle,
+                        child: Container(
+                          height: cellHeight,
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          alignment: Alignment.centerLeft,
+                          child: Text(createdAt),
+                        ),
+                      ),
+                      TableCell(
+                        verticalAlignment: TableCellVerticalAlignment.middle,
+                        child: Container(
+                          height: cellHeight,
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          alignment: Alignment.centerLeft,
+                          child: Text(deadline),
+                        ),
+                      ),
+                      TableCell(
+                        verticalAlignment: TableCellVerticalAlignment.middle,
+                        child: Container(
+                          height: cellHeight,
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          alignment: Alignment.center,
+                          child: Text(
+                            favoriteCount,
+                            style: theme.textTheme.bodyLarge!.copyWith(
+                              color: const Color(0xFFAF52DE),
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                      TableCell(
+                        verticalAlignment: TableCellVerticalAlignment.middle,
+                        child: Container(
+                          height: cellHeight,
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          alignment: Alignment.center,
+                          child: index < jobpostings.length
+                              ? UserActionButton(
+                                  paddingLeft: 10,
+                                  onViewDetailsPressed: () {
+                                    context.go(
+                                        '/jobposting/detail-info/${jobpostings[index].id}');
+                                  },
+                                  isLocked: false,
+                                )
+                              : SizedBox.shrink(),
                         ),
                       ),
                     ],

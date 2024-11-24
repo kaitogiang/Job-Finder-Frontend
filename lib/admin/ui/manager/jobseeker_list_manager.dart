@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:job_finder_app/admin/ui/utils/utils.dart';
-import 'package:job_finder_app/admin/ui/utils/vietname_provinces.dart';
 import 'package:job_finder_app/models/auth_token.dart';
 import 'package:job_finder_app/models/jobseeker.dart';
 import 'package:job_finder_app/models/locked_users.dart';
+import 'package:job_finder_app/services/application_service.dart';
 import 'package:job_finder_app/services/jobseeker_service.dart';
 
 class JobseekerListManager extends ChangeNotifier {
@@ -15,12 +15,15 @@ class JobseekerListManager extends ChangeNotifier {
 
   //khởi tạo dịch vụ
   final JobseekerService _jobseekerService;
+  final ApplicationService _applicationService;
 
   JobseekerListManager([AuthToken? authToken])
-      : _jobseekerService = JobseekerService(authToken);
+      : _jobseekerService = JobseekerService(authToken),
+        _applicationService = ApplicationService(authToken);
 
   set authToken(AuthToken? authToken) {
     _jobseekerService.authToken = authToken;
+    _applicationService.authToken = authToken;
     Utils.logMessage('Cập nhật authToken cho JobseerService');
     notifyListeners();
   }
@@ -163,5 +166,38 @@ class JobseekerListManager extends ChangeNotifier {
       Utils.logMessage(_filteredJobseekersList.toString());
     }
     notifyListeners();
+  }
+
+  //Hàm lấy jobseeker theo id
+  Future<Jobseeker?> getJobseekerById(String id) async {
+    //Nếu người dùng sử dụng url trực tiếp để truy cập vào chi tiết ứng viên
+    //Mà không qua trang chứa tất cả ứng viên thì sẽ không có jobseeker nào
+    //Do đó sẽ trả về null, nên cần kiểm tra list có rỗng hay không, nếu rỗng thì mình sẽ
+    //truy xuất trực tiếp tới server để lấy thông tin jobseeker
+    if (_jobseekersList.isEmpty) {
+      final jobseeker = await _jobseekerService.findJobseekerById(id);
+      return jobseeker;
+    }
+    return _jobseekersList.firstWhere((jobseeker) => jobseeker.id == id);
+  }
+
+  //Hàm tìm kiếm thông tin của locked user
+  Future<LockedUser?> getLockedJobseekerById(String userId) async {
+    final lockedUser = await _jobseekerService.findLockedJobseekerById(userId);
+    return lockedUser;
+  }
+
+  //Hàm tải xuống cv của ứng viên
+  Future<void> downloadCV(String url, String fileName) async {
+    try {
+      await _applicationService.downloadFileFromWeb(url, fileName).then((_) {
+        Utils.logMessage('Download CV success');
+      }).onError((error, stackTrace) {
+        Utils.logMessage(
+            'Error in jobseeker list manager - downloadCV: $error');
+      });
+    } catch (error) {
+      Utils.logMessage('Error in jobseeker list manager - downloadCV: $error');
+    }
   }
 }

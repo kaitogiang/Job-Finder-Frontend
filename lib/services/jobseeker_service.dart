@@ -362,4 +362,32 @@ class JobseekerService extends NodeService {
       return false;
     }
   }
+  //Hàm tìm kiếm thông tin của một ứng viên cụ thể
+  Future<Jobseeker?> findJobseekerById(String userId) async {
+    try {
+      final response = await httpFetch('$databaseUrl/api/jobseeker/$userId',
+          headers: {'Content-Type': 'application/json; charset=UTF-8'},
+          method: HttpMethod.get) as Map<String, dynamic>;
+      final jobseeker = Jobseeker.fromJson(response);
+
+      return jobseeker;
+    } catch (error) {
+      Utils.logMessage('job service: $error');
+      return null;
+    }
+  }
+
+  //Hàm tìm thông tin của một ứng viên đã khóa
+  Future<LockedUser?> findLockedJobseekerById(String userId) async {
+    try {
+      final response = await httpFetch('$databaseUrl/api/jobseeker/locked/$userId',
+          headers: {'Content-Type': 'application/json; charset=UTF-8'},
+          method: HttpMethod.get) as Map<String, dynamic>;
+      final lockedUser = LockedUser.fromJson(response);
+      return lockedUser;
+    } catch (error) {
+      Utils.logMessage('job service: $error');
+      return null;
+    }
+  }
 }

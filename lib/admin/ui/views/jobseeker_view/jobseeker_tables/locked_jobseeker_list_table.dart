@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:job_finder_app/admin/ui/manager/jobseeker_list_manager.dart';
 import 'package:job_finder_app/admin/ui/utils/utils.dart';
 import 'package:job_finder_app/admin/ui/views/jobseeker_view/jobseeker_tables/empty_jobseeker_list_table.dart';
@@ -149,6 +150,8 @@ class LockedJobseekerListTable extends StatelessWidget {
                                   onViewDetailsPressed: () {
                                     Utils.logMessage(
                                         'Xem chi tiết ứng viên $fullName');
+                                    context.go(
+                                        '/jobseeker/locked-user/${jobseekers[index].id}');
                                   },
                                   onUnlockAccountPressed: () async {
                                     final choice = await confirmActionDialog(

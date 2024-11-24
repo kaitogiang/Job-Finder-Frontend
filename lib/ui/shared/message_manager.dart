@@ -102,10 +102,10 @@ class MessageManager extends ChangeNotifier {
   }
 
   //Hàm tạo conversation
-  Future<String?> createConversation(String companyId) async {
+  Future<String?> createConversation(String companyId, [String? jobseekerId]) async {
     try {
       final conversation =
-          await _conversationService.createConversation(companyId);
+          await _conversationService.createConversation(companyId, jobseekerId);
       if (conversation != null) {
         conversations.add(conversation);
         //Gọi sự kiện tạo conversation để báo hiệu cho Employer biết có conversation mới
@@ -246,10 +246,10 @@ class MessageManager extends ChangeNotifier {
   }
 
   //Hàm kiểm tra cuộc trò chuyện giữa jobseeker và company đã có chưa, nó có tồn tại thì trả về id của conversation
-  Future<String?> verifyExistingConversation(String companyId) async {
+  Future<String?> verifyExistingConversation(String companyId, [String? jobseekerId]) async {
     try {
       final conversationId =
-          await _conversationService.isExistingConversation(companyId);
+          await _conversationService.isExistingConversation(companyId, jobseekerId);
       return conversationId;
     } catch (error) {
       Utils.logMessage('Exception occur in verifyExistingConversation: $error');

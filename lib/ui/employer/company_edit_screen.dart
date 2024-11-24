@@ -178,9 +178,21 @@ class _CompanyEditScreenState extends State<CompanyEditScreen> {
 
     try {
       if (mounted) {
+        //hiển thị màn hình loading
+        QuickAlert.show(
+            context: context,
+            type: QuickAlertType.loading,
+            title: 'Lưu thông tin',
+            text: 'Đang lưu...');
         await context
             .read<CompanyManager>()
-            .updateCompany(_editedCompany, _selectedAvatar, selectedFiles);
+            .updateCompany(_editedCompany, _selectedAvatar, selectedFiles)
+            .whenComplete(() {
+          //Khi updateCompany chạy xong thì pop nó ra
+          if (mounted) {
+            Navigator.of(context, rootNavigator: true).pop();
+          }
+        });
       }
       //Hiện thị thông báo thành công
       if (mounted) {
@@ -220,7 +232,7 @@ class _CompanyEditScreenState extends State<CompanyEditScreen> {
           showCancelBtn: true,
           cancelBtnText: 'Tiếp tục lưu',
           showConfirmBtn: true,
-          confirmBtnText: 'Lưu',
+          confirmBtnText: 'Đồng ý',
           onConfirmBtnTap: () =>
               Navigator.of(context, rootNavigator: true).pop(true),
           onCancelBtnTap: () =>

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:job_finder_app/services/firebase_messaging_service.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../models/jobseeker.dart';
@@ -78,19 +79,34 @@ class AuthManager with ChangeNotifier {
         isEmployer);
     //Lấy thông tin người dùng
     Utils.logMessage('Đang chay');
+    //Giải mã token để lấy exp hết hạn của token
+    final token = _authToken?.token;
+    //Nếu token hợp lệ thì giải mã token để lấy exp
+    int exp = 0;
+    if (token != null) {
+      final decodeToken = JwtDecoder.decode(token);
+      exp = decodeToken['exp'];
+    } else {
+      Utils.logMessage('Cannot extract token to get exp because it is null');
+    }
     final isSavedRegistrationToken = await _authService.saveRegistrationToken(
       isEmployer,
       authToken!.userId,
       _firebaseAPI.registrationToken!,
+      exp,
     );
     if (isSavedRegistrationToken) {
       Utils.logMessage('Luu registration token len DB thanh cong');
     } else {
       Utils.logMessage('That bai khi luu registration token');
     }
-    //Hàm đánh dấu đang đang nhập cho một thiết bị
+    //Hàm đánh dấu đang đang nhập cho một thiết bị, tưc là cập nhật lại ngày hết hạn của token mới này
+    //Nếu trước đó người dùng không đăng xuất ra trong khi hết hạn, hạn cũ vẫn còn trên database tuy nhiên
+    //nó đã hết hạn, và do đó khi thực hiện tác vụ khác thì kiểm tra xem nó còn hạn thì mới thực hiện.
+    //lúc này người dùng đăng nhập lại nhưng hàm saveRegistrationToken trên sẽ không lưu lại registrationToken
+    //đã tồn tại, do đó chạy hàm markLoginState để cập nhật lại hạn hết mới của token hiện tại
     final isMarkedLoginState = await _authService.markLoginState(
-        isEmployer, authToken!.userId, _firebaseAPI.registrationToken!, true);
+        isEmployer, authToken!.userId, _firebaseAPI.registrationToken!, exp);
     if (isMarkedLoginState) {
       Utils.logMessage("Marked loginState to true for this device");
     } else {
@@ -125,10 +141,21 @@ class AuthManager with ChangeNotifier {
     //       isEmployer: isEmployer,
     //     ),
     //     isEmployer);
+    //Giải mã token để lấy exp hết hạn của token
+    final token = _authToken?.token;
+    //Nếu token hợp lệ thì giải mã token để lấy exp
+    int exp = 0;
+    if (token != null) {
+      final decodeToken = JwtDecoder.decode(token);
+      exp = decodeToken['exp'];
+    } else {
+      Utils.logMessage('Cannot extract token to get exp because it is null');
+    }
     final isSavedRegistrationToken = await _authService.saveRegistrationToken(
       isEmployer,
       authToken!.userId,
       _firebaseAPI.registrationToken!,
+      exp,
     );
     if (isSavedRegistrationToken) {
       Utils.logMessage('Luu registration token len DB thanh cong');
@@ -152,8 +179,11 @@ class AuthManager with ChangeNotifier {
   //Xuất thì dừng thời gian của token lại và xóa nó bỏ
   Future<void> logout() async {
     //Đánh dấu thiết bị đã đăng xuất (đánh dấu loginState = false cho một registration token)
+    //Nếu người dùng chủ động logout trong khi hạn của token hiện tại vẫn còn, do đó phải cập nhật lại hạn của token hiện tại
+    //và làm nó hết hạn bằng cách đặt về 0 để nó khởi tạo về mấy chục năm về trước, đồng nghĩa với hết hạn.
+    //Do đó khi làm tác vụ khác thì có thể biết là người dùng đã đăng nhập thiết bị này thông qua thời gian gán lại.
     final isMarkedLoginState = await _authService.markLoginState(
-        isEmployer, authToken!.userId, _firebaseAPI.registrationToken!, false);
+        isEmployer, authToken!.userId, _firebaseAPI.registrationToken!, 0);
     if (isMarkedLoginState) {
       Utils.logMessage(
           'Marked the loginState = false successfully because the user account have logged out from this device');
