@@ -6,6 +6,7 @@ import 'package:job_finder_app/models/account_status_data.dart';
 import 'package:job_finder_app/models/application_stats_data.dart';
 import 'package:job_finder_app/models/auth_token.dart';
 import 'package:job_finder_app/models/job_count_data.dart';
+import 'package:job_finder_app/models/recruitment_area_data.dart';
 import 'package:job_finder_app/models/user_registration_data.dart';
 import 'package:job_finder_app/services/admin_service.dart';
 
@@ -19,10 +20,18 @@ class StatsManager extends ChangeNotifier {
   List<UserRegistrationData> _userStatsDataInYear = []; //Tổng đăng ký năm này
   //Dữ liệu thống kê cho số lượng công việc mới
   List<JobCountData> _jobStatsData = [];
+  List<JobCountData> _jobStatsDataPast7Days = [];
+  List<JobCountData> _jobStatsDataPast4Weeks = [];
+  List<JobCountData> _jobStatsDataPast5Months = [];
   //Dữ liệu thống kê trạng thái tài khoản
   AccountStatusData? _accountStatusData;
   //Dữ liệu thống kê cho tổng số hồ sơ ứng tuyển
   List<ApplicationStatsData> _applicationStatsData = [];
+  List<ApplicationStatsData> _applicationStatsDataInWeek = [];
+  List<ApplicationStatsData> _applicationStatsDataInMonth = [];
+  List<ApplicationStatsData> _applicationStatsDataInYear = [];
+  //Dữ liệu thống kê những khu vực có ứng tuyển
+  List<RecruitmentAreaData> _recruitmentAreaData = [];
 
   //Khởi tạo các dịch vụ, thêm dịch vụ của admin vào
   final AdminService _adminService;
@@ -47,6 +56,8 @@ class StatsManager extends ChangeNotifier {
   AccountStatusData get accountStatusData => _accountStatusData!;
 
   List<ApplicationStatsData> get applicationStatsData => _applicationStatsData;
+
+  List<RecruitmentAreaData> get recruitmentAreaData => _recruitmentAreaData;
 
   //Lấy tổng số của mỗi số lượng người dùng theo mốc thời gian
   int get totalUserRegistrationInWeek {
@@ -85,7 +96,23 @@ class StatsManager extends ChangeNotifier {
     double avg = totalUserRegistrationInYear / 12;
     return avg.toInt();
   }
-  
+
+  //Tính tổng số lượng công việc mới theo từng mốc thời gian
+  int getTotalJobpostingCountByRange(JobPostTimeRange timeRange) {
+    if (timeRange == JobPostTimeRange.past7Days) {
+      return _jobStatsDataPast7Days.fold(0, (previous, jobCountItem) {
+        return previous + jobCountItem.jobCount.toInt();
+      });
+    } else if (timeRange == JobPostTimeRange.past4Weeks) {
+      return _jobStatsDataPast4Weeks.fold(0, (previous, jobCountItem) {
+        return previous + jobCountItem.jobCount.toInt();
+      });
+    } else {
+      return _jobStatsDataPast5Months.fold(0, (previous, jobCountItem) {
+        return previous + jobCountItem.jobCount.toInt();
+      });
+    }
+  }
 
   Future<void> fetchAllStatsData() async {
     try {
@@ -98,8 +125,26 @@ class StatsManager extends ChangeNotifier {
           .getTotalUserRegistrationByRange(TimeRange.thisYear);
       //Trạng thái tài khoản
       _accountStatusData = await _adminService.getAccountStatusData();
+      //Số lượng công việc mới được đăng tải
+      _jobStatsDataPast7Days = await _adminService
+          .getJobpostingCountByRange(JobPostTimeRange.past7Days);
+      _jobStatsDataPast4Weeks = await _adminService
+          .getJobpostingCountByRange(JobPostTimeRange.past4Weeks);
+      _jobStatsDataPast5Months = await _adminService
+          .getJobpostingCountByRange(JobPostTimeRange.past5Month);
+      //Trạng thái các đơn ứng tuyển
+      _applicationStatsDataInWeek =
+          await _adminService.getApplicationStatsByRange(TimeRange.thisWeek);
+      _applicationStatsDataInMonth =
+          await _adminService.getApplicationStatsByRange(TimeRange.thisMonth);
+      _applicationStatsDataInYear =
+          await _adminService.getApplicationStatsByRange(TimeRange.thisYear);
+      //Các khu vực có ứng tuyển
+      _recruitmentAreaData = await _adminService.getRecruitmentAreaStats();
       //Gán lại dữ liệu để hiển thị trên màn hình
       _userStatsData = [..._userStatsDataInWeek];
+      _jobStatsData = [..._jobStatsDataPast7Days];
+      _applicationStatsData = [..._applicationStatsDataInWeek];
       notifyListeners();
     } catch (error) {
       Utils.logMessage('Error in fetchAllStatsData manager: $error');
@@ -127,13 +172,13 @@ class StatsManager extends ChangeNotifier {
   void setJobStatsDataByTimeRange(JobPostTimeRange timeRage) {
     switch (timeRage) {
       case JobPostTimeRange.past7Days:
-        _jobStatsData = jobDailyData;
+        _jobStatsData = [..._jobStatsDataPast7Days];
         break;
       case JobPostTimeRange.past4Weeks:
-        _jobStatsData = jobWeeklyData;
+        _jobStatsData = [..._jobStatsDataPast4Weeks];
         break;
       case JobPostTimeRange.past5Month:
-        _jobStatsData = jobMonthlyData;
+        _jobStatsData = [..._jobStatsDataPast5Months];
         break;
     }
     notifyListeners();
@@ -143,13 +188,13 @@ class StatsManager extends ChangeNotifier {
   void setApplicationStatsDataByTimeRange(TimeRange timeRange) {
     switch (timeRange) {
       case TimeRange.thisWeek:
-        _applicationStatsData = weeklyApplicationStats;
+        _applicationStatsData = [..._applicationStatsDataInWeek];
         break;
       case TimeRange.thisMonth:
-        _applicationStatsData = monthlyApplicationStats;
+        _applicationStatsData = [..._applicationStatsDataInMonth];
         break;
       case TimeRange.thisYear:
-        _applicationStatsData = yearlyApplicationStats;
+        _applicationStatsData = [..._applicationStatsDataInYear];
         break;
     }
     notifyListeners();

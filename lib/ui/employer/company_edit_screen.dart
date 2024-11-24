@@ -232,7 +232,7 @@ class _CompanyEditScreenState extends State<CompanyEditScreen> {
           showCancelBtn: true,
           cancelBtnText: 'Tiếp tục lưu',
           showConfirmBtn: true,
-          confirmBtnText: 'Lưu',
+          confirmBtnText: 'Đồng ý',
           onConfirmBtnTap: () =>
               Navigator.of(context, rootNavigator: true).pop(true),
           onCancelBtnTap: () =>

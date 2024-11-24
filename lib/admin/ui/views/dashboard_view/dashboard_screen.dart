@@ -10,11 +10,13 @@ import 'package:job_finder_app/admin/ui/views/dashboard_view/charts/account_stat
 import 'package:job_finder_app/admin/ui/views/dashboard_view/charts/application_status_chart.dart';
 import 'package:job_finder_app/admin/ui/views/dashboard_view/charts/recently_job_charts.dart';
 import 'package:job_finder_app/admin/ui/views/dashboard_view/charts/user_stats_charts.dart';
+import 'package:job_finder_app/admin/ui/views/dashboard_view/recruitment_area.dart';
 import 'package:job_finder_app/admin/ui/widgets/content_container.dart';
 import 'package:job_finder_app/admin/ui/widgets/screen_header.dart';
 import 'package:job_finder_app/admin/ui/widgets/stats_card.dart';
 import 'package:job_finder_app/admin/ui/widgets/stats_card_container.dart';
 import 'package:job_finder_app/models/account_status_data.dart';
+import 'package:job_finder_app/models/recruitment_area_data.dart';
 import 'package:job_finder_app/models/user_registration_data.dart';
 import 'package:provider/provider.dart';
 
@@ -554,7 +556,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     ),
                                     child: Column(
                                       children: [
-                                        //Nhãn hiển thị tổng số người đăng ký và trung bình theo từng mốc thời gian
+                                        //Nhãn hiển thị tổng số công việc mới được đăng tải trong 7 ngày, 4 tuần và 5 tháng qua
                                         ValueListenableBuilder(
                                             valueListenable:
                                                 _selectedJobPostTimeRange,
@@ -562,19 +564,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                 selectedTimeRange, child) {
                                               //TODO gán lại giá trị tổng và trung bình ở đây
                                               //Hiển thị tổng người dùng trong khoảng thời gian nhất định
-                                              final totalUsers = 147;
+                                              final totalJobpostings = context
+                                                  .read<StatsManager>()
+                                                  .getTotalJobpostingCountByRange(
+                                                      selectedTimeRange);
                                               //Hiển thị trung bình so với mốc thời gian
-                                              final averageUsers = 14;
                                               String totalString = '';
-                                              String avgString = '';
                                               switch (selectedTimeRange) {
                                                 //Thống kê trong tuần này
                                                 case JobPostTimeRange.past7Days:
                                                   {
                                                     totalString =
-                                                        'Tổng $totalUsers người trong 7 ngày qua';
-                                                    avgString =
-                                                        'Trung bình $averageUsers người/ngày';
+                                                        'Tổng $totalJobpostings công việc mới trong 7 ngày qua';
                                                     break;
                                                   }
                                                 //Thống kê trong tháng này
@@ -582,9 +583,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                       .past4Weeks:
                                                   {
                                                     totalString =
-                                                        'Tổng $totalUsers người trong 4 tuần qua';
-                                                    avgString =
-                                                        'Trung bình $averageUsers người/tuần';
+                                                        'Tổng $totalJobpostings công việc mới trong 4 tuần qua';
                                                     break;
                                                   }
                                                 //Thống kê trong năm này
@@ -592,9 +591,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                       .past5Month:
                                                   {
                                                     totalString =
-                                                        'Tổng $totalUsers người trong năm này';
-                                                    avgString =
-                                                        'Trung bình $averageUsers người/tháng';
+                                                        'Tổng $totalJobpostings công việc mới trong 5 tháng qua';
                                                     break;
                                                   }
                                               }
@@ -740,181 +737,167 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           StaggeredGridTile.count(
                             crossAxisCellCount: 2,
                             mainAxisCellCount: 5,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.blue,
-                              ),
-                              padding: const EdgeInsets.all(10),
-                              child: Column(
-                                children: [
-                                  Expanded(
-                                    flex: 3,
-                                    //Hiển thị trạng thái tài khoản
-                                    child: ContentContainer(
-                                      header: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            'Trạng thái tài khoản',
-                                            style:
-                                                textTheme.titleMedium!.copyWith(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 18,
-                                            ),
+                            child: Column(
+                              children: [
+                                Expanded(
+                                  flex: 3,
+                                  //Hiển thị trạng thái tài khoản
+                                  child: ContentContainer(
+                                    header: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          'Trạng thái tài khoản',
+                                          style:
+                                              textTheme.titleMedium!.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 18,
                                           ),
-                                        ],
-                                      ),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.stretch,
-                                        children: [
-                                          FractionallySizedBox(
-                                            widthFactor: 0.9,
-                                            child: const Divider(
-                                              height: 2,
-                                            ),
-                                          ),
-                                          const SizedBox(
-                                            height: 10,
-                                          ),
-                                          Selector<StatsManager,
-                                                  AccountStatusData>(
-                                              selector:
-                                                  (context, statsManager) =>
-                                                      statsManager
-                                                          .accountStatusData,
-                                              builder: (context,
-                                                  acountStatusData, child) {
-                                                return AccountStatusChart(
-                                                  chartName: 'Nhà tuyển dụng',
-                                                  activeCount: acountStatusData
-                                                      .activeEmployer,
-                                                  lockedCount: acountStatusData
-                                                      .lockedEmployer,
-                                                );
-                                              }),
-                                          const SizedBox(
-                                            height: 10,
-                                          ),
-                                          Selector<StatsManager,
-                                                  AccountStatusData>(
-                                              selector:
-                                                  (context, statsManager) =>
-                                                      statsManager
-                                                          .accountStatusData,
-                                              builder: (context, statsManager,
-                                                  child) {
-                                                return AccountStatusChart(
-                                                  chartName: 'Người tìm việc',
-                                                  activeCount: statsManager
-                                                      .activeJobseeker,
-                                                  lockedCount: statsManager
-                                                      .lockedJobseeker,
-                                                );
-                                              }),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  Expanded(
-                                    flex: 2,
-                                    child: ContentContainer(
-                                      header: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            'Các khu vực tuyển dụng',
-                                            style:
-                                                textTheme.titleMedium!.copyWith(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 18,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      child: Expanded(
-                                        child: ListView.builder(
-                                          itemCount: 50,
-                                          itemBuilder: (context, index) =>
-                                              Text('Test $index'),
                                         ),
+                                      ],
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.stretch,
+                                      children: [
+                                        FractionallySizedBox(
+                                          widthFactor: 0.9,
+                                          child: const Divider(
+                                            height: 2,
+                                          ),
+                                        ),
+                                        const SizedBox(
+                                          height: 10,
+                                        ),
+                                        Selector<StatsManager,
+                                                AccountStatusData>(
+                                            selector: (context, statsManager) =>
+                                                statsManager.accountStatusData,
+                                            builder: (context, acountStatusData,
+                                                child) {
+                                              return AccountStatusChart(
+                                                chartName: 'Nhà tuyển dụng',
+                                                activeCount: acountStatusData
+                                                    .activeEmployer,
+                                                lockedCount: acountStatusData
+                                                    .lockedEmployer,
+                                              );
+                                            }),
+                                        const SizedBox(
+                                          height: 10,
+                                        ),
+                                        Selector<StatsManager,
+                                                AccountStatusData>(
+                                            selector: (context, statsManager) =>
+                                                statsManager.accountStatusData,
+                                            builder:
+                                                (context, statsManager, child) {
+                                              return AccountStatusChart(
+                                                chartName: 'Người tìm việc',
+                                                activeCount: statsManager
+                                                    .activeJobseeker,
+                                                lockedCount: statsManager
+                                                    .lockedJobseeker,
+                                              );
+                                            }),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                Expanded(
+                                  flex: 2,
+                                  child: ContentContainer(
+                                    header: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          'Các khu vực tuyển dụng',
+                                          style:
+                                              textTheme.titleMedium!.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 18,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    child: Expanded(
+                                      child: Selector<StatsManager, List<RecruitmentAreaData>>(
+                                        selector: (context, statsManager) => statsManager.recruitmentAreaData,
+                                        builder: (context, recruitmentAreaList, child) {
+                                          return RecruitmentArea(
+                                            recruitmentArea: recruitmentAreaList,
+                                          );
+                                        }
                                       ),
                                     ),
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                           ),
                           //Trạng thái ứng tuyển
                           StaggeredGridTile.count(
                             crossAxisCellCount: 6,
                             mainAxisCellCount: 3,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.black,
-                              ),
-                              padding: const EdgeInsets.all(10),
-                              child: ContentContainer(
-                                header: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      'Trạng thái ứng tuyển',
-                                      style: textTheme.titleMedium!.copyWith(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18,
-                                      ),
+                            child: ContentContainer(
+                              header: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Trạng thái ứng tuyển',
+                                    style: textTheme.titleMedium!.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18,
                                     ),
-                                    Transform.scale(
-                                      scale: 0.9,
-                                      child: DropdownMenu<TimeRange>(
-                                        initialSelection:
-                                            _selectedApplicationStatusTimeRange
-                                                .value,
-                                        requestFocusOnTap: false,
-                                        onSelected: (value) {
-                                          Utils.logMessage('Chọn $value');
+                                  ),
+                                  Transform.scale(
+                                    scale: 0.9,
+                                    child: DropdownMenu<TimeRange>(
+                                      initialSelection:
                                           _selectedApplicationStatusTimeRange
-                                              .value = value!;
-                                          //TODO gọi hàm trong manager để cập nhật lại giao diện,
-                                          //Nạp dữ liệu theo mốc thời gian
-                                          statsManager
-                                              .setApplicationStatsDataByTimeRange(
-                                                  value);
-                                        },
-                                        inputDecorationTheme:
-                                            InputDecorationTheme(
-                                                border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                        )),
-                                        dropdownMenuEntries: TimeRange.values
-                                            .map<DropdownMenuEntry<TimeRange>>(
-                                                (selectedRange) {
-                                          return DropdownMenuEntry<TimeRange>(
-                                            value: selectedRange,
-                                            label: selectedRange.value,
-                                          );
-                                        }).toList(),
-                                      ),
+                                              .value,
+                                      requestFocusOnTap: false,
+                                      onSelected: (value) {
+                                        Utils.logMessage('Chọn $value');
+                                        _selectedApplicationStatusTimeRange
+                                            .value = value!;
+                                        //TODO gọi hàm trong manager để cập nhật lại giao diện,
+                                        //Nạp dữ liệu theo mốc thời gian
+                                        statsManager
+                                            .setApplicationStatsDataByTimeRange(
+                                                value);
+                                      },
+                                      inputDecorationTheme:
+                                          InputDecorationTheme(
+                                              border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      )),
+                                      dropdownMenuEntries: TimeRange.values
+                                          .map<DropdownMenuEntry<TimeRange>>(
+                                              (selectedRange) {
+                                        return DropdownMenuEntry<TimeRange>(
+                                          value: selectedRange,
+                                          label: selectedRange.value,
+                                        );
+                                      }).toList(),
                                     ),
-                                  ],
-                                ),
-                                child: Consumer<StatsManager>(
-                                    builder: (context, statsManager, child) {
-                                  final statsData =
-                                      statsManager.applicationStatsData;
-                                  return ApplicationStatusChart(
-                                    statsData: statsData,
-                                  );
-                                }),
+                                  ),
+                                ],
                               ),
+                              child: Consumer<StatsManager>(
+                                  builder: (context, statsManager, child) {
+                                final statsData =
+                                    statsManager.applicationStatsData;
+                                return ApplicationStatusChart(
+                                  statsData: statsData,
+                                );
+                              }),
                             ),
                           ),
                         ],

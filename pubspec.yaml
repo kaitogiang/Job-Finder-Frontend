@@ -56,6 +56,8 @@ dependencies:
   fl_chart: ^0.69.0
   flutter_map: ^7.0.2
   latlong2: ^0.9.1
+  flutter_map_cancellable_tile_provider: ^3.0.2
+  sliding_up_panel: ^2.0.0+1
 
 dependency_overrides:
   flutter_plugin_android_lifecycle: 2.0.23

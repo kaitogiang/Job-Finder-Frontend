@@ -74,7 +74,7 @@ class _AccountStatusChartState extends State<AccountStatusChart> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            'Nhà tuyển dụng',
+            widget.chartName,
             style: textTheme.titleMedium,
           ),
           Expanded(

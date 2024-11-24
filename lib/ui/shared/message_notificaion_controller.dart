@@ -55,6 +55,35 @@ class MessageNotificaionController {
           folderType: FolderType.download,
         ),
       );
+    } else if (receivedAction.payload?['type'] == 'normal_notification') {
+      final target = receivedAction.payload?['target'];
+      //Nếu đối tượng nhận thông báo là jobseeker thì thực hiện
+      if (target == "jobseeker") {
+        //Chuyển hướng đến trang xem danh sách kết quả
+        if (navigatorKey?.currentState != null) {
+          //Chuyển hướng đến conversation
+          final currentContext = navigatorKey?.currentContext;
+          if (currentContext != null) {
+            //Chuyển hướng đến conversation
+            GoRouter.of(currentContext).goNamed(
+              "saved-work",
+            );
+          }
+        }
+      } else if (target == "employer") {
+        //Thực hiện xử lý đối với thông báo tới employer
+        //Chuyển hướng đến tab ứng viên
+        if (navigatorKey?.currentState != null) {
+          //Chuyển hướng đến conversation
+          final currentContext = navigatorKey?.currentContext;
+          if (currentContext != null) {
+            //Chuyển hướng đến conversation
+            GoRouter.of(currentContext).goNamed(
+              "application-list",
+            );
+          }
+        }
+      }
     }
   }
 }

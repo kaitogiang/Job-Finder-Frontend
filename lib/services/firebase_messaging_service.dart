@@ -16,20 +16,36 @@ Future<void> _messagingBackgroundHandler(RemoteMessage message) async {
 
 void _createMessageNotification(RemoteMessage message) {
   final data = Map<String, String>.from(message.data);
-
-  AwesomeNotifications().createNotification(
-    content: NotificationContent(
-      id: DateTime.now().microsecond,
-      channelKey: 'message_channel',
-      title: message.notification?.title,
-      body: message.notification?.body,
-      notificationLayout: NotificationLayout.MessagingGroup,
-      groupKey:
-          message.data['conversationId'], //message_group_key is the first value
-      largeIcon: 'asset://assets/images/comments.png',
-      payload: data,
-    ),
-  );
+  final notificationType = data['type'];
+  if (notificationType == "message_notification") {
+    AwesomeNotifications().createNotification(
+      content: NotificationContent(
+        id: DateTime.now().microsecond,
+        channelKey: 'message_channel',
+        title: message.notification?.title,
+        body: message.notification?.body,
+        notificationLayout: NotificationLayout.MessagingGroup,
+        groupKey: message
+            .data['conversationId'], //message_group_key is the first value
+        largeIcon: 'asset://assets/images/comments.png',
+        payload: data,
+      ),
+    );
+  } else if (notificationType == "normal_notification") {
+    AwesomeNotifications().createNotification(
+      content: NotificationContent(
+        id: DateTime.now().microsecond,
+        channelKey: 'message_channel',
+        title: message.notification?.title,
+        body: message.notification?.body,
+        notificationLayout: NotificationLayout.MessagingGroup,
+        groupKey:
+            message.data['jobpostingId'], //message_group_key is the first value
+        largeIcon: 'asset://assets/images/total_application.png',
+        payload: data,
+      ),
+    );
+  }
 }
 
 class FirebaseMessagingService {
