@@ -58,6 +58,12 @@ dependencies:
   latlong2: ^0.9.1
   flutter_map_cancellable_tile_provider: ^3.0.2
   sliding_up_panel: ^2.0.0+1
+  # syncfusion_flutter_pdf: ^27.2.3
+  # open_file: ^3.5.10
+  pdf: ^3.11.1
+  printing: ^5.13.4
+  open_file: ^3.5.10
+  flutter_cached_pdfview: ^0.4.3
 
 dependency_overrides:
   flutter_plugin_android_lifecycle: 2.0.23

@@ -5,8 +5,11 @@ import 'package:flutter_quill/flutter_quill.dart';
 import 'package:intl/intl.dart';
 import 'package:job_finder_app/models/jobposting.dart';
 import 'package:job_finder_app/ui/employer/application_manager.dart';
+import 'package:job_finder_app/ui/jobseeker/jobseeker_manager.dart';
 import 'package:job_finder_app/ui/shared/jobposting_manager.dart';
 import 'package:job_finder_app/ui/shared/message_manager.dart';
+import 'package:job_finder_app/ui/shared/modal_bottom_sheet.dart';
+import 'package:job_finder_app/ui/shared/resume_selection_screen.dart';
 import 'package:job_finder_app/ui/shared/utils.dart';
 import 'package:provider/provider.dart';
 import 'package:quickalert/quickalert.dart';
@@ -98,6 +101,34 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                           backgroundColor: theme.primaryColor,
                         ),
                         onPressed: () async {
+                          //Kiểm tra xem có thiết lập CV chưa, nếu chưa thì báo lỗi
+                          final resumes =
+                              context.read<JobseekerManager>().resumes;
+                          if (resumes.isEmpty) {
+                            QuickAlert.show(
+                              context: context,
+                              type: QuickAlertType.error,
+                              title: 'Không thể ứng tuyển',
+                              text: 'Vui lòng tạo CV trước khi ứng tuyển',
+                              confirmBtnText: 'Tôi biết rồi',
+                            );
+                            return;
+                          }
+                          //hiển thị modal cho phép chọn CV đã tạo
+                          final selection = await showAdditionalScreen(
+                            context: context,
+                            title: 'Chọn CV của bạn',
+                            child: const ResumeSelectionScreen(),
+                            heightFactor: 0.7,
+                          );
+                          //Nếu mở modal ra mà không chọn và đóng lại thì thôi
+                          if (selection == null) {
+                            return;
+                          }
+                          final selectedResumeIndex = selection as int;
+                          final resumeLink = resumes[selectedResumeIndex].url;
+                          Utils.logMessage('CV link nộp: $resumeLink');
+                          //Hiển thị xác nhận và gửi CV
                           final isApply = await QuickAlert.show(
                             context: context,
                             type: QuickAlertType.confirm,
@@ -126,7 +157,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                             final result = await context
                                 .read<ApplicationManager>()
                                 .applyApplication(
-                                    jobposting.id, employer!.email);
+                                    jobposting.id, employer!.email, resumeLink);
                             if (result && context.mounted) {
                               //Loại bỏ màn hình loading
                               Navigator.of(context, rootNavigator: true).pop();

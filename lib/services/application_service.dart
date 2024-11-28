@@ -146,7 +146,7 @@ class ApplicationService extends NodeService {
   }
 
   Future<bool> applyApplication(
-      String jobpostingId, String employerEmail) async {
+      String jobpostingId, String employerEmail, String resumeLink) async {
     try {
       await httpFetch(
         '$databaseUrl/api/application/',
@@ -156,6 +156,7 @@ class ApplicationService extends NodeService {
           "jobId": jobpostingId,
           "jobseekerId": userId,
           "employerEmail": employerEmail,
+          "resumeLink": resumeLink,
         }),
       );
       return true;

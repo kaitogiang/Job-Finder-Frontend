@@ -4,6 +4,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:job_finder_app/models/auth_token.dart';
 import 'package:job_finder_app/models/conversation.dart';
 import 'package:job_finder_app/models/message.dart';
+import 'package:job_finder_app/ui/shared/enums.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 import '../ui/shared/utils.dart';
 
@@ -190,5 +191,17 @@ class SocketService {
       Conversation newConversation = Conversation.fromJson(newConversationMap);
       _conversationController.add(newConversation);
     });
+  }
+
+  //Hàm emit sự kiện hành vi người dùng
+  void observeUserAction(BehaviourType actionType, String jobseekerId,
+      Map<String, dynamic> metaData) {
+    final Map<String, dynamic> data = {
+      'jobseekerId': jobseekerId,
+      'actionType': actionType.value,
+      'timestamp': DateTime.now().toIso8601String(),
+      'metaData': metaData,
+    };
+    socket?.emit('sendMessage', data);
   }
 }

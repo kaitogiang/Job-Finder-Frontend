@@ -5,8 +5,10 @@ import 'package:job_finder_app/models/auth_token.dart';
 import 'package:job_finder_app/models/education.dart';
 import 'package:job_finder_app/models/experience.dart';
 import 'package:job_finder_app/models/jobseeker.dart';
+import 'package:job_finder_app/models/resume.dart';
 import 'package:job_finder_app/services/jobseeker_service.dart';
 import 'package:flutter/foundation.dart';
+import 'package:job_finder_app/services/socket_service.dart';
 
 import 'package:job_finder_app/ui/shared/utils.dart';
 
@@ -32,6 +34,8 @@ class JobseekerManager extends ChangeNotifier {
   }
 
   Jobseeker get jobseeker => _jobseeker;
+
+  List<Resume> get resumes => _jobseeker.resume;
 
   List<String> get skills => _jobseeker.skills;
 
@@ -90,7 +94,7 @@ class JobseekerManager extends ChangeNotifier {
     final result = await _jobseekerService.uploadResume(filename, file);
     if (result != null) {
       jobseeker.resume.clear();
-      jobseeker.resume.add(result);
+      jobseeker.resume.addAll(result);
       notifyListeners();
     } else {
       Utils.logMessage('Lỗi trong hàm uploadResume của job manager');
@@ -98,10 +102,11 @@ class JobseekerManager extends ChangeNotifier {
   }
 
   //todo hàm xóa file cv
-  Future<bool> deleteResume() async {
-    final result = await _jobseekerService.deleteResume();
+  Future<bool> deleteResume(int index) async {
+    final result = await _jobseekerService.deleteResume(index);
     if (result) {
-      jobseeker.resume.clear();
+      // jobseeker.resume.clear();
+      jobseeker.resume.removeAt(index);
       notifyListeners();
     } else {
       Utils.logMessage('Lỗi trong hàm removeResume của job manager');
@@ -219,4 +224,8 @@ class JobseekerManager extends ChangeNotifier {
       return false;
     }
   }
+
+  //Ghi nhận hành vi của người dùng
+  //Ghi nhận hành động xem một bài viết của người dùng
+  void observeViewJobPostAction(String jobpostingId) {}
 }
