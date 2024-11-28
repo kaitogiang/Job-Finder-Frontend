@@ -83,10 +83,10 @@ class ApplicationManager extends ChangeNotifier {
 
   //? Hàm ứng tuyển vào công việc
   Future<bool> applyApplication(
-      String jobpostingId, String employerEmail) async {
+      String jobpostingId, String employerEmail, String resumeLink) async {
     try {
       final result = await _applicationService.applyApplication(
-          jobpostingId, employerEmail);
+          jobpostingId, employerEmail, resumeLink);
       if (result) {
         final applicationStorage =
             await _applicationService.fetchJobseekerApplication();

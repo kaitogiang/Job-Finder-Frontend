@@ -73,7 +73,7 @@ class _ResumeUploadScreenState extends State<ResumeUploadScreen> {
 
   Future<void> _deleteFile(BuildContext context) async {
     try {
-      await context.read<JobseekerManager>().deleteResume();
+      // await context.read<JobseekerManager>().deleteResume();
       if (context.mounted) {
         Navigator.pop(context);
       }

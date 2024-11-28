@@ -50,7 +50,7 @@ class ModalBottomSheet extends StatelessWidget {
   }
 }
 
-Future<void> showAdditionalScreen(
+Future<dynamic> showAdditionalScreen(
     {required BuildContext context,
     required String title,
     required Widget child,

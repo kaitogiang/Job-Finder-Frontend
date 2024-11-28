@@ -82,18 +82,40 @@ class JobseekerService extends NodeService {
       return false;
     }
   }
+  //Code cũ
+  // Future<Resume?> uploadResume(String filename, File file) async {
+  //   try {
+  //     final result = await httpUpload(
+  //         '$databaseUrl/api/jobseeker/$userId/resume',
+  //         file: file,
+  //         fields: {'filename': filename},
+  //         fileFieldName: 'resume') as Map<String, dynamic>;
+  //     Map<String, dynamic> pdfValue = result['pdf'][0];
+  //     Resume resume = Resume.fromJson(pdfValue);
 
-  Future<Resume?> uploadResume(String filename, File file) async {
+  //     return resume;
+  //   } catch (error) {
+  //     log('job service: $error');
+  //     return null;
+  //   }
+  // }
+  Future<List<Resume>?> uploadResume(String filename, File file) async {
     try {
       final result = await httpUpload(
           '$databaseUrl/api/jobseeker/$userId/resume',
           file: file,
           fields: {'filename': filename},
           fileFieldName: 'resume') as Map<String, dynamic>;
-      Map<String, dynamic> pdfValue = result['pdf'][0];
-      Resume resume = Resume.fromJson(pdfValue);
+      //Lấy danh sách các CV
+      final List<dynamic> originalResumeList = result['pdf'] as List<dynamic>;
+      //Chuyển mỗi phần tử bên trong mảng pdf thành kiểu Map
+      final List<Map<String, dynamic>> resumeMapList =
+          List<Map<String, dynamic>>.from(originalResumeList);
+      //Chuyển các phần tử kiểu Map trong danh sách trên thành kiểu Resume
+      final List<Resume> resumeList =
+          resumeMapList.map((resume) => Resume.fromJson(resume)).toList();
 
-      return resume;
+      return resumeList;
     } catch (error) {
       log('job service: $error');
       return null;
@@ -101,10 +123,10 @@ class JobseekerService extends NodeService {
   }
 
   //Todo service để xóa file cv
-  Future<bool> deleteResume() async {
+  Future<bool> deleteResume(int index) async {
     try {
       final result = await httpFetch(
-        '$databaseUrl/api/jobseeker/$userId/resume',
+        '$databaseUrl/api/jobseeker/$userId/resume/$index',
         method: HttpMethod.delete,
       );
       if (result != null) {
@@ -362,6 +384,7 @@ class JobseekerService extends NodeService {
       return false;
     }
   }
+
   //Hàm tìm kiếm thông tin của một ứng viên cụ thể
   Future<Jobseeker?> findJobseekerById(String userId) async {
     try {
@@ -380,7 +403,8 @@ class JobseekerService extends NodeService {
   //Hàm tìm thông tin của một ứng viên đã khóa
   Future<LockedUser?> findLockedJobseekerById(String userId) async {
     try {
-      final response = await httpFetch('$databaseUrl/api/jobseeker/locked/$userId',
+      final response = await httpFetch(
+          '$databaseUrl/api/jobseeker/locked/$userId',
           headers: {'Content-Type': 'application/json; charset=UTF-8'},
           method: HttpMethod.get) as Map<String, dynamic>;
       final lockedUser = LockedUser.fromJson(response);
@@ -390,4 +414,5 @@ class JobseekerService extends NodeService {
       return null;
     }
   }
+
 }

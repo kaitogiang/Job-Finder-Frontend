@@ -8,6 +8,7 @@ import 'package:job_finder_app/ui/jobseeker/jobseeker_manager.dart';
 import 'package:job_finder_app/ui/shared/combined_text_form_field.dart';
 import 'package:job_finder_app/ui/shared/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
+import 'package:quickalert/quickalert.dart';
 
 import '../../shared/addition_data.dart';
 
@@ -326,6 +327,30 @@ class _EducationAdditionScreenState extends State<EducationAdditionScreen> {
     );
   }
 
+  bool _isValidateDate(String fromDate, String toDate) {
+    if (fromDate.isEmpty) {
+      return true;
+    } else if (toDate.isEmpty) {
+      return true;
+    } else {
+      //Trích xuất fromDate
+      List<String> parts1 = fromDate.split('/');
+      int month1 = int.parse(parts1[0]);
+      int year1 = int.parse(parts1[1]);
+      //Trích xuất toDate
+      List<String> parts2 = toDate.split('/');
+      int month2 = int.parse(parts2[0]);
+      int year2 = int.parse(parts2[1]);
+      DateTime before = DateTime(year1, month1);
+      DateTime after = DateTime(year2, month2);
+      if (before.isBefore(after)) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+  }
+
   void _showFromMonthPicker() {
     showAdditionalScreen(
         context: context,
@@ -333,13 +358,26 @@ class _EducationAdditionScreenState extends State<EducationAdditionScreen> {
         child: Builder(builder: (context) {
           return MonthPicker(
             centerLeadingDate: true,
-            minDate: DateTime(2020, 1),
+            minDate: DateTime(2000, 1),
             maxDate: DateTime.now(),
             onDateSelected: (value) {
               DateFormat format = DateFormat("MM/yyyy");
               String date = format.format(value);
-              _fromController.text = date;
-              Navigator.of(context).pop();
+              //Kiểm tra giá trị hợp lệ trước khi gán
+              final isValidDate = _isValidateDate(date, _toController.text);
+              if (isValidDate) {
+                _fromController.text = date;
+                Navigator.of(context).pop();
+              } else {
+                Navigator.of(context).pop();
+                QuickAlert.show(
+                  context: context,
+                  type: QuickAlertType.error,
+                  title: 'Không thể chọn ngày',
+                  text: 'Ngày bắt đầu phải nhỏ hơn ngày kết thúc',
+                  confirmBtnText: 'Tôi biết rồi',
+                );
+              }
             },
           );
         }));
@@ -352,13 +390,26 @@ class _EducationAdditionScreenState extends State<EducationAdditionScreen> {
         child: Builder(builder: (context) {
           return MonthPicker(
             centerLeadingDate: true,
-            minDate: DateTime(2020, 1),
+            minDate: DateTime(2000, 1),
             maxDate: DateTime.now(),
             onDateSelected: (value) {
               DateFormat format = DateFormat("MM/yyyy");
               String date = format.format(value);
-              _toController.text = date;
-              Navigator.of(context).pop();
+              //Kiểm tra giá trị hợp lệ trước khi gán
+              final isValidDate = _isValidateDate(_fromController.text, date);
+              if (isValidDate) {
+                _toController.text = date;
+                Navigator.of(context).pop();
+              } else {
+                Navigator.of(context).pop();
+                QuickAlert.show(
+                  context: context,
+                  type: QuickAlertType.error,
+                  title: 'Không thể chọn ngày',
+                  text: 'Ngày bắt đầu phải nhỏ hơn ngày kết thúc',
+                  confirmBtnText: 'Tôi biết rồi',
+                );
+              }
             },
           );
         }));

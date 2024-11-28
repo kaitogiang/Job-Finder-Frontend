@@ -271,6 +271,30 @@ class _ExperienceAdditionScreenState extends State<ExperienceAdditionScreen> {
     );
   }
 
+  bool _isValidateDate(String fromDate, String toDate) {
+    if (fromDate.isEmpty) {
+      return true;
+    } else if (toDate.isEmpty) {
+      return true;
+    } else {
+      //Trích xuất fromDate
+      List<String> parts1 = fromDate.split('/');
+      int month1 = int.parse(parts1[0]);
+      int year1 = int.parse(parts1[1]);
+      //Trích xuất toDate
+      List<String> parts2 = toDate.split('/');
+      int month2 = int.parse(parts2[0]);
+      int year2 = int.parse(parts2[1]);
+      DateTime before = DateTime(year1, month1);
+      DateTime after = DateTime(year2, month2);
+      if (before.isBefore(after)) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+  }
+
   void _showFromMonthPicker() {
     showAdditionalScreen(
         context: context,
@@ -282,8 +306,20 @@ class _ExperienceAdditionScreenState extends State<ExperienceAdditionScreen> {
           onDateSelected: (value) {
             DateFormat format = DateFormat("MM/yyyy");
             String date = format.format(value);
-            _fromController.text = date;
-            Navigator.of(context).pop();
+            final isValidDate = _isValidateDate(date, _toController.text);
+            if (isValidDate) {
+              _fromController.text = date;
+              Navigator.of(context).pop();
+            } else {
+              Navigator.of(context).pop();
+              QuickAlert.show(
+                context: context,
+                type: QuickAlertType.error,
+                title: 'Không thể chọn ngày',
+                text: 'Ngày bắt đầu phải nhỏ hơn ngày kết thúc',
+                confirmBtnText: 'Tôi biết rồi',
+              );
+            }
           },
         ));
   }
@@ -299,8 +335,20 @@ class _ExperienceAdditionScreenState extends State<ExperienceAdditionScreen> {
           onDateSelected: (value) {
             DateFormat format = DateFormat("MM/yyyy");
             String date = format.format(value);
-            _toController.text = date;
-            Navigator.of(context).pop();
+            final isValidDate = _isValidateDate(_fromController.text, date);
+            if (isValidDate) {
+              _toController.text = date;
+              Navigator.of(context).pop();
+            } else {
+              Navigator.of(context).pop();
+              QuickAlert.show(
+                context: context,
+                type: QuickAlertType.error,
+                title: 'Không thể chọn ngày',
+                text: 'Ngày bắt đầu phải nhỏ hơn ngày kết thúc',
+                confirmBtnText: 'Tôi biết rồi',
+              );
+            }
           },
         ));
   }

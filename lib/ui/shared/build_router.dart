@@ -20,9 +20,13 @@ import 'package:job_finder_app/ui/employer/tech_addition_screen.dart';
 import 'package:job_finder_app/ui/employer/widgets/quill_editor_screen.dart';
 import 'package:job_finder_app/ui/jobseeker/jobseeker_profile_pages/education_addition_screen.dart';
 import 'package:job_finder_app/ui/jobseeker/jobseeker_profile_pages/experience_addition_screen.dart';
+import 'package:job_finder_app/ui/jobseeker/jobseeker_profile_pages/resume_list_screen.dart';
 import 'package:job_finder_app/ui/jobseeker/jobseeker_profile_pages/resume_upload_screen.dart';
 import 'package:job_finder_app/ui/jobseeker/jobseeker_profile_pages/skill_addition_screen.dart';
 import 'package:job_finder_app/ui/jobseeker/my_job_screen.dart';
+import 'package:job_finder_app/ui/jobseeker/resume_preview/resume_creation_form.dart';
+import 'package:job_finder_app/ui/jobseeker/resume_preview/resume_creation_preview.dart';
+import 'package:job_finder_app/ui/jobseeker/resume_preview/resume_preview_screen.dart';
 import 'package:job_finder_app/ui/jobseeker/search_job_screen.dart';
 import 'package:job_finder_app/ui/jobseeker/search_result_screen.dart';
 import 'package:job_finder_app/ui/shared/change_email_screen.dart';
@@ -34,6 +38,7 @@ import 'package:job_finder_app/ui/shared/job_detail_screen.dart';
 import 'package:job_finder_app/ui/shared/jobseeker_detail_screen.dart';
 import 'package:job_finder_app/ui/shared/message_screen.dart';
 import 'package:job_finder_app/ui/shared/user_setting_screen.dart';
+import 'package:path/path.dart';
 import '../employer/approved_application_screen.dart';
 import '../employer/company_screen.dart';
 import '../employer/employer_edit_screen.dart';
@@ -210,46 +215,82 @@ List<StatefulShellBranch> _buildJobseekerRoutes() {
     StatefulShellBranch(
       routes: <RouteBase>[
         GoRoute(
-            name: 'account',
-            path: '/account',
-            builder: (context, state) => JobseekerProfileScreen(),
-            routes: <RouteBase>[
-              //Trang chỉnh sửa thông tin cá nhân
-              GoRoute(
+          name: 'account',
+          path: '/account',
+          builder: (context, state) => JobseekerProfileScreen(),
+          routes: <RouteBase>[
+            //Trang chỉnh sửa thông tin cá nhân
+            GoRoute(
+                parentNavigatorKey: _rootNavigatorkey,
+                name: 'information-edit',
+                path: 'information-edit',
+                builder: (context, state) => InformationEditScreen(
+                      state.extra as Jobseeker,
+                    )),
+            //Trang thêm skill
+            GoRoute(
+                parentNavigatorKey: _rootNavigatorkey,
+                name: 'skill-addition',
+                path: 'skill-addition',
+                builder: (context, state) => SkillAdditionScreen()),
+            GoRoute(
+              parentNavigatorKey: _rootNavigatorkey,
+              name: 'resume-upload',
+              path: 'resume-upload',
+              builder: (context, state) =>
+                  ResumeUploadScreen(resume: state.extra as Resume?),
+            ),
+            GoRoute(
+              parentNavigatorKey: _rootNavigatorkey,
+              name: 'experience-addition',
+              path: 'experience-addition',
+              builder: (context, state) => ExperienceAdditionScreen(
+                  experience: state.extra as Experience?),
+            ),
+            GoRoute(
+              parentNavigatorKey: _rootNavigatorkey,
+              name: 'education-addition',
+              path: 'education-addition',
+              builder: (context, state) =>
+                  EducationAdditionScreen(education: state.extra as Education?),
+            ),
+            //Trang hiển thị thêm CV mới
+            GoRoute(
+              parentNavigatorKey: _rootNavigatorkey,
+              name: 'resume-list',
+              path: 'resume-list',
+              builder: (context, state) => const ResumeListScreen(),
+              routes: <RouteBase>[
+                GoRoute(
                   parentNavigatorKey: _rootNavigatorkey,
-                  name: 'information-edit',
-                  path: 'information-edit',
-                  builder: (context, state) => InformationEditScreen(
-                        state.extra as Jobseeker,
-                      )),
-              //Trang thêm skill
-              GoRoute(
+                  name: 'resume-creation',
+                  path: 'resume-creation',
+                  builder: (context, state) =>
+                      const ResumeCreationForm(),
+                  routes: <RouteBase>[
+                    //Trang dùng để xem trước file PDF của CV
+                    //Map chứa jobseeker và các thông tin mô tả bổ sung cho các kinh nghiệm nếu có
+                    GoRoute(
+                      parentNavigatorKey: _rootNavigatorkey,
+                      name: 'resume-creation-preview',
+                      path: 'resume-creation-preview',
+                      builder: (context, state) => ResumeCreationPreview(
+                        data: state.extra as Map<String, dynamic>,
+                      ),
+                    )
+                  ],
+                ),
+                //Route dùng để xem file PDF trước của CV
+                GoRoute(
                   parentNavigatorKey: _rootNavigatorkey,
-                  name: 'skill-addition',
-                  path: 'skill-addition',
-                  builder: (context, state) => SkillAdditionScreen()),
-              GoRoute(
-                parentNavigatorKey: _rootNavigatorkey,
-                name: 'resume-upload',
-                path: 'resume-upload',
-                builder: (context, state) =>
-                    ResumeUploadScreen(resume: state.extra as Resume?),
-              ),
-              GoRoute(
-                parentNavigatorKey: _rootNavigatorkey,
-                name: 'experience-addition',
-                path: 'experience-addition',
-                builder: (context, state) => ExperienceAdditionScreen(
-                    experience: state.extra as Experience?),
-              ),
-              GoRoute(
-                parentNavigatorKey: _rootNavigatorkey,
-                name: 'education-addition',
-                path: 'education-addition',
-                builder: (context, state) => EducationAdditionScreen(
-                    education: state.extra as Education?),
-              ),
-            ]),
+                  name: 'resume-preview',
+                  path: 'resume-preview',
+                  builder: (context, state) => ResumePreviewScreen(url: state.extra as String),
+                )
+              ],
+            ),
+          ],
+        ),
       ],
     ),
   ];

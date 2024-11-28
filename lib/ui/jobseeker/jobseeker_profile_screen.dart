@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:job_finder_app/ui/auth/auth_manager.dart';
 import 'package:job_finder_app/ui/jobseeker/jobseeker_manager.dart';
+import 'package:job_finder_app/ui/jobseeker/resume_preview/resume_creation_form.dart';
+import 'package:job_finder_app/ui/jobseeker/resume_preview/resume_creation_preview.dart';
+import 'package:job_finder_app/ui/jobseeker/resume_preview/resume_preview_screen.dart';
 import 'package:job_finder_app/ui/shared/loading_screen.dart';
 import 'package:provider/provider.dart';
 import '../../models/resume.dart';
@@ -250,69 +253,69 @@ class JobseekerProfileScreen extends StatelessWidget {
                           const SizedBox(
                             height: 20,
                           ),
-                          //Card hiển thị thông tin CV đã tải lên
-                          JobseekerInfoCard(
-                            //Tiêu đề cho Card
-                            title: 'CV của tôi',
-                            children: [
-                              //Khung dùng để chứa thông tin tên CV và ngày tải lên cùng nút
-                              //Hành động, một dòng chứa CV được tải lên
-                              jobseekerManager.jobseeker.resume.isEmpty
-                                  ? Container(
-                                      margin: EdgeInsets.only(top: 10),
-                                      child: Text(
-                                        'Bạn chưa tải CV nào, hãy tải lên để các nhà tuyển dụng có thể thấy CV của bạn',
-                                        style: textTheme.bodyLarge,
-                                      ),
-                                    )
-                                  : ResumeInforCard(
-                                      resume: Resume(
-                                          fileName: jobseekerManager
-                                              .jobseeker.resume[0].fileName,
-                                          url: jobseekerManager
-                                              .jobseeker.resume[0].url,
-                                          uploadedDate: jobseekerManager
-                                              .jobseeker
-                                              .resume[0]
-                                              .uploadedDate),
-                                    ),
-                              const SizedBox(
-                                height: 20,
-                              ),
-                              //Nút tùy chỉnh CV
-                              ElevatedButton(
-                                onPressed: () {
-                                  log('Chỉnh sửa CV');
-                                  Resume? resume = jobseekerManager
-                                          .jobseeker.resume.isEmpty
-                                      ? null
-                                      : jobseekerManager.jobseeker.resume[0];
-                                  context.pushNamed('resume-upload',
-                                      extra: resume);
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  side: BorderSide(
-                                      color: theme.colorScheme.primary),
-                                  backgroundColor: theme.indicatorColor,
-                                  elevation: 0,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  foregroundColor: theme.colorScheme.primary,
-                                  fixedSize: Size(deviceSize.width - 30, 50),
-                                  textStyle: textTheme.titleLarge!.copyWith(
-                                      fontFamily: 'Lato', fontSize: 20),
-                                ),
-                                child: Text(
-                                    jobseekerManager.jobseeker.resume.isEmpty
-                                        ? 'Tải lên CV'
-                                        : 'Chỉnh sửa CV'),
-                              )
-                            ],
-                          ),
-                          const SizedBox(
-                            height: 20,
-                          ),
+                          //NOT USE: Card hiển thị thông tin CV đã tải lên
+                          // JobseekerInfoCard(
+                          //   //Tiêu đề cho Card
+                          //   title: 'CV của tôi',
+                          //   children: [
+                          //     //Khung dùng để chứa thông tin tên CV và ngày tải lên cùng nút
+                          //     //Hành động, một dòng chứa CV được tải lên
+                          //     jobseekerManager.jobseeker.resume.isEmpty
+                          //         ? Container(
+                          //             margin: EdgeInsets.only(top: 10),
+                          //             child: Text(
+                          //               'Bạn chưa tải CV nào, hãy tải lên để các nhà tuyển dụng có thể thấy CV của bạn',
+                          //               style: textTheme.bodyLarge,
+                          //             ),
+                          //           )
+                          //         : ResumeInforCard(
+                          //             resume: Resume(
+                          //                 fileName: jobseekerManager
+                          //                     .jobseeker.resume[0].fileName,
+                          //                 url: jobseekerManager
+                          //                     .jobseeker.resume[0].url,
+                          //                 uploadedDate: jobseekerManager
+                          //                     .jobseeker
+                          //                     .resume[0]
+                          //                     .uploadedDate),
+                          //           ),
+                          //     const SizedBox(
+                          //       height: 20,
+                          //     ),
+                          //     //Nút tùy chỉnh CV
+                          //     ElevatedButton(
+                          //       onPressed: () {
+                          //         log('Chỉnh sửa CV');
+                          //         Resume? resume = jobseekerManager
+                          //                 .jobseeker.resume.isEmpty
+                          //             ? null
+                          //             : jobseekerManager.jobseeker.resume[0];
+                          //         context.pushNamed('resume-upload',
+                          //             extra: resume);
+                          //       },
+                          //       style: ElevatedButton.styleFrom(
+                          //         side: BorderSide(
+                          //             color: theme.colorScheme.primary),
+                          //         backgroundColor: theme.indicatorColor,
+                          //         elevation: 0,
+                          //         shape: RoundedRectangleBorder(
+                          //           borderRadius: BorderRadius.circular(10),
+                          //         ),
+                          //         foregroundColor: theme.colorScheme.primary,
+                          //         fixedSize: Size(deviceSize.width - 30, 50),
+                          //         textStyle: textTheme.titleLarge!.copyWith(
+                          //             fontFamily: 'Lato', fontSize: 20),
+                          //       ),
+                          //       child: Text(
+                          //           jobseekerManager.jobseeker.resume.isEmpty
+                          //               ? 'Tải lên CV'
+                          //               : 'Chỉnh sửa CV'),
+                          //     )
+                          //   ],
+                          // ),
+                          // const SizedBox(
+                          //   height: 20,
+                          // ),
                           //Card hiển thị các kinh nghiệm làm việc của ứng viên
                           JobseekerInfoCard(
                             title: 'Kinh nghiệm làm việc',
@@ -509,6 +512,114 @@ class JobseekerProfileScreen extends StatelessWidget {
                                         );
                                       }).toList(),
                                     )
+                            ],
+                          ),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          //TODO Demo thử nghiệm tạo CV cứng
+
+                          // JobseekerInfoCard(
+                          //   title: 'Danh sach CV',
+                          //   children: [
+                          //     TextButton(
+                          //       onPressed: () {
+                          //         context.pushNamed('resume-creation',
+                          //             extra: jobseekerManager.jobseeker);
+                          //       },
+                          //       child: Text('Tạo CV mới'),
+                          //     ),
+                          //     const SizedBox(
+                          //       height: 10,
+                          //     ),
+                          //     TextButton(
+                          //       onPressed: () {
+                          //         Navigator.of(context, rootNavigator: true)
+                          //             .push(
+                          //           MaterialPageRoute(
+                          //             builder: (context) =>
+                          //                 const ResumePreviewScreen(
+                          //               url:
+                          //                   '/pdfs/jobseeker-1729431205323-171481625.pdf',
+                          //             ),
+                          //           ),
+                          //         );
+                          //       },
+                          //       child: Text('Xem CV trực tiếp'),
+                          //     ),
+                          //   ],
+                          // ),
+                          JobseekerInfoCard(
+                            title: 'CV của tôi',
+                            children: [
+                              //Khung dùng để chứa thông tin tên CV và ngày tải lên cùng nút
+                              //Hành động, một dòng chứa CV được tải lên
+                              jobseekerManager.jobseeker.resume.isEmpty
+                                  ? Container(
+                                      margin: EdgeInsets.only(top: 10),
+                                      child: Text(
+                                        'Bạn chưa tạo CV nào, hãy tạo CV để các nhà tuyển dụng có thể thấy CV của bạn',
+                                        style: textTheme.bodyLarge,
+                                      ),
+                                    )
+                                  : ListView.builder(
+                                      physics: NeverScrollableScrollPhysics(),
+                                      itemCount: jobseekerManager
+                                          .jobseeker.resume.length,
+                                      shrinkWrap: true,
+                                      itemBuilder: (context, index) {
+                                        return Padding(
+                                          padding:
+                                              const EdgeInsets.only(bottom: 7),
+                                          child: ResumeInforCard(
+                                            resume: Resume(
+                                              fileName: jobseekerManager
+                                                  .jobseeker
+                                                  .resume[index]
+                                                  .fileName,
+                                              url: jobseekerManager
+                                                  .jobseeker.resume[index].url,
+                                              uploadedDate: jobseekerManager
+                                                  .jobseeker
+                                                  .resume[index]
+                                                  .uploadedDate,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                              const SizedBox(
+                                height: 20,
+                              ),
+                              //Nút tùy chỉnh CV
+                              ElevatedButton(
+                                onPressed: () {
+                                  log('Chỉnh sửa CV');
+                                  Resume? resume = jobseekerManager
+                                          .jobseeker.resume.isEmpty
+                                      ? null
+                                      : jobseekerManager.jobseeker.resume[0];
+                                  context.pushNamed('resume-list',
+                                      extra: resume);
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  side: BorderSide(
+                                      color: theme.colorScheme.primary),
+                                  backgroundColor: theme.indicatorColor,
+                                  elevation: 0,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  foregroundColor: theme.colorScheme.primary,
+                                  fixedSize: Size(deviceSize.width - 30, 50),
+                                  textStyle: textTheme.titleLarge!.copyWith(
+                                      fontFamily: 'Lato', fontSize: 20),
+                                ),
+                                child: Text(
+                                    jobseekerManager.jobseeker.resume.isEmpty
+                                        ? 'Tạo mới CV'
+                                        : 'Chỉnh sửa CV'),
+                              )
                             ],
                           ),
                           const SizedBox(
