@@ -117,6 +117,7 @@ class CompanyDetailScreen extends StatelessWidget {
               toolbarHeight: 30,
               centerTitle: true,
               elevation: 0,
+              automaticallyImplyLeading: false,
               flexibleSpace: Container(
                 height: 70,
                 alignment: Alignment.center,

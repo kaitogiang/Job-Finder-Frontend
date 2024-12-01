@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:job_finder_app/ui/employer/company_manager.dart';
+import 'package:job_finder_app/ui/jobseeker/jobseeker_manager.dart';
 import 'package:job_finder_app/ui/jobseeker/widgets/company_card.dart';
 import 'package:provider/provider.dart';
 
@@ -103,6 +104,12 @@ class _CompanyListScreenState extends State<CompanyListScreen> {
                     if (value.isEmpty) {
                       return;
                     }
+                    //Ghi nhận hành động
+                    final jobseekerId =
+                        context.read<JobseekerManager>().jobseeker.id;
+                    context
+                        .read<JobseekerManager>()
+                        .observeSearchCompanyAction(jobseekerId, value);
                     context.read<CompanyManager>().search(value);
                   },
                 ),

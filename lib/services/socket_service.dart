@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
+import 'dart:isolate';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:job_finder_app/models/auth_token.dart';
 import 'package:job_finder_app/models/conversation.dart';
@@ -202,6 +203,19 @@ class SocketService {
       'timestamp': DateTime.now().toIso8601String(),
       'metaData': metaData,
     };
-    socket?.emit('sendMessage', data);
+    String eventName = switch (actionType) {
+      BehaviourType.viewJobPost => 'viewJobPostAction',
+      BehaviourType.saveJobPost => 'saveJobPostAction',
+      BehaviourType.searchJobPost => 'searchJobPostAction',
+      BehaviourType.searchCompany => 'searchCompanyAction',
+      BehaviourType.viewCompany => 'viewCompanyAction',
+      BehaviourType.filterJobPost => 'filterJobPostAction',
+    };
+    socket?.emit(eventName, data);
+    Utils.logMessage('Ghi nhận hành động');
+  }
+
+  void emitJobSuggestiong(String userid) {
+    socket?.emit("suggestJob", userid);
   }
 }

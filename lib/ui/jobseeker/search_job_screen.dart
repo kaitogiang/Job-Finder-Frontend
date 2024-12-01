@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:job_finder_app/ui/jobseeker/jobseeker_manager.dart';
 import 'package:job_finder_app/ui/shared/job_card.dart';
 import 'package:job_finder_app/ui/shared/jobposting_manager.dart';
 import 'package:provider/provider.dart';
@@ -59,7 +60,7 @@ class _SearchJobScreenState extends State<SearchJobScreen> {
     ThemeData theme = Theme.of(context);
     TextTheme textTheme = theme.textTheme;
     final suggestionJobposting =
-        context.watch<JobpostingManager>().randomJobposting;
+        context.watch<JobpostingManager>().jobpostingSuggestion;
 
     return Scaffold(
       appBar: AppBar(
@@ -123,6 +124,13 @@ class _SearchJobScreenState extends State<SearchJobScreen> {
                     if (value.isEmpty) {
                       return;
                     }
+
+                    //Ghi nhận hành động
+                    final jobseekerId =
+                        context.read<JobseekerManager>().jobseeker.id;
+                    context
+                        .read<JobseekerManager>()
+                        .observeSearchJobPostAction(jobseekerId, value);
                     //todo Lưu từ khóa vào bộ nhớ điện thoại để hiển thị lịch sử
                     saveSearchKeyword(value);
 

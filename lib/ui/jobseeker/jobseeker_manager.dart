@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:isolate';
 
 import 'package:flutter/material.dart';
 import 'package:job_finder_app/models/auth_token.dart';
@@ -9,6 +10,7 @@ import 'package:job_finder_app/models/resume.dart';
 import 'package:job_finder_app/services/jobseeker_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:job_finder_app/services/socket_service.dart';
+import 'package:job_finder_app/ui/shared/enums.dart';
 
 import 'package:job_finder_app/ui/shared/utils.dart';
 
@@ -16,6 +18,7 @@ class JobseekerManager extends ChangeNotifier {
   Jobseeker _jobseeker;
 
   final JobseekerService _jobseekerService;
+  SocketService? _socketService;
 
   JobseekerManager([Jobseeker? jobseeker, AuthToken? authToken])
       : _jobseeker = jobseeker!,
@@ -33,6 +36,11 @@ class JobseekerManager extends ChangeNotifier {
     notifyListeners();
   }
 
+  set socketService(SocketService? socketService) {
+    _socketService = socketService;
+    notifyListeners();
+  }
+
   Jobseeker get jobseeker => _jobseeker;
 
   List<Resume> get resumes => _jobseeker.resume;
@@ -44,6 +52,8 @@ class JobseekerManager extends ChangeNotifier {
     if (jobseeker != null) {
       _jobseeker = jobseeker;
     }
+    //Emit sự kiện gọi suggest job
+    // _socketService?.emitJobSuggestiong(jobseeker!.id);
     notifyListeners();
   }
 
@@ -227,5 +237,68 @@ class JobseekerManager extends ChangeNotifier {
 
   //Ghi nhận hành vi của người dùng
   //Ghi nhận hành động xem một bài viết của người dùng
-  void observeViewJobPostAction(String jobpostingId) {}
+  void observeViewJobPostAction(String jobseekerId, String jobpostingId) {
+    //Khởi tạo MetaData cho hành động
+    final Map<String, dynamic> metaData = {
+      'jobpostingId': jobpostingId,
+    };
+    // //Thực hiện emit sự kiện
+    _socketService?.observeUserAction(
+        BehaviourType.viewJobPost, jobseekerId, metaData);
+  }
+
+  //Ghi nhận hành động lưu bài tuyển dụng
+  void observeSaveJobPostAction(String jobseekerId, String jobpostingId) {
+    //Khởi tạo metaData cho hành động
+    final Map<String, dynamic> metaData = {
+      'jobpostingId': jobpostingId,
+    };
+    //Thực hiện emit sự kiện
+    _socketService?.observeUserAction(
+        BehaviourType.saveJobPost, jobseekerId, metaData);
+  }
+
+  //Ghi nhận hành động tìm kiếm bài đăng
+  void observeSearchJobPostAction(String jobseekerId, String searchQuery) {
+    //Khởi tạo metaData cho hành động
+    final Map<String, dynamic> metaData = {
+      'searchQuery': searchQuery,
+    };
+    //Thực hiện emit sự kiện
+    _socketService?.observeUserAction(
+        BehaviourType.searchJobPost, jobseekerId, metaData);
+  }
+
+  //Ghi nhận hành động tìm công ty
+  void observeSearchCompanyAction(String jobseekerId, String searchQuery) {
+    //Khởi tạo metaDat cho hành động
+    final Map<String, dynamic> metaData = {
+      'searchQuery': searchQuery,
+    };
+    //Thực hiện emit sự kiện
+    _socketService?.observeUserAction(
+        BehaviourType.searchCompany, jobseekerId, metaData);
+  }
+
+  //Ghi nhận hành động xem công ty
+  void observeViewCompanyAction(String jobseekerId, String companyId) {
+    //KHởi tạo metaDat cho hành động
+    final Map<String, dynamic> metaData = {
+      'companyId': companyId,
+    };
+    //Thực hiện emit sự kiện
+    _socketService?.observeUserAction(
+        BehaviourType.viewCompany, jobseekerId, metaData);
+  }
+
+  //Ghi nhận hành động lọc bài đăng
+  void observeFilterJobPostAction(String jobseekerId, String filterOption) {
+    //Khởi tạo metaData cho hành động
+    final Map<String, dynamic> metaData = {
+      'filterOption': filterOption,
+    };
+    //Thực hiện emit sự kiện
+    _socketService?.observeUserAction(
+        BehaviourType.filterJobPost, jobseekerId, metaData);
+  }
 }

@@ -123,6 +123,8 @@ class MyApp extends StatelessWidget {
             //* cho JobseekerManager
             jobseekerManager!.authToken = authManager.authToken;
             // jobseekerManager.jobseeker = authManager.jobseeker;
+            //Truyền socketService vào cho JobseekerManager
+            jobseekerManager.socketService = authManager.socketService;
             Utils.logMessage(
                 "---- ChangeNotifierProxyProvider<AuthManager, JobseekerManager> ----");
             return jobseekerManager;

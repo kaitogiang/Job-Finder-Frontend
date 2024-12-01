@@ -219,6 +219,17 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                           builder: (context, isFavorite, child) {
                             return IconButton(
                               onPressed: () async {
+                                //Ghi nhận hành động
+                                final jobseekerId = context
+                                    .read<JobseekerManager>()
+                                    .jobseeker
+                                    .id;
+                                if (!jobposting.isFavorite) {
+                                  context
+                                      .read<JobseekerManager>()
+                                      .observeSaveJobPostAction(
+                                          jobseekerId, jobposting.id);
+                                }
                                 await context
                                     .read<JobpostingManager>()
                                     .changeFavoriteStatus(jobposting);

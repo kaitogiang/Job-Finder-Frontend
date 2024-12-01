@@ -58,6 +58,55 @@ class JobpostingService extends NodeService {
       return null;
     }
   }
+  //Hàm lấy đề xuất công việc
+  Future<List<Jobposting>?> fetchJobpostingSuggestionList() async {
+    try {
+      final response = await httpFetch(
+        '$databaseUrl/api/jobposting/suggestJob/$userId',
+        headers: headers,
+        method: HttpMethod.get,
+      ) as List<dynamic>;
+      final favorteResponse = await httpFetch(
+        '$databaseUrl/api/jobposting/user/$userId/favorite',
+        headers: headers,
+        method: HttpMethod.get,
+      ) as List<dynamic>;
+
+      //todo Phải chuyển mỗi phần tử thành chuỗi thì mới ép kiểu được
+      List<String> favoritePosts = favorteResponse.isNotEmpty
+          ? favorteResponse
+              .map(
+                (e) => e as String,
+              )
+              .toList()
+          : [];
+      log('List<Jobposting> đã nạp: ${response.length}');
+      log('Favorite hien tai la: ${favoritePosts.length}');
+      //? Danh sách tất cả các bài tuyển dụng
+      List<Map<String, dynamic>> list =
+          response.map((e) => e as Map<String, dynamic>).toList();
+      //todo Kết hợp lại với favorite, chuyển đổi thuộc tính isFavorite của từng
+      //todo phần tử nếu nó có trong danh sách favoritePosts
+      if (favoritePosts.isNotEmpty) {
+        List<Jobposting> jobpostingList =
+            list.map((e) => Jobposting.fromJson(e)).toList();
+        //todo kiểm tra xem bài viết có trong favoritePost không
+        for (Jobposting post in jobpostingList) {
+          if (favoritePosts.contains(post.id)) {
+            post.isFavorite = true;
+          }
+        }
+        return jobpostingList;
+      } else {
+        List<Jobposting> jobpostingList =
+            list.map((e) => Jobposting.fromJson(e)).toList();
+        return jobpostingList;
+      }
+    } catch (error) {
+      log('Error in fetchJobpostingList - Job service: $error');
+      return null;
+    }
+  }
 
   Future<bool> changeFavoriteState(bool value, String jobpostingId) async {
     try {

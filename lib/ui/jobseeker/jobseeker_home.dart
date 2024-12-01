@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:job_finder_app/ui/jobseeker/jobseeker_manager.dart';
 import 'package:job_finder_app/ui/jobseeker/widgets/job_page_view.dart';
 import 'package:job_finder_app/ui/jobseeker/widgets/message_icon.dart';
 import 'package:job_finder_app/ui/shared/job_card.dart';
@@ -87,7 +88,9 @@ class _JobseekerHomeState extends State<JobseekerHome> {
           title: ValueListenableBuilder(
               valueListenable: _isShowSearchAppbar,
               builder: (context, isShowSearch, child) {
-                return !isShowSearch ? const Text('Xin chào') : const SearchField();
+                return !isShowSearch
+                    ? const Text('Xin chào')
+                    : const SearchField();
               }),
           toolbarHeight: 70,
           flexibleSpace: Container(
@@ -196,6 +199,16 @@ class _JobseekerHomeState extends State<JobseekerHome> {
                                               .read<JobpostingManager>()
                                               .filterJobposting(
                                                   filteredList[index]);
+                                          //Ghi nhận hành động
+                                          final jobseekerId = context
+                                              .read<JobseekerManager>()
+                                              .jobseeker
+                                              .id;
+                                          context
+                                              .read<JobseekerManager>()
+                                              .observeFilterJobPostAction(
+                                                  jobseekerId,
+                                                  levelList[index]);
                                         },
                                       );
                                     }),
@@ -208,8 +221,10 @@ class _JobseekerHomeState extends State<JobseekerHome> {
                           //? Build mục công việc gợi ý
                           HomeCard(
                             title: 'Gợi ý hôm nay',
-                            child:
-                                JobPageView(jobpostingManager.randomJobposting),
+                            child: JobPageView(
+                                jobpostingManager.jobpostingSuggestion),
+                            //code cũ sử dụng randomJobposting để hiển thị ngẫu nhiên bài đăng
+                            //giờ sử dụng gợi ý dựa vào vị trí địa lý và kỹ năng => uy tín hơn
                           ),
                           const SizedBox(
                             height: 10,
