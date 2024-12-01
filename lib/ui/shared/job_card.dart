@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:job_finder_app/ui/jobseeker/jobseeker_manager.dart';
 import 'package:job_finder_app/ui/shared/jobposting_manager.dart';
 import 'package:provider/provider.dart';
 import 'package:quickalert/quickalert.dart';
@@ -34,7 +35,13 @@ class JobCard extends StatelessWidget {
 
     return GestureDetector(
       onTap: !isEmployer && !isAdmin
-          ? () => context.pushNamed('job-detail', extra: jobposting)
+          ? () {
+              final jobseekerId = context.read<JobseekerManager>().jobseeker.id;
+              context
+                  .read<JobseekerManager>()
+                  .observeViewJobPostAction(jobseekerId, jobposting.id);
+              context.pushNamed('job-detail', extra: jobposting);
+            }
           : null,
       child: Card(
         borderOnForeground: true,
@@ -77,6 +84,16 @@ class JobCard extends StatelessWidget {
                                 color: Colors.blue[400],
                               ),
                               onPressed: () async {
+                                final jobseekerId = context
+                                    .read<JobseekerManager>()
+                                    .jobseeker
+                                    .id;
+                                if (!jobposting.isFavorite) {
+                                  context
+                                      .read<JobseekerManager>()
+                                      .observeSaveJobPostAction(
+                                          jobseekerId, jobposting.id);
+                                }
                                 await context
                                     .read<JobpostingManager>()
                                     .changeFavoriteStatus(jobposting);

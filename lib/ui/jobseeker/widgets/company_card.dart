@@ -2,6 +2,8 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:job_finder_app/ui/jobseeker/jobseeker_manager.dart';
+import 'package:provider/provider.dart';
 
 import '../../../models/company.dart';
 
@@ -130,6 +132,12 @@ class CompanyCard extends StatelessWidget {
             child: InkWell(
               borderRadius: BorderRadius.circular(20),
               onTap: () {
+                //Ghi nhận hành động
+                final jobseekerId =
+                    context.read<JobseekerManager>().jobseeker.id;
+                context
+                    .read<JobseekerManager>()
+                    .observeViewCompanyAction(jobseekerId, company.id);
                 log('Chuyển đén công ty');
                 context.pushNamed('company-detail', extra: company);
               },

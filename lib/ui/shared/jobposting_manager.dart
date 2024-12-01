@@ -32,6 +32,8 @@ class JobpostingManager extends ChangeNotifier {
   List<Jobposting> _searchResult = [];
   List<Jobposting> _companyPost = [];
   List<Jobposting> _filteredCompanyPosts = [];
+  //danh sách gợi ý từ server
+  List<Jobposting> _jobpostingSuggestion = [];
 
   // final ValueNotifier<List<Jobposting>> _randomJobpostingNotifier =
   //     ValueNotifier([]);
@@ -105,6 +107,8 @@ class JobpostingManager extends ChangeNotifier {
     return copy;
   }
 
+  List<Jobposting> get jobpostingSuggestion => _jobpostingSuggestion;
+
   // void _updateRandomJobposting() {
   //   List<Jobposting> copy = List.from(_jobpostings);
   //   copy.shuffle(Random());
@@ -117,10 +121,24 @@ class JobpostingManager extends ChangeNotifier {
 
   Future<void> fetchJobposting() async {
     final jobpostings = await _jobpostingService.fetchJobpostingList();
-    if (jobpostings != null) {
+    final suggestion = await _jobpostingService.fetchJobpostingSuggestionList();
+    if (jobpostings != null && suggestion != null) {
       dp.log('Trong Jobmanager, da nap: ${jobpostings.length}');
       _jobpostings = jobpostings;
       _filteredPosts = _jobpostings;
+      //Thêm các công việc nằm trong danh sách gợi ý
+      _jobpostingSuggestion = _jobpostings.where((jobpost) {
+        return suggestion.any((suggestedJob) => suggestedJob.id == jobpost.id);
+      }).toList();
+      // for (var jobpost in suggestion) {
+      //   //Tìm công việc trong jobposting dựa vào mảng công việc đề xuất trong suggestion
+      //   //Thêm để có tham chiếu, lỗ người dùng bấm yêu thích thì nó cập nhật
+      //   //ở những chỗ khác
+      //   final foundedJob =
+      //       _jobpostings.firstWhere((job) => job.id == jobpost.id);
+      //   _jobpostingSuggestion
+      //       .add(foundedJob); //Thêm tham chiếu của phần tử trong jobpostings
+      // }
       notifyListeners();
     }
   }
