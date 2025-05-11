@@ -36,16 +36,16 @@ Future<void> main() async {
   );
 
   //load the .env file
-  await dotenv.load(); //PHải định nghĩa file .env trong pubspec.yaml
+  await dotenv.load(); //Must define .env file in pubspec.yaml
 
-  debugPrint("Gia tri cua kIsWeb: $kIsWeb");
+  debugPrint("Value of kIsWeb: $kIsWeb");
   if (kIsWeb) {
-    log("Chay app admin");
-    //Gọi hàm này để chuyển url từ /#/admin/... thành /admin...
+    log("Running admin app");
+    //Call this function to change url from /#/admin/... to /admin...
     usePathUrlStrategy();
     runApp(AdminApp());
   } else {
-    //? Khởi tạo Notification cho ứng dụng
+    //? Initialize Notifications for the application
     AwesomeNotifications().initialize(
         // set the icon to null if you want to use the default app icon
         'resource://drawable/notification',
@@ -79,8 +79,8 @@ Future<void> main() async {
     FirebaseMessagingService firebaseAPI = FirebaseMessagingService();
     await firebaseAPI.firebaseMessagingInit();
     await firebaseAPI.setUpInteractedMessage();
-    //Thiết lập xử lý nhận thông báo tin nhắn khi ứng dụng
-    //đang ở foreground
+    //Set up handling of message notifications when application
+    //is in foreground
     MessageNotificaionController.initialize(globalNavigatorKey);
     runApp(
       MyApp(
@@ -102,7 +102,7 @@ class MyApp extends StatelessWidget {
         primary: const Color(0xFF0C5FBF),
         secondary: Colors.grey.shade400,
         surface: Colors.white,
-        // background: Colors.white, //lỗi thời
+        // background: Colors.white, //deprecated
         surfaceTint: Colors.grey,
         onSecondary: Colors.black);
     return MultiProvider(
@@ -110,7 +110,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (context) {
             Utils.logMessage("AuthManager is being created");
-            //Gán NavigatorKey trong Build_router
+            //Assign NavigatorKey in Build_router
             firebaseAPI.globalNavigatorKey = globalNavigatorKey;
             return AuthManager(firebaseAPI: firebaseAPI);
           },
@@ -119,11 +119,11 @@ class MyApp extends StatelessWidget {
           create: (context) =>
               JobseekerManager(context.read<AuthManager>().jobseeker),
           update: (context, authManager, jobseekerManager) {
-            //Khi authManager có báo hiệu thay đổi thì đọc lại authToken
-            //* cho JobseekerManager
+            //When authManager signals change, read authToken again
+            //* for JobseekerManager
             jobseekerManager!.authToken = authManager.authToken;
             // jobseekerManager.jobseeker = authManager.jobseeker;
-            //Truyền socketService vào cho JobseekerManager
+            //Pass socketService to JobseekerManager
             jobseekerManager.socketService = authManager.socketService;
             Utils.logMessage(
                 "---- ChangeNotifierProxyProvider<AuthManager, JobseekerManager> ----");
@@ -134,8 +134,8 @@ class MyApp extends StatelessWidget {
           create: (context) =>
               EmployerManager(context.read<AuthManager>().employer),
           update: (context, authManager, employerManager) {
-            //Khi authManager có báo hiệu thay đổi thì đọc lại authToken
-            //* cho JobseekerManager
+            //When authManager signals change, read authToken again
+            //* for JobseekerManager
             employerManager!.authToken = authManager.authToken;
             Utils.logMessage(
                 "---- ChangeNotifierProxyProvider<AuthManager, EmployerManager> ----");
@@ -145,8 +145,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProxyProvider<AuthManager, CompanyManager>(
           create: (context) => CompanyManager(),
           update: (context, authManager, companyManager) {
-            //Khi authManager có báo hiệu thay đổi thì đọc lại authToken
-            //* cho JobseekerManager
+            //When authManager signals change, read authToken again
+            //* for JobseekerManager
             companyManager!.authToken = authManager.authToken;
             Utils.logMessage(
                 "---- ChangeNotifierProxyProvider<AuthManager, CompanyManager> ----");
@@ -156,8 +156,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProxyProvider<AuthManager, JobpostingManager>(
           create: (context) => JobpostingManager(),
           update: (context, authManager, jobpostingManager) {
-            //Khi authManager có báo hiệu thay đổi thì đọc lại authToken
-            //* cho JobseekerManager
+            //When authManager signals change, read authToken again
+            //* for JobseekerManager
             jobpostingManager!.authToken = authManager.authToken;
             jobpostingManager.socketService = authManager.socketService;
             return jobpostingManager;
@@ -166,35 +166,35 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProxyProvider<AuthManager, ApplicationManager>(
           create: (context) => ApplicationManager(),
           update: (context, authManager, applicationManager) {
-            //Khi authManager có báo hiệu thay đổi thì đọc lại authToken
-            //* cho JobseekerManager
+            //When authManager signals change, read authToken again
+            //* for JobseekerManager
             applicationManager!.authToken = authManager.authToken;
             Utils.logMessage(
                 "---- ChangeNotifierProxyProvider<AuthManager, ApplicationManager> ----");
             return applicationManager;
           },
         ),
-        //Manager quản lý tin nhắn
+        //Manager for handling messages
         ChangeNotifierProxyProvider<AuthManager, MessageManager>(
           create: (context) => MessageManager(),
           update: (context, authManager, messageManager) {
-            Utils.logMessage('Goi update MessageManager');
-            //Gán lại authToken khi AuthManager thay đổi
+            Utils.logMessage('Calling update MessageManager');
+            //Reassign authToken when AuthManager changes
             messageManager!.authToken = authManager.authToken;
-            //Truyền socketService vào cho MessageManager
+            //Pass socketService to MessageManager
             messageManager.socketService = authManager.socketService;
             /*
-              Riêng các hàm nạp dữ liệu và lắng nghe tin nhắn mới thì nếu
-              khi người dùng đã đăng xuất rồi thì không gọi lại những hàm này.
-              Những hàm này chỉ được gọi khi người dùng đăng nhập vào hệ thống
-              để khởi tạo danh sách tin nhắn và lắng nghe khi có tin nhắn mới
+              For functions loading data and listening for new messages,
+              if user has logged out, don't call these functions again.
+              These functions are only called when user logs into the system
+              to initialize message list and listen for new messages
             */
             if (authManager.authToken != null) {
-              //Nạp dữ liệu các cuộc trò chuyện và tin nhắn
+              //Load data for conversations and messages
               messageManager.getAllConversation();
-              //Lắng nghe tin nhắn mới đến
+              //Listen for new incoming messages
               messageManager.listenToIncomingMessages();
-              //Nếu là nhà tuyển dụng thì lắng nghe việc nhận conversation mới từ jobseeker
+              //If user is employer, listen for new conversations from jobseekers
               if (authManager.isEmployer) {
                 messageManager.listenForNewConversation();
               }
@@ -237,7 +237,7 @@ class AdminApp extends StatelessWidget {
         primary: const Color(0xFF0C5FBF),
         secondary: Colors.grey.shade400,
         surface: Colors.white,
-        // background: Colors.white, //lỗi thời
+        // background: Colors.white, //deprecated
         surfaceTint: Colors.grey,
         onSecondary: Colors.black);
     return MultiProvider(
@@ -246,7 +246,7 @@ class AdminApp extends StatelessWidget {
         ChangeNotifierProxyProvider<AdminAuthManager, JobseekerListManager>(
           create: (context) => JobseekerListManager(),
           update: (context, adminAuthManager, jobseekerListManager) {
-            //Cập nhật lại authToken cho JobseekerListManager
+            //Update authToken for JobseekerListManager
             jobseekerListManager!.authToken = adminAuthManager.authToken;
             return jobseekerListManager;
           },
