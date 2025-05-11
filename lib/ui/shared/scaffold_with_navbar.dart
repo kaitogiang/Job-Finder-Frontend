@@ -28,16 +28,16 @@ class ScaffoldWithNavBar extends StatelessWidget {
     );
   }
 
-  //Hàm dùng để chuyển hướng tới một nhánh
+  //Function to navigate to a branch
   void _onTap(BuildContext context, int index) {
-    //Hàm goBranch dùng để chuyển hướng tới một nhánh nào đó đã định nghĩa
-    //theo chỉ số. Thứ tự các nhánh bắt đầu từ 0. Nhánh đầu tiên là 0,
-    //thứ hai là 1, vv..vv
+    //The goBranch function is used to navigate to a defined branch
+    //by index. Branch order starts from 0. First branch is 0,
+    //second is 1, etc.
     navigationShell.goBranch(index,
         initialLocation: index == navigationShell.currentIndex);
   }
 
-  //Hàm build các mục cho người tìm việc
+  //Function to build navigation items for job seekers
   List<BottomNavigationBarItem> _buildJobseekerNavItems() {
     return <BottomNavigationBarItem>[
       BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Trang chủ'),
@@ -49,14 +49,12 @@ class ScaffoldWithNavBar extends StatelessWidget {
     ];
   }
 
-  //Hàm build các mục cho nhà tuyển dụng
+  //Function to build navigation items for employers
   List<BottomNavigationBarItem> _buildEmployerNavItems() {
     return <BottomNavigationBarItem>[
       const BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Bài đăng'),
       const BottomNavigationBarItem(
           icon: Icon(Icons.person_add_alt_rounded), label: 'Ứng viên'),
-      // const BottomNavigationBarItem(
-      //     icon: Icon(Icons.home_repair_service), label: 'Đã duyệt'),
       const BottomNavigationBarItem(
           icon: Icon(Icons.business), label: 'Công ty'),
       BottomNavigationBarItem(
