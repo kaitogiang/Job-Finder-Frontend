@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:job_finder_app/ui/jobseeker/jobseeker_manager.dart';
-import 'package:job_finder_app/ui/shared/utils.dart';
 import 'package:provider/provider.dart';
 
 class ResumeSelectionScreen extends StatelessWidget {
@@ -82,7 +81,7 @@ class ResumeSelectionScreen extends StatelessWidget {
                   );
                 }),
           ),
-          //Nút để xác nhận tùy chọn
+          //Button to confirm selection
           ValueListenableBuilder(
               valueListenable: selectedIndex,
               builder: (context, choosedIndex, child) {
