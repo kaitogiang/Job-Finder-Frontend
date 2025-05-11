@@ -39,17 +39,17 @@ class UserInfoCard extends StatelessWidget {
             const SizedBox(
               height: 10,
             ),
-          //Dòng đầu tiên tiêu đề và nút chỉnh sửa thông tin cá nhân
+          //First row containing title and edit personal info button
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              //Tiêu đề thông tin cá nhân
+              //Personal info title
               Text(
                 title,
                 style:
                     textTheme.titleLarge!.copyWith(fontWeight: FontWeight.bold),
               ),
-              //Nút hành động
+              //Action button
               if (iconButton != null) iconButton!
             ],
           ),
@@ -60,7 +60,7 @@ class UserInfoCard extends StatelessWidget {
           Divider(
             thickness: 1,
           ),
-          //Các con được thêm vào
+          //Added children
           ...children,
           const SizedBox(
             height: 20,
