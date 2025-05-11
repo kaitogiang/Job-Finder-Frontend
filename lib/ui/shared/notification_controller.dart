@@ -31,9 +31,6 @@ class NotificationController {
       ReceivedAction receivedAction) async {
     // Your code goes here
     Utils.logMessage('Mở folder');
-    //todo open the image folder
-
-    // await OpenFile.open('/storage/emulated/0/Download/');
     // Get the path to the directory
     openFileManager(
       androidConfig: AndroidConfig(
