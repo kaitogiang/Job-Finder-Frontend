@@ -323,27 +323,6 @@ class PostApplicationCard extends StatelessWidget {
     );
   }
 
-  // Container _buildActionButton({
-  //   required BuildContext context,
-  //   void Function()? onDelete,
-  //   void Function()? onEdit,
-  // }) {
-  //   return Container(
-  //     child: ListView(
-  //       shrinkWrap: true,
-  //       children: [
-  //         ListTile(
-  //           title: Text(
-  //             'Xem bài đăng',
-  //             style: Theme.of(context).textTheme.titleMedium,
-  //           ),
-  //           leading: const Icon(Icons.preview),
-  //           onTap: onEdit,
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
 }
 
 //? Nút trạng thái

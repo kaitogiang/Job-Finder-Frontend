@@ -55,7 +55,7 @@ class ApplicationManager extends ChangeNotifier {
     list.sort((a, b) => a.status.compareTo(b.status));
   }
 
-  //? Hàm nạp tất cả các nơi chứa hồ sơ ứng tuyển của từng bài viết
+  //? Function to load all application storage of each post
   Future<void> fetchApplicationStorage() async {
     try {
       final result = await _applicationService.getAllPostApplicationList();
@@ -68,7 +68,7 @@ class ApplicationManager extends ChangeNotifier {
     }
   }
 
-  //?Hàm nạp tất cả hồ sơ đã nộp của người dùng
+  //? Function to load all applications submitted by the user
   Future<void> fetchJobseekerApplication() async {
     try {
       final result = await _applicationService.fetchJobseekerApplication();
@@ -81,7 +81,7 @@ class ApplicationManager extends ChangeNotifier {
     }
   }
 
-  //? Hàm ứng tuyển vào công việc
+  //? Function to apply for a job
   Future<bool> applyApplication(
       String jobpostingId, String employerEmail, String resumeLink) async {
     try {
@@ -104,7 +104,7 @@ class ApplicationManager extends ChangeNotifier {
     }
   }
 
-  //?Hàm chập nhận một hồ sơ
+  //? Function to accept an application
   Future<void> acceptApplication(
       String jobpostingId, Application userApplication) async {
     try {
@@ -119,7 +119,7 @@ class ApplicationManager extends ChangeNotifier {
     }
   }
 
-  //?Hàm từ chối một hồ sơ
+  //? Function to reject an application
   Future<void> rejectApplication(
       String jobpostingId, Application userApplication) async {
     try {
@@ -134,7 +134,7 @@ class ApplicationManager extends ChangeNotifier {
     }
   }
 
-  //?Hàm tìm một ứng viên bất kỳ
+  //? Function to find a jobseeker
   Future<Jobseeker?> getJobseekerById(String id) async {
     final jobseeker = await _applicationService.fetchJobseekerById(id);
     if (jobseeker != null) {

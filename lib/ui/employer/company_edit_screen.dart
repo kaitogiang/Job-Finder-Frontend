@@ -14,7 +14,7 @@ import '../../models/company.dart';
 import '../shared/image_container.dart';
 
 class CompanyEditScreen extends StatefulWidget {
-  const CompanyEditScreen(this.company, {super.key});
+  const CompanyEditScreen(this.company, {Key? key}) : super(key: key);
 
   final Company company;
 
@@ -23,179 +23,133 @@ class CompanyEditScreen extends StatefulWidget {
 }
 
 class _CompanyEditScreenState extends State<CompanyEditScreen> {
-  final _picker = ImagePicker();
+  final ImagePicker _picker = ImagePicker();
   late Company _editedCompany;
   List<Object> imageList = [];
-  //todo danh sách chứa các link ảnh cùng với các File ảnh đã chọn.
-  //? Các controllers cho nhóm thông tin cơ bản
-  final _nameController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _phoneController = TextEditingController();
-  final _addressController = TextEditingController();
-  final _websiteController = TextEditingController();
-  //? Các controllers cho nhóm mô tả công ty
-  final _introductionController = TextEditingController();
-  final _domainController = TextEditingController();
-  final _companySizeController = TextEditingController();
-  //? Các controllers cho nhóm thông tin liên hệ
-  final _contactNameController = TextEditingController();
-  final _contactRoleController = TextEditingController();
-  final _contactPhoneController = TextEditingController();
-  final _contactEmailController = TextEditingController();
-  //? Các controllers cho nhóm chính sách công ty
-  final _recruitmentController = TextEditingController();
-  final _employementController = TextEditingController();
-  final _welfareController = TextEditingController();
-
-  final List<TextEditingController> _allController = [];
   File? _selectedAvatar;
+
+  // Controllers for various input fields
+  final Map<String, TextEditingController> _controllers = {
+    'name': TextEditingController(),
+    'email': TextEditingController(),
+    'phone': TextEditingController(),
+    'address': TextEditingController(),
+    'website': TextEditingController(),
+    'introduction': TextEditingController(),
+    'domain': TextEditingController(),
+    'companySize': TextEditingController(),
+    'contactName': TextEditingController(),
+    'contactRole': TextEditingController(),
+    'contactPhone': TextEditingController(),
+    'contactEmail': TextEditingController(),
+    'employmentPolicy': TextEditingController(),
+    'recruitmentPolicy': TextEditingController(),
+    'welfarePolicy': TextEditingController(),
+  };
 
   @override
   void initState() {
-    //todo Khởi tạo các giá trị ban đầu
-    _editedCompany = widget.company;
-    imageList.addAll(widget.company.images);
-    //todo Khởi tạo giá trị cho các trường
-    _nameController.text = _editedCompany.companyName;
-    _emailController.text = _editedCompany.companyEmail;
-    _phoneController.text = _editedCompany.companyPhone;
-    _addressController.text = _editedCompany.companyAddress;
-    _websiteController.text = _editedCompany.website;
-    _introductionController.text =
-        _editedCompany.description?['introduction'] ?? '';
-    _domainController.text = _editedCompany.description?['domain'] ?? '';
-    _companySizeController.text =
-        _editedCompany.description?['companySize'] ?? '';
-    _contactNameController.text =
-        _editedCompany.contactInformation?['fullName'] ?? '';
-    _contactRoleController.text =
-        _editedCompany.contactInformation?['role'] ?? '';
-    _contactPhoneController.text =
-        _editedCompany.contactInformation?['phone'] ?? '';
-    _contactEmailController.text =
-        _editedCompany.contactInformation?['email'] ?? '';
-    _employementController.text =
-        _editedCompany.policy?['employmentPolicy'] ?? '';
-    _recruitmentController.text =
-        _editedCompany.policy?['recruitmentPolicy'] ?? '';
-    _welfareController.text = _editedCompany.policy?['welfarePolicy'] ?? '';
-    //todo Gửi tham chiếu vào trong mảng
-    _allController.addAll([
-      _nameController,
-      _emailController,
-      _phoneController,
-      _addressController,
-      _websiteController,
-      _introductionController,
-      _domainController,
-      _companySizeController,
-      _contactNameController,
-      _contactRoleController,
-      _contactPhoneController,
-      _contactEmailController,
-      _employementController,
-      _recruitmentController,
-      _welfareController,
-    ]);
     super.initState();
+    _initializeFields();
   }
 
   @override
   void dispose() {
-    for (TextEditingController controller in _allController) {
-      controller.dispose();
-    }
+    _controllers.values.forEach((controller) => controller.dispose());
     super.dispose();
+  }
+
+  void _initializeFields() {
+    _editedCompany = widget.company;
+    imageList.addAll(widget.company.images);
+
+    // Initialize controllers with existing company data
+    _controllers['name']!.text = _editedCompany.companyName;
+    _controllers['email']!.text = _editedCompany.companyEmail;
+    _controllers['phone']!.text = _editedCompany.companyPhone;
+    _controllers['address']!.text = _editedCompany.companyAddress;
+    _controllers['website']!.text = _editedCompany.website;
+    _controllers['introduction']!.text = _editedCompany.description?['introduction'] ?? '';
+    _controllers['domain']!.text = _editedCompany.description?['domain'] ?? '';
+    _controllers['companySize']!.text = _editedCompany.description?['companySize'] ?? '';
+    _controllers['contactName']!.text = _editedCompany.contactInformation?['fullName'] ?? '';
+    _controllers['contactRole']!.text = _editedCompany.contactInformation?['role'] ?? '';
+    _controllers['contactPhone']!.text = _editedCompany.contactInformation?['phone'] ?? '';
+    _controllers['contactEmail']!.text = _editedCompany.contactInformation?['email'] ?? '';
+    _controllers['employmentPolicy']!.text = _editedCompany.policy?['employmentPolicy'] ?? '';
+    _controllers['recruitmentPolicy']!.text = _editedCompany.policy?['recruitmentPolicy'] ?? '';
+    _controllers['welfarePolicy']!.text = _editedCompany.policy?['welfarePolicy'] ?? '';
   }
 
   Future<void> _pickImage() async {
     final List<XFile> images = await _picker.pickMultiImage();
     if (images.isNotEmpty) {
-      for (XFile element in images) {
-        File file = File(element.path);
-        setState(() {
-          imageList.add(file);
-        });
-      }
+      setState(() {
+        imageList.addAll(images.map((image) => File(image.path)));
+      });
     }
   }
 
   Future<void> _pickAvatar() async {
-    final image = await _picker.pickImage(source: ImageSource.gallery);
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
     if (image != null) {
-      File file = File(image.path);
       setState(() {
-        _selectedAvatar = file;
+        _selectedAvatar = File(image.path);
       });
     }
   }
 
   Future<void> _saveForm() async {
-    //todo kiểm tra xem tất cả trường nếu chưa nhập hết thì hiện thị thông báo nhắc nhở khi nào, vẫn
-    //todo muốn lưu dù chưa nhập hết (chọn tiếp tục lưu) thì không làm gì hết, còn nếu chọn quay lại thì return;
-    final isCancel = await _showWarningMessage();
-    log('Giá trị isCancel: $isCancel');
-    if (isCancel) {
-      return;
-    }
-    //todo tạo 2 list rỗng để chứa các ảnh đã chỉnh còn lại và các File ảnh mới
-    List<String> modifiedImagesList = []; //? Link ảnh
-    List<File> selectedFiles = []; //? File ảnh
-    for (Object e in imageList) {
-      if (e is String) {
-        modifiedImagesList.add(e);
+    if (await _showWarningMessage()) return;
+
+    List<String> modifiedImagesList = [];
+    List<File> selectedFiles = [];
+
+    for (var image in imageList) {
+      if (image is String) {
+        modifiedImagesList.add(image);
       } else {
-        selectedFiles.add(e as File);
+        selectedFiles.add(image as File);
       }
     }
 
-    //todo Lưu dữ liệu vào bảng
     _editedCompany = _editedCompany.copyWith(
-        companyName: _nameController.text,
-        companyEmail: _emailController.text,
-        companyPhone: _phoneController.text,
-        companyAddress: _addressController.text,
-        website: _websiteController.text,
-        images: modifiedImagesList,
-        description: {
-          'introduction': _introductionController.text,
-          'domain': _domainController.text,
-          'companySize': _companySizeController.text,
-        },
-        contactInformation: {
-          'fullName': _contactNameController.text,
-          'role': _contactRoleController.text,
-          'phone': _contactPhoneController.text,
-          'email': _contactEmailController.text,
-        },
-        policy: {
-          'employmentPolicy': _employementController.text,
-          'recruitmentPolicy': _recruitmentController.text,
-          'welfarePolicy': _welfareController.text
-        });
-
-    log('Giá trị của welfarePolicy: ${_editedCompany.toString()}');
+      companyName: _controllers['name']!.text,
+      companyEmail: _controllers['email']!.text,
+      companyPhone: _controllers['phone']!.text,
+      companyAddress: _controllers['address']!.text,
+      website: _controllers['website']!.text,
+      images: modifiedImagesList,
+      description: {
+        'introduction': _controllers['introduction']!.text,
+        'domain': _controllers['domain']!.text,
+        'companySize': _controllers['companySize']!.text,
+      },
+      contactInformation: {
+        'fullName': _controllers['contactName']!.text,
+        'role': _controllers['contactRole']!.text,
+        'phone': _controllers['contactPhone']!.text,
+        'email': _controllers['contactEmail']!.text,
+      },
+      policy: {
+        'employmentPolicy': _controllers['employmentPolicy']!.text,
+        'recruitmentPolicy': _controllers['recruitmentPolicy']!.text,
+        'welfarePolicy': _controllers['welfarePolicy']!.text,
+      },
+    );
 
     try {
       if (mounted) {
-        //hiển thị màn hình loading
         QuickAlert.show(
-            context: context,
-            type: QuickAlertType.loading,
-            title: 'Lưu thông tin',
-            text: 'Đang lưu...');
-        await context
-            .read<CompanyManager>()
-            .updateCompany(_editedCompany, _selectedAvatar, selectedFiles)
-            .whenComplete(() {
-          //Khi updateCompany chạy xong thì pop nó ra
-          if (mounted) {
-            Navigator.of(context, rootNavigator: true).pop();
-          }
-        });
-      }
-      //Hiện thị thông báo thành công
-      if (mounted) {
+          context: context,
+          type: QuickAlertType.loading,
+          title: 'Lưu thông tin',
+          text: 'Đang lưu...',
+        );
+
+        await context.read<CompanyManager>().updateCompany(_editedCompany, _selectedAvatar, selectedFiles);
+        Navigator.of(context, rootNavigator: true).pop();
+        
         final isExit = await QuickAlert.show(
           context: context,
           type: QuickAlertType.success,
@@ -203,45 +157,39 @@ class _CompanyEditScreenState extends State<CompanyEditScreen> {
           text: 'Đã lưu thông tin thành công, bạn có thể rời khỏi hoặc ở lại',
           showConfirmBtn: true,
           confirmBtnText: 'Đóng',
-          onConfirmBtnTap: () =>
-              Navigator.of(context, rootNavigator: true).pop(true),
+          onConfirmBtnTap: () => Navigator.of(context, rootNavigator: true).pop(true),
           showCancelBtn: true,
           cancelBtnText: 'Quay lại',
-          onCancelBtnTap: () =>
-              Navigator.of(context, rootNavigator: true).pop(false),
+          onCancelBtnTap: () => Navigator.of(context, rootNavigator: true).pop(false),
         ) as bool;
+
         if (isExit && mounted) {
           Navigator.of(context).pop();
         }
       }
     } catch (error) {
-      log('error in company manager: $error');
+      log('Error in company manager: $error');
     }
   }
 
   Future<bool> _showWarningMessage() async {
-    bool isCancel = false;
-    for (TextEditingController element in _allController) {
-      if (element.text.isEmpty) {
-        isCancel = await QuickAlert.show(
+    for (var controller in _controllers.values) {
+      if (controller.text.isEmpty) {
+        return await QuickAlert.show(
           context: context,
           type: QuickAlertType.info,
           title: 'Nhắc nhở',
-          text:
-              'Hãy điền đầy đủ thông tin để có thể giúp việc tuyển dụng dễ dàng hơn',
+          text: 'Hãy điền đầy đủ thông tin để có thể giúp việc tuyển dụng dễ dàng hơn',
           showCancelBtn: true,
           cancelBtnText: 'Tiếp tục lưu',
           showConfirmBtn: true,
           confirmBtnText: 'Đồng ý',
-          onConfirmBtnTap: () =>
-              Navigator.of(context, rootNavigator: true).pop(true),
-          onCancelBtnTap: () =>
-              Navigator.of(context, rootNavigator: true).pop(false),
+          onConfirmBtnTap: () => Navigator.of(context, rootNavigator: true).pop(true),
+          onCancelBtnTap: () => Navigator.of(context, rootNavigator: true).pop(false),
         );
-        break;
       }
     }
-    return isCancel;
+    return false;
   }
 
   @override
@@ -250,6 +198,7 @@ class _CompanyEditScreenState extends State<CompanyEditScreen> {
     TextTheme textTheme = theme.textTheme;
     Size deviceSize = MediaQuery.of(context).size;
     String? baseUrl = dotenv.env['DATABASE_BASE_URL'];
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -260,304 +209,208 @@ class _CompanyEditScreenState extends State<CompanyEditScreen> {
           ),
         ),
       ),
-      body: Container(
+      body: Padding(
         padding: const EdgeInsets.all(10),
-        width: deviceSize.width,
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              Stack(
-                alignment: Alignment.bottomRight,
-                children: [
-                  Container(
-                    height: 150,
-                    width: 150,
-                    decoration: BoxDecoration(
-                        boxShadow: [
-                          BoxShadow(
-                              color: Colors.grey.shade600,
-                              spreadRadius: 1,
-                              blurRadius: 5,
-                              offset: const Offset(0, 3))
-                        ],
-                        borderRadius: BorderRadius.circular(15),
-                        image: DecorationImage(
-                            image: _selectedAvatar != null
-                                ? FileImage(_selectedAvatar!)
-                                    as ImageProvider<Object>
-                                : NetworkImage(widget.company.imageLink),
-                            fit: BoxFit.cover)),
-                  ),
-                  CircleAvatar(
-                    child: IconButton(
-                      icon: Icon(
-                        Icons.edit,
-                        color: theme.primaryColor,
-                      ),
-                      onPressed: _pickAvatar,
-                    ),
-                  )
-                ],
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              UserInfoCard(
-                title: 'Thông tin cơ bản',
-                children: <Widget>[
-                  CombinedTextFormField(
-                    title: 'Tên công ty',
-                    hintText: 'Bắt buộc',
-                    keyboardType: TextInputType.name,
-                    controller: _nameController,
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  CombinedTextFormField(
-                    title: 'Email',
-                    hintText: 'Bắt buộc',
-                    keyboardType: TextInputType.emailAddress,
-                    controller: _emailController,
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  CombinedTextFormField(
-                    title: 'Số điện thoại',
-                    hintText: 'Bắt buộc',
-                    keyboardType: TextInputType.phone,
-                    controller: _phoneController,
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  CombinedTextFormField(
-                    title: 'Địa chỉ',
-                    hintText: 'Bắt buộc',
-                    keyboardType: TextInputType.streetAddress,
-                    controller: _addressController,
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  CombinedTextFormField(
-                    title: 'Website',
-                    hintText: 'Bắt buộc',
-                    keyboardType: TextInputType.emailAddress,
-                    controller: _websiteController,
-                  ),
-                ],
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              UserInfoCard(
-                title: 'Mô tả công ty',
-                children: <Widget>[
-                  CombinedTextFormField(
-                    title: 'Giới thiệu về công ty',
-                    keyboardType: TextInputType.multiline,
-                    hintText: 'Tùy chọn',
-                    maxLines: 6,
-                    minLines: 4,
-                    controller: _introductionController,
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  CombinedTextFormField(
-                    title: 'Ngành nghề kinh doanh',
-                    keyboardType: TextInputType.text,
-                    hintText: 'Tùy chọn',
-                    controller: _domainController,
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  CombinedTextFormField(
-                    title: 'Quy mô công ty',
-                    keyboardType: TextInputType.text,
-                    hintText: 'Tùy chọn',
-                    controller: _companySizeController,
-                  ),
-                ],
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              UserInfoCard(
-                title: 'Hình ảnh về công ty',
-                children: <Widget>[
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  SizedBox(
-                    height: 130,
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      scrollDirection: Axis.horizontal,
-                      itemCount: imageList.length,
-                      itemBuilder: (context, index) {
-                        return Row(
-                          children: [
-                            imageList[index] is String
-                                ? ImageContainer(
-                                    url: '$baseUrl${imageList[index]}',
-                                    onDelete: () {
-                                      log('Xóa ảnh $index');
-                                      setState(() {
-                                        imageList.removeAt(index);
-                                        log(imageList.toString());
-                                      });
-                                    },
-                                  )
-                                : ImageContainer(
-                                    url: '',
-                                    isFileType: true,
-                                    file: imageList[index] as File,
-                                    onDelete: () {
-                                      log('Xóa file ảnh');
-                                      setState(() {
-                                        imageList.removeAt(index);
-                                      });
-                                    },
-                                  ),
-                            const SizedBox(
-                              width: 20,
-                            )
-                          ],
-                        );
-                      },
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                          elevation: 0,
-                          backgroundColor: Colors.transparent,
-                          foregroundColor: Colors.grey.shade600,
-                          shape: RoundedRectangleBorder(
-                            side: BorderSide(color: Colors.grey.shade600),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          fixedSize: const Size.fromHeight(50)),
-                      onPressed: _pickImage,
-                      child: const Text(
-                        'Thêm hình ảnh',
-                        style: TextStyle(fontSize: 17),
-                      ))
-                ],
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              UserInfoCard(
-                title: 'Thông tin người liên hệ',
-                children: <Widget>[
-                  CombinedTextFormField(
-                    title: 'Tên người liên hệ chính',
-                    hintText: 'Tùy chọn',
-                    keyboardType: TextInputType.text,
-                    controller: _contactNameController,
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  CombinedTextFormField(
-                    title: 'Chức vụ',
-                    hintText: 'Tùy chọn',
-                    keyboardType: TextInputType.text,
-                    controller: _contactRoleController,
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  CombinedTextFormField(
-                    title: 'Số điện thoại liên hệ',
-                    hintText: 'Tùy chọn',
-                    keyboardType: TextInputType.phone,
-                    controller: _contactPhoneController,
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  CombinedTextFormField(
-                    title: 'Email liên hệ',
-                    hintText: 'Tùy chọn',
-                    keyboardType: TextInputType.emailAddress,
-                    controller: _contactEmailController,
-                  ),
-                ],
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              UserInfoCard(
-                title: 'Các chính sách công ty',
-                children: <Widget>[
-                  CombinedTextFormField(
-                    title: 'Chính sách tuyển dụng',
-                    keyboardType: TextInputType.multiline,
-                    hintText: 'Tùy chọn',
-                    maxLines: 6,
-                    minLines: 4,
-                    controller: _recruitmentController,
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  CombinedTextFormField(
-                    title: 'Chính sách làm việc',
-                    keyboardType: TextInputType.multiline,
-                    hintText: 'Tùy chọn',
-                    maxLines: 6,
-                    minLines: 4,
-                    controller: _employementController,
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  CombinedTextFormField(
-                    title: 'Chính sách phúc lợi',
-                    keyboardType: TextInputType.multiline,
-                    hintText: 'Tùy chọn',
-                    maxLines: 6,
-                    minLines: 4,
-                    controller: _welfareController,
-                  ),
-                ],
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              Container(
-                margin: const EdgeInsets.only(bottom: 10),
-                child: ElevatedButton(
-                  onPressed: _saveForm,
-                  style: ElevatedButton.styleFrom(
-                    // side: BorderSide(color: theme.colorScheme.primary),
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    foregroundColor: theme.colorScheme.onPrimary,
-                    backgroundColor: theme.colorScheme.primary,
-                    fixedSize: Size(deviceSize.width - 30, 50),
-                    textStyle: textTheme.titleLarge!.copyWith(
-                      fontFamily: 'Lato',
-                      fontSize: 20,
-                    ),
-                  ),
-                  child: const Text('Lưu thay đổi'),
-                ),
-              )
+              _buildAvatar(),
+              const SizedBox(height: 10),
+              _buildBasicInfoCard(),
+              const SizedBox(height: 10),
+              _buildCompanyDescriptionCard(),
+              const SizedBox(height: 10),
+              _buildImageUploadCard(baseUrl),
+              const SizedBox(height: 10),
+              _buildContactInfoCard(),
+              const SizedBox(height: 10),
+              _buildCompanyPolicyCard(),
+              const SizedBox(height: 10),
+              _buildSaveButton(deviceSize, textTheme),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildAvatar() {
+    return Stack(
+      alignment: Alignment.bottomRight,
+      children: [
+        Container(
+          height: 150,
+          width: 150,
+          decoration: BoxDecoration(
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.shade600,
+                  spreadRadius: 1,
+                  blurRadius: 5,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+              borderRadius: BorderRadius.circular(15),
+              image: DecorationImage(
+                image: _selectedAvatar != null
+                    ? FileImage(_selectedAvatar!) as ImageProvider<Object>
+                    : NetworkImage(widget.company.imageLink),
+                fit: BoxFit.cover,
+              ),
+            ),
+        ),
+        CircleAvatar(
+          child: IconButton(
+            icon: Icon(
+              Icons.edit,
+              color: Theme.of(context).primaryColor,
+            ),
+            onPressed: _pickAvatar,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBasicInfoCard() {
+    return UserInfoCard(
+      title: 'Thông tin cơ bản',
+      children: <Widget>[
+        _buildTextFormField('Tên công ty', 'Bắt buộc', TextInputType.name, _controllers['name']!),
+        _buildTextFormField('Email', 'Bắt buộc', TextInputType.emailAddress, _controllers['email']!),
+        _buildTextFormField('Số điện thoại', 'Bắt buộc', TextInputType.phone, _controllers['phone']!),
+        _buildTextFormField('Địa chỉ', 'Bắt buộc', TextInputType.streetAddress, _controllers['address']!),
+        _buildTextFormField('Website', 'Bắt buộc', TextInputType.url, _controllers['website']!),
+      ],
+    );
+  }
+
+  Widget _buildCompanyDescriptionCard() {
+    return UserInfoCard(
+      title: 'Mô tả công ty',
+      children: <Widget>[
+        _buildTextFormField('Giới thiệu về công ty', 'Tùy chọn', TextInputType.multiline, _controllers['introduction']!, maxLines: 6),
+        _buildTextFormField('Ngành nghề kinh doanh', 'Tùy chọn', TextInputType.text, _controllers['domain']!),
+        _buildTextFormField('Quy mô công ty', 'Tùy chọn', TextInputType.text, _controllers['companySize']!),
+      ],
+    );
+  }
+
+  Widget _buildImageUploadCard(String? baseUrl) {
+    return UserInfoCard(
+      title: 'Hình ảnh về công ty',
+      children: <Widget>[
+        SizedBox(
+          height: 130,
+          child: ListView.builder(
+            shrinkWrap: true,
+            scrollDirection: Axis.horizontal,
+            itemCount: imageList.length,
+            itemBuilder: (context, index) {
+              return Row(
+                children: [
+                  imageList[index] is String
+                      ? ImageContainer(
+                          url: '$baseUrl${imageList[index]}',
+                          onDelete: () {
+                            setState(() {
+                              imageList.removeAt(index);
+                            });
+                          },
+                        )
+                      : ImageContainer(
+                          url: '',
+                          isFileType: true,
+                          file: imageList[index] as File,
+                          onDelete: () {
+                            setState(() {
+                              imageList.removeAt(index);
+                            });
+                          },
+                        ),
+                  const SizedBox(width: 20),
+                ],
+              );
+            },
+          ),
+        ),
+        const SizedBox(height: 20),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            elevation: 0,
+            backgroundColor: Colors.transparent,
+            foregroundColor: Colors.grey.shade600,
+            shape: RoundedRectangleBorder(
+              side: BorderSide(color: Colors.grey.shade600),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            fixedSize: const Size.fromHeight(50),
+          ),
+          onPressed: _pickImage,
+          child: const Text('Thêm hình ảnh', style: TextStyle(fontSize: 17)),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildContactInfoCard() {
+    return UserInfoCard(
+      title: 'Thông tin người liên hệ',
+      children: <Widget>[
+        _buildTextFormField('Tên người liên hệ chính', 'Tùy chọn', TextInputType.text, _controllers['contactName']!),
+        _buildTextFormField('Chức vụ', 'Tùy chọn', TextInputType.text, _controllers['contactRole']!),
+        _buildTextFormField('Số điện thoại liên hệ', 'Tùy chọn', TextInputType.phone, _controllers['contactPhone']!),
+        _buildTextFormField('Email liên hệ', 'Tùy chọn', TextInputType.emailAddress, _controllers['contactEmail']!),
+      ],
+    );
+  }
+
+  Widget _buildCompanyPolicyCard() {
+    return UserInfoCard(
+      title: 'Các chính sách công ty',
+      children: <Widget>[
+        _buildTextFormField('Chính sách tuyển dụng', ' Tùy chọn', TextInputType.multiline, _controllers['recruitmentPolicy']!, maxLines: 6),
+        _buildTextFormField('Chính sách làm việc', 'Tùy chọn', TextInputType.multiline, _controllers['employmentPolicy']!, maxLines: 6),
+        _buildTextFormField('Chính sách phúc lợi', 'Tùy chọn', TextInputType.multiline, _controllers['welfarePolicy']!, maxLines: 6),
+      ],
+    );
+  }
+
+  Widget _buildTextFormField(String title, String hintText, TextInputType keyboardType, TextEditingController controller, {int maxLines = 1}) {
+    return Column(
+      children: [
+        CombinedTextFormField(
+          title: title,
+          hintText: hintText,
+          keyboardType: keyboardType,
+          controller: controller,
+          maxLines: maxLines,
+        ),
+        const SizedBox(height: 10),
+      ],
+    );
+  }
+
+  Widget _buildSaveButton(Size deviceSize, TextTheme textTheme) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      child: ElevatedButton(
+        onPressed: _saveForm,
+        style: ElevatedButton.styleFrom(
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          foregroundColor: Theme.of(context).colorScheme.onPrimary,
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          fixedSize: Size(deviceSize.width - 30, 50),
+          textStyle: textTheme.titleLarge!.copyWith(
+            fontFamily: 'Lato',
+            fontSize: 20,
+          ),
+        ),
+        child: const Text('Lưu thay đổi'),
       ),
     );
   }
