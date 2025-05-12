@@ -257,37 +257,6 @@ class EmployerProfileScreen extends StatelessWidget {
             }));
   }
 
-  // Container _buildActionButton({
-  //   required BuildContext context,
-  //   void Function()? onDelete,
-  //   void Function()? onEdit,
-  // }) {
-  //   return Container(
-  //     child: ListView(
-  //       shrinkWrap: true,
-  //       children: [
-  //         ListTile(
-  //           title: Text(
-  //             'Xóa bỏ',
-  //             style: Theme.of(context).textTheme.titleMedium,
-  //           ),
-  //           leading: Icon(Icons.delete),
-  //           onTap: onDelete,
-  //         ),
-  //         Divider(),
-  //         ListTile(
-  //           title: Text(
-  //             'Chỉnh sửa',
-  //             style: Theme.of(context).textTheme.titleMedium,
-  //           ),
-  //           leading: Icon(Icons.preview),
-  //           onTap: onEdit,
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
-
   Row _buildInfoRow(
       {required String title1,
       required String value1,
