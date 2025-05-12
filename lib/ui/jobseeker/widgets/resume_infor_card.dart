@@ -4,10 +4,10 @@ import 'package:job_finder_app/models/resume.dart';
 
 class ResumeInforCard extends StatelessWidget {
   const ResumeInforCard({
-    super.key,
+    Key? key,
     required this.resume,
     this.onAction,
-  });
+  }) : super(key: key);
 
   final Resume resume;
   final void Function()? onAction;
@@ -19,7 +19,7 @@ class ResumeInforCard extends StatelessWidget {
     TextTheme textTheme = theme.textTheme;
     return Container(
         margin: EdgeInsets.only(top: 10),
-        width: double.maxFinite,
+        width: double.infinity,
         padding: EdgeInsets.all(10),
         height: 80,
         decoration: BoxDecoration(
@@ -28,48 +28,54 @@ class ResumeInforCard extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            //Cột chứa thông tin tên CV và ngày tải lên
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    resume.fileName,
-                    style: textTheme.titleMedium!.copyWith(fontSize: 20),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  RichText(
-                    text: TextSpan(
-                        children: [
-                          WidgetSpan(child: Icon(Icons.attach_file)),
-                          WidgetSpan(
-                              child: const SizedBox(
-                            width: 10,
-                          )),
-                          TextSpan(
-                              text:
-                                  'Đã tải lên: ${formatter.format(resume.uploadedDate)}')
-                        ],
-                        style: textTheme.bodyLarge!.copyWith(
-                            color: Colors.grey.shade700,
-                            fontFamily: 'Lato',
-                            fontSize: 15)),
-                  )
-                ],
-              ),
-            ),
-            //Cột chứa tùy chọn hành động tải xuống hoặc xem
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                IconButton(
-                  onPressed: onAction,
-                  icon: Icon(Icons.more_vert),
-                )
-              ],
-            )
+            _buildResumeDetails(textTheme, formatter),
+            _buildActionColumn()
           ],
         ));
+  }
+
+  Widget _buildResumeDetails(TextTheme textTheme, DateFormat formatter) {
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            resume.fileName,
+            style: textTheme.titleMedium!.copyWith(fontSize: 20),
+            overflow: TextOverflow.ellipsis,
+          ),
+          RichText(
+            text: TextSpan(
+                children: [
+                  WidgetSpan(child: Icon(Icons.attach_file)),
+                  WidgetSpan(
+                      child: const SizedBox(
+                    width: 10,
+                  )),
+                  TextSpan(
+                      text:
+                          'Đã tải lên: ${formatter.format(resume.uploadedDate)}')
+                ],
+                style: textTheme.bodyLarge!.copyWith(
+                    color: Colors.grey.shade700,
+                    fontFamily: 'Lato',
+                    fontSize: 15)),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionColumn() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        IconButton(
+          onPressed: onAction,
+          icon: Icon(Icons.more_vert),
+        )
+      ],
+    );
   }
 }
