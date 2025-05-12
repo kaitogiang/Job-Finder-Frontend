@@ -32,13 +32,13 @@ class _SearchJobScreenState extends State<SearchJobScreen> {
     super.dispose();
   }
 
-  //todo Khởi tạo SharedPreferences
+  //todo Initialize SharedPreferences
   Future<void> _loadPrefs() async {
     prefs = await SharedPreferences.getInstance();
     _historyListenable.value = prefs.getStringList('searchHistory') ?? [];
   }
 
-  //todo Hàm lưu từ khóa vào trong bộ nhớ cục bộ của điện thoại
+  //todo Function to save keyword into local storage of the phone
   Future<void> saveSearchKeyword(String keyword) async {
     List<String> searchHistory = prefs.getStringList('searchHistory') ?? [];
     if (!searchHistory.contains(keyword)) {
@@ -48,7 +48,7 @@ class _SearchJobScreenState extends State<SearchJobScreen> {
     }
   }
 
-  //todo Hàm xóa lịch sử tìm kiếm
+  //todo Function to clear search history
   Future<void> clearSearchHistory(SharedPreferences prefs) async {
     await prefs.remove('searchHistory');
     _historyListenable.value = [];
@@ -125,13 +125,13 @@ class _SearchJobScreenState extends State<SearchJobScreen> {
                       return;
                     }
 
-                    //Ghi nhận hành động
+                    //Record action
                     final jobseekerId =
                         context.read<JobseekerManager>().jobseeker.id;
                     context
                         .read<JobseekerManager>()
                         .observeSearchJobPostAction(jobseekerId, value);
-                    //todo Lưu từ khóa vào bộ nhớ điện thoại để hiển thị lịch sử
+                    //todo Save keyword into phone memory to display history
                     saveSearchKeyword(value);
 
                     context.read<JobpostingManager>().search(value);
@@ -146,7 +146,7 @@ class _SearchJobScreenState extends State<SearchJobScreen> {
       body: ListView(
         padding: EdgeInsets.symmetric(horizontal: 10),
         children: <Widget>[
-          //todo Phần hiển thị tìm kiếm gần đây
+          //todo Section to display recent searches
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -184,11 +184,11 @@ class _SearchJobScreenState extends State<SearchJobScreen> {
               valueListenable: _historyListenable,
               builder: (context, history, child) {
                 final lastIndex = history.length - 1;
-                //! length này không phải là chiều dài mà là phần tử cuối cùng
-                //! nếu list có 8 phần tử thì phần tử cuối ở chỉ số 7
-                //! Bên dưới có dùng length - index = 7 - 0, với index = 0 lúc đầu
-                //! nên sẽ ra đúng, còn nếu để length = 8 thì 8 - 0 = 8 là sai
-                //! vì không có chỉ số 8 đâu
+                //! This length is not the length but the last element
+                //! if the list has 8 elements then the last element is at index 7
+                //! Below we have used length - index = 7 - 0, with index = 0 at the beginning
+                //! so it will be correct, but if we set length = 8 then 8 - 0 = 8 is wrong
+                //! because there is no index 8
                 final length = history.length;
                 return _historyListenable.value.isNotEmpty
                     ? ListView.builder(
@@ -218,22 +218,7 @@ class _SearchJobScreenState extends State<SearchJobScreen> {
           const SizedBox(
             height: 10,
           ),
-          // ListTile(
-          //   contentPadding: EdgeInsets.symmetric(horizontal: 0),
-          //   leading: Icon(Icons.access_time_outlined),
-          //   title: Text('Lập trình Nodejs developer'),
-          // ),
-          // ListTile(
-          //   contentPadding: EdgeInsets.symmetric(horizontal: 0),
-          //   leading: Icon(Icons.access_time_outlined),
-          //   title: Text('Tuyển dụng Front end'),
-          // ),
-          // ListTile(
-          //   contentPadding: EdgeInsets.symmetric(horizontal: 0),
-          //   leading: Icon(Icons.access_time_outlined),
-          //   title: Text('Tuyển dụng Back end'),
-          // ),
-          //todo Phần gợi ý từ khóa tìm kiếm
+          //todo Section for keyword suggestions
           Text(
             'Từ khóa gợi ý',
             style: textTheme.titleMedium!.copyWith(
