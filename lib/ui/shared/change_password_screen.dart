@@ -20,17 +20,22 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   final _authenticatePasswordController = TextEditingController();
   final _oldPasswordController = TextEditingController();
   final _newPasswordController = TextEditingController();
+  final _isFull = ValueNotifier(false);
 
-  ValueNotifier<bool> isFull = ValueNotifier(false);
-  String oldPassword = '';
-  String newPassword = '';
+  String _oldPassword = '';
+  String _newPassword = '';
 
   @override
   void initState() {
-    _oldPasswordController.addListener(_isValidForm);
-    _newPasswordController.addListener(_isValidForm);
-    _authenticatePasswordController.addListener(_isValidForm);
     super.initState();
+    _setupControllerListeners();
+  }
+
+  void _setupControllerListeners() {
+    void listener() => _validateForm();
+    _oldPasswordController.addListener(listener);
+    _newPasswordController.addListener(listener);
+    _authenticatePasswordController.addListener(listener);
   }
 
   @override
@@ -41,133 +46,136 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     super.dispose();
   }
 
-  void _isValidForm() {
-    isFull.value = _oldPasswordController.text.isNotEmpty &&
+  void _validateForm() {
+    _isFull.value = _oldPasswordController.text.isNotEmpty &&
         _newPasswordController.text.isNotEmpty &&
         _authenticatePasswordController.text.isNotEmpty;
-    log('IsFull la: ${isFull.value}');
+  }
+
+  void _clearAllFields() {
+    _authenticatePasswordController.clear();
+    _oldPasswordController.clear();
+    _newPasswordController.clear();
   }
 
   Future<void> _changePasswordForJobseeker() async {
     if (!_formKey.currentState!.validate()) {
       return;
     }
-    if (_newPasswordController.text
-            .compareTo(_authenticatePasswordController.text) !=
-        0) {
+
+    if (_newPasswordController.text != _authenticatePasswordController.text) {
       QuickAlert.show(
+        context: context,
+        type: QuickAlertType.error,
+        title: 'Lỗi',
+        text: 'Mật khẩu chưa khớp, vui lòng nhập lại',
+        confirmBtnText: 'Tôi biết rồi',
+      );
+      return;
+    }
+
+    try {
+      _formKey.currentState!.save();
+      log('Oldpassword is: $_oldPassword');
+      log('Newpassword is: $_newPassword');
+      
+      final isChanged = await context
+          .read<JobseekerManager>()
+          .changePassword(_oldPassword, _newPassword);
+          
+      if (isChanged && mounted) {
+        QuickAlert.show(
+          context: context,
+          type: QuickAlertType.success,
+          title: 'Thành công',
+          text: 'Bạn đã đổi mật khẩu thành công',
+        );
+        _clearAllFields();
+      } else if (mounted) {
+        QuickAlert.show(
           context: context,
           type: QuickAlertType.error,
-          title: 'Lỗi',
-          text: 'Mật khẩu chưa khớp, vui lòng nhập lại',
-          confirmBtnText: 'Tôi biết rồi');
-    } else {
-      try {
-        _formKey.currentState!.save();
-        log('Oldpassword is: $oldPassword');
-        log('Newpassword is: $newPassword');
-        final isChanged = await context
-            .read<JobseekerManager>()
-            .changePassword(oldPassword, newPassword);
-        if (isChanged && mounted) {
-          QuickAlert.show(
-              context: context,
-              type: QuickAlertType.success,
-              title: 'Thành công',
-              text: 'Bạn đã đổi mật khẩu thành công');
-          clearAllField();
-        } else {
-          if (mounted) {
-            QuickAlert.show(
-              context: context,
-              type: QuickAlertType.error,
-              title: 'Không thể đổi mật khẩu',
-              text: 'Mật khẩu chưa chính xác',
-              confirmBtnText: 'Tôi biết rồi',
-            );
-          }
-        }
-      } catch (error) {
-        if (mounted) {
-          QuickAlert.show(
-            context: context,
-            type: QuickAlertType.error,
-            title: 'Không thể đổi mật khẩu',
-            text: 'Mật khẩu chưa chính xác',
-            confirmBtnText: 'Tôi biết rồi',
-          );
-        }
-        log('Lỗi trong chagne email screen $error');
+          title: 'Không thể đổi mật khẩu',
+          text: 'Mật khẩu chưa chính xác',
+          confirmBtnText: 'Tôi biết rồi',
+        );
       }
+    } catch (error) {
+      if (mounted) {
+        QuickAlert.show(
+          context: context,
+          type: QuickAlertType.error,
+          title: 'Không thể đổi mật khẩu',
+          text: 'Mật khẩu chưa chính xác',
+          confirmBtnText: 'Tôi biết rồi',
+        );
+      }
+      log('Lỗi trong change password screen: $error');
     }
-  }
-
-  void clearAllField() {
-    _authenticatePasswordController.clear();
-    _oldPasswordController.clear();
-    _newPasswordController.clear();
   }
 
   Future<void> _changePasswordForEmployer() async {
     if (!_formKey.currentState!.validate()) {
       return;
     }
-    if (_newPasswordController.text
-            .compareTo(_authenticatePasswordController.text) !=
-        0) {
+
+    if (_newPasswordController.text != _authenticatePasswordController.text) {
       QuickAlert.show(
+        context: context,
+        type: QuickAlertType.error,
+        title: 'Lỗi',
+        text: 'Mật khẩu chưa khớp, vui lòng nhập lại',
+        confirmBtnText: 'Tôi biết rồi',
+      );
+      return;
+    }
+
+    try {
+      _formKey.currentState!.save();
+      log('Oldpassword is: $_oldPassword');
+      log('Newpassword is: $_newPassword');
+      
+      final isChanged = await context
+          .read<EmployerManager>()
+          .changePassword(_oldPassword, _newPassword);
+          
+      if (isChanged && mounted) {
+        QuickAlert.show(
+          context: context,
+          type: QuickAlertType.success,
+          title: 'Thành công',
+          text: 'Bạn đã đổi mật khẩu thành công',
+        );
+        _clearAllFields();
+      } else if (mounted) {
+        QuickAlert.show(
           context: context,
           type: QuickAlertType.error,
-          title: 'Lỗi',
-          text: 'Mật khẩu chưa khớp, vui lòng nhập lại',
-          confirmBtnText: 'Tôi biết rồi');
-    } else {
-      try {
-        _formKey.currentState!.save();
-        log('Oldpassword is: $oldPassword');
-        log('Newpassword is: $newPassword');
-        final isChanged = await context
-            .read<EmployerManager>()
-            .changePassword(oldPassword, newPassword);
-        if (isChanged && mounted) {
-          QuickAlert.show(
-              context: context,
-              type: QuickAlertType.success,
-              title: 'Thành công',
-              text: 'Bạn đã đổi mật khẩu thành công');
-          clearAllField();
-        } else {
-          if (mounted) {
-            QuickAlert.show(
-              context: context,
-              type: QuickAlertType.error,
-              title: 'Không thể đổi mật khẩu',
-              text: 'Mật khẩu chưa chính xác',
-              confirmBtnText: 'Tôi biết rồi',
-            );
-          }
-        }
-      } catch (error) {
-        if (mounted) {
-          QuickAlert.show(
-            context: context,
-            type: QuickAlertType.error,
-            title: 'Không thể đổi mật khẩu',
-            text: 'Mật khẩu chưa chính xác',
-            confirmBtnText: 'Tôi biết rồi',
-          );
-        }
-        log('Lỗi trong chagne email screen $error');
+          title: 'Không thể đổi mật khẩu',
+          text: 'Mật khẩu chưa chính xác',
+          confirmBtnText: 'Tôi biết rồi',
+        );
       }
+    } catch (error) {
+      if (mounted) {
+        QuickAlert.show(
+          context: context,
+          type: QuickAlertType.error,
+          title: 'Không thể đổi mật khẩu',
+          text: 'Mật khẩu chưa chính xác',
+          confirmBtnText: 'Tôi biết rồi',
+        );
+      }
+      log('Lỗi trong change password screen: $error');
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    Size deviceSize = MediaQuery.of(context).size;
-    ThemeData theme = Theme.of(context);
-    TextTheme textTheme = theme.textTheme;
-    bool isEmployer = context.read<AuthManager>().isEmployer;
+    final deviceSize = MediaQuery.of(context).size;
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+    final isEmployer = context.read<AuthManager>().isEmployer;
 
     return Scaffold(
       appBar: AppBar(
@@ -194,12 +202,10 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   return null;
                 },
                 onSaved: (value) {
-                  oldPassword = value!;
+                  _oldPassword = value!;
                 },
               ),
-              const SizedBox(
-                height: 10,
-              ),
+              const SizedBox(height: 10),
               CombinedTextFormField(
                 title: 'Mật khẩu mới',
                 hintText: 'Bắt buộc',
@@ -213,12 +219,10 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   return null;
                 },
                 onSaved: (value) {
-                  newPassword = value!;
+                  _newPassword = value!;
                 },
               ),
-              const SizedBox(
-                height: 10,
-              ),
+              const SizedBox(height: 10),
               CombinedTextFormField(
                 title: 'Xác nhận mật khẩu mới',
                 hintText: 'Bắt buộc',
@@ -229,7 +233,6 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   if (value!.isEmpty || value.length < 8) {
                     return 'Mật khẩu chưa hợp lệ';
                   }
-
                   return null;
                 },
               ),
@@ -237,27 +240,29 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                 child: Align(
                   alignment: Alignment.bottomCenter,
                   child: ValueListenableBuilder(
-                      valueListenable: isFull,
-                      builder: (context, isValid, child) {
-                        return ElevatedButton(
-                          onPressed: isValid == false
-                              ? null
-                              : (!isEmployer)
-                                  ? _changePasswordForJobseeker
-                                  : _changePasswordForEmployer,
-                          style: ElevatedButton.styleFrom(
-                              disabledBackgroundColor: Colors.grey.shade300,
-                              fixedSize: Size(deviceSize.width, 60),
-                              backgroundColor: theme.primaryColor,
-                              elevation: 5,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              foregroundColor: theme.colorScheme.onPrimary,
-                              textStyle: textTheme.titleMedium),
-                          child: Text("ĐỔI MẬT KHẨU"),
-                        );
-                      }),
+                    valueListenable: _isFull,
+                    builder: (context, isValid, child) {
+                      return ElevatedButton(
+                        onPressed: isValid
+                            ? (isEmployer
+                                ? _changePasswordForEmployer
+                                : _changePasswordForJobseeker)
+                            : null,
+                        style: ElevatedButton.styleFrom(
+                          disabledBackgroundColor: Colors.grey.shade300,
+                          fixedSize: Size(deviceSize.width, 60),
+                          backgroundColor: theme.primaryColor,
+                          elevation: 5,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          foregroundColor: theme.colorScheme.onPrimary,
+                          textStyle: textTheme.titleMedium,
+                        ),
+                        child: const Text("ĐỔI MẬT KHẨU"),
+                      );
+                    },
+                  ),
                 ),
               )
             ],

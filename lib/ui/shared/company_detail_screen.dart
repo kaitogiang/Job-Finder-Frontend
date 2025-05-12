@@ -52,7 +52,6 @@ class CompanyDetailScreen extends StatelessWidget {
                   },
                 ),
               ),
-              // backgroundColor: const Color.fromRGBO(39, 107, 152, 1),
               flexibleSpace: FlexibleSpaceBar(
                 expandedTitleScale: 1,
                 background: Container(

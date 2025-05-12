@@ -20,63 +20,68 @@ class ResumeCreationForm extends StatefulWidget {
 }
 
 class _ResumeCreationFormState extends State<ResumeCreationForm> {
-  late Jobseeker jobseeker;
-  //Thiết lập các Controller
-  final _nameController = TextEditingController();
-  final _phoneController = TextEditingController();
-  final _addressController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _descControllerList = <TextEditingController>[];
-  final _fileNameController = TextEditingController();
-  final _isTypingDesiredPosition = ValueNotifier(false);
-  int numberOfExp = 0;
-  int numberOfEdu = 0;
+  late Jobseeker _jobseeker;
+  
+  // Controllers
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _addressController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final List<TextEditingController> _descControllerList = [];
+  final TextEditingController _fileNameController = TextEditingController();
+  final ValueNotifier<bool> _isTypingDesiredPosition = ValueNotifier(false);
+  
+  int _numberOfExp = 0;
+  int _numberOfEdu = 0;
+
   @override
   void initState() {
     super.initState();
-    jobseeker = context.read<JobseekerManager>().jobseeker;
-    //Khởi tạo thông tin các trường thông tin cơ bản
-    _nameController.text = '${jobseeker.firstName} ${jobseeker.lastName}';
-    _addressController.text = jobseeker.address;
-    _phoneController.text = jobseeker.phone;
-    _emailController.text = jobseeker.email;
-    //Khởi tạo thông tin kinh nghiệm làm việc
-    //Tạo ra các controller cho các trường nhập thông tin bổ sung trong
-    //Kinh nghiệm làm việc
-    numberOfExp = jobseeker.experience.length;
-    numberOfEdu = jobseeker.education.length;
+    _jobseeker = context.read<JobseekerManager>().jobseeker;
+    
+    // Initialize basic info fields
+    _nameController.text = '${_jobseeker.firstName} ${_jobseeker.lastName}';
+    _addressController.text = _jobseeker.address;
+    _phoneController.text = _jobseeker.phone;
+    _emailController.text = _jobseeker.email;
+    
+    // Initialize experience and education fields
+    _numberOfExp = _jobseeker.experience.length;
+    _numberOfEdu = _jobseeker.education.length;
     _descControllerList.addAll(List<TextEditingController>.generate(
-        numberOfExp, (index) => TextEditingController()));
+        _numberOfExp, (index) => TextEditingController()));
 
-    //Lắng nghe sự kiện
-    _fileNameController.addListener(() {
-      if (_fileNameController.text.isEmpty) {
-        _isTypingDesiredPosition.value = false;
-      } else {
-        _isTypingDesiredPosition.value = true;
-      }
-    });
+    // Add listener for filename field
+    _fileNameController.addListener(_onFileNameChanged);
+  }
+
+  void _onFileNameChanged() {
+    _isTypingDesiredPosition.value = _fileNameController.text.isNotEmpty;
   }
 
   @override
   void dispose() {
+    _nameController.dispose();
+    _phoneController.dispose();
+    _addressController.dispose();
+    _emailController.dispose();
+    _fileNameController.dispose();
+    for (var controller in _descControllerList) {
+      controller.dispose();
+    }
     super.dispose();
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    //Quan sát xem khi mà người dùng nhấn ẩn keyboard đi thì bottomInsets sẽ là 0
-    //Nếu là 0 thì bỏ focus tất cả các trường
-    //didChangeDependencies sẽ được gọi nếu các widget bên trong có sự rebuild lại
+    // Check if keyboard is hidden to unfocus all fields
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
     if (bottomInset == 0.0) {
-      // If keyboard is closed, unfocus all text fields
       _unfocusAll();
     }
   }
 
-  // Unfocus all fields
   void _unfocusAll() {
     FocusScope.of(context).requestFocus(FocusNode());
   }
@@ -84,78 +89,76 @@ class _ResumeCreationFormState extends State<ResumeCreationForm> {
   void _previewResume() async {
     FocusScope.of(context).unfocus();
     Utils.logMessage(FocusScope.of(context).hasFocus.toString());
-    //Kiểm tra xem những trường bắt buộc điền có chưa, nếu chưa thì báo lỗi
-    if (_isTypingDesiredPosition.value == false) {
-      //Báo lỗi tại vì chưa nhập vào tên vị trí muốn ứng tuyển
-      QuickAlert.show(
-        context: context,
-        type: QuickAlertType.error,
-        title: 'Không thể xem trước CV',
-        text: 'Vui lòng nhập vào trường bắt buộc',
-        confirmBtnText: 'Tôi biết rồi',
-      );
+
+    if (!_isTypingDesiredPosition.value) {
+      _showErrorAlert('Không thể xem trước CV', 'Vui lòng nhập vào trường bắt buộc');
       return;
     }
-    //Trích xuât các phần mô tả thêm và đối tượng jobseeker
-    List<String> optionalExpDescription =
-        _descControllerList.map((controller) => controller.text).toList();
+
+    final optionalExpDescription = _descControllerList.map((controller) => controller.text).toList();
     final position = _fileNameController.text;
+    
     Map<String, dynamic> data = {
-      'jobseeker': jobseeker,
+      'jobseeker': _jobseeker,
       'experienceDesc': optionalExpDescription,
       'position': position,
     };
+    
     context.pushNamed('resume-creation-preview', extra: data);
   }
 
+  void _showErrorAlert(String title, String message) {
+    QuickAlert.show(
+      context: context,
+      type: QuickAlertType.error,
+      title: title,
+      text: message,
+      confirmBtnText: 'Tôi biết rồi',
+    );
+  }
+
   Future<void> _createResumePdf() async {
-    //Kiểm tra xem những trường bắt buộc điền có chưa, nếu chưa thì báo lỗi
-    if (_isTypingDesiredPosition.value == false) {
-      //Báo lỗi tại vì chưa nhập vào tên vị trí muốn ứng tuyển
-      QuickAlert.show(
-        context: context,
-        type: QuickAlertType.error,
-        title: 'Không thể tạo CV',
-        text: 'Vui lòng điền thông tin bắt buộc',
-        confirmBtnText: 'Tôi biết rồi',
-      );
+    if (!_isTypingDesiredPosition.value) {
+      _showErrorAlert('Không thể tạo CV', 'Vui lòng điền thông tin bắt buộc');
       return;
     }
+
     try {
       QuickAlert.show(
-          context: context, type: QuickAlertType.loading, title: 'Đang tạo...');
-      //Trích xuât các phần mô tả thêm và đối tượng jobseeker
-      List<String> optionalExpDescription =
-          _descControllerList.map((controller) => controller.text).toList();
+        context: context, 
+        type: QuickAlertType.loading, 
+        title: 'Đang tạo...'
+      );
+
+      final optionalExpDescription = _descControllerList.map((controller) => controller.text).toList();
       final position = _fileNameController.text;
-      final format =
-          PdfPageFormat.a4; // Specify the page format (e.g., A4, Letter, etc.)
-      final bytes = await generateResume(format, position, jobseeker,
-          optionalExpDescription); //Tạo bytes file PDF
-      //Tiến hành tạo file PDF tạm trong thư mục tạm và sau khi upload xong thì bỏ
-      //Lấy thư mục tạm
+      final format = PdfPageFormat.a4;
+      
+      final bytes = await generateResume(format, position, _jobseeker, optionalExpDescription);
+      
       final tempDir = await getTemporaryDirectory();
       final tempPath = tempDir.path;
-
-      //Tạo file PDF trong đường dẫn này
       final tempFile = File('$tempPath/tempResume.pdf');
       await tempFile.writeAsBytes(bytes);
+      
       Utils.logMessage('Save as file ${tempFile.path}...');
-      final fileName =
-          '${position}_${jobseeker.firstName}_${jobseeker.lastName}'
-              .trim()
-              .replaceAll(RegExp(r'\s+'), '_');
-      //Gọi API lưu file vào Server
+      
+      final fileName = '${position}_${_jobseeker.firstName}_${_jobseeker.lastName}'
+          .trim()
+          .replaceAll(RegExp(r'\s+'), '_');
+
       if (mounted) {
         await context.read<JobseekerManager>().uploadResume(fileName, tempFile);
         Utils.logMessage('Tạo CV mới thành công');
       }
+
       if (mounted) {
         Navigator.of(context, rootNavigator: true)
             .popUntil((route) => route.settings.name == 'resume-list');
       }
-      //Xóa file tạm sau khi đã upload lên server
+
       await tempFile.delete();
+      
     } catch (error) {
       Utils.logMessage('Error in _createResumePdf: $error');
     }
@@ -166,10 +169,11 @@ class _ResumeCreationFormState extends State<ResumeCreationForm> {
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
     final deviceSize = MediaQuery.of(context).size;
-    //Lấy dữ liệu education và experience
-    final experiences = jobseeker.experience;
-    final educations = jobseeker.education;
-    final skills = jobseeker.skills;
+    
+    final experiences = _jobseeker.experience;
+    final educations = _jobseeker.education;
+    final skills = _jobseeker.skills;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -181,29 +185,28 @@ class _ResumeCreationFormState extends State<ResumeCreationForm> {
         ),
         actions: [
           IconButton(
-            icon: Icon(
+            icon: const Icon(
               Icons.remove_red_eye_rounded,
               color: Colors.white,
             ),
             onPressed: _previewResume,
             tooltip: 'Xem trước',
           ),
-          const SizedBox(
-            width: 10,
-          ),
+          const SizedBox(width: 10),
         ],
         elevation: 0,
         flexibleSpace: Container(
           width: deviceSize.width,
           decoration: BoxDecoration(
             gradient: LinearGradient(
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-                colors: [
-                  Colors.blueAccent.shade700,
-                  Colors.blueAccent.shade400,
-                  theme.primaryColor,
-                ]),
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+              colors: [
+                Colors.blueAccent.shade700,
+                Colors.blueAccent.shade400,
+                theme.primaryColor,
+              ]
+            ),
           ),
         ),
       ),
@@ -218,17 +221,14 @@ class _ResumeCreationFormState extends State<ResumeCreationForm> {
                   color: Colors.yellow.shade400.withOpacity(0.6),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                padding:
-                    const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+                padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
                 child: Row(
                   children: [
                     Icon(
                       Icons.warning,
                       color: Colors.yellow.shade900,
                     ),
-                    const SizedBox(
-                      width: 10,
-                    ),
+                    const SizedBox(width: 10),
                     Expanded(
                       child: Text(
                         'Hãy kiểm tra thông tin lại trước khi tạo CV mới. Bạn có thể thiết lập thêm các thông tin bổ sung.',
@@ -240,19 +240,14 @@ class _ResumeCreationFormState extends State<ResumeCreationForm> {
                   ],
                 ),
               ),
-              const SizedBox(
-                height: 10,
-              ),
-              //Đặt tên cho vị trí muốn ứng tuyển
+              const SizedBox(height: 10),
+              
               Text(
                 'Vị trí muốn ứng tuyển?',
-                style: textTheme.titleMedium!.copyWith(
-                  fontSize: 17,
-                ),
+                style: textTheme.titleMedium!.copyWith(fontSize: 17),
               ),
-              const SizedBox(
-                height: 5,
-              ),
+              const SizedBox(height: 5),
+              
               TextFormField(
                 controller: _fileNameController,
                 keyboardType: TextInputType.text,
@@ -260,47 +255,45 @@ class _ResumeCreationFormState extends State<ResumeCreationForm> {
                   hintText: 'Nhập vào vị trí muốn ứng tuyển (Bắt buộc)',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(
-                      color: Colors.blue,
-                    ),
+                    borderSide: const BorderSide(color: Colors.blue),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(
+                    borderSide: const BorderSide(
                       color: Colors.blue,
                       width: 2,
                     ),
                   ),
                   suffixIcon: ValueListenableBuilder(
-                      valueListenable: _isTypingDesiredPosition,
-                      builder: (context, isTyping, child) {
-                        return !isTyping
-                            ? Container(
-                                width: 10,
-                                alignment: Alignment.center,
-                                padding: const EdgeInsets.only(top: 5),
-                                child: Text(
-                                  '*',
-                                  style: textTheme.bodyLarge!.copyWith(
-                                    color: Colors.red,
-                                  ),
+                    valueListenable: _isTypingDesiredPosition,
+                    builder: (context, isTyping, child) {
+                      return !isTyping
+                          ? Container(
+                              width: 10,
+                              alignment: Alignment.center,
+                              padding: const EdgeInsets.only(top: 5),
+                              child: Text(
+                                '*',
+                                style: textTheme.bodyLarge!.copyWith(
+                                  color: Colors.red,
                                 ),
-                              )
-                            : SizedBox.shrink();
-                      }),
+                              ),
+                            )
+                          : const SizedBox.shrink();
+                    }
+                  ),
                 ),
               ),
-              const SizedBox(
-                height: 10,
-              ),
-              //Phần hiển thị thông tin cá nhân
+              const SizedBox(height: 10),
+
+              // Personal Information Section
               _buildSectionTitle(
-                  title: 'Thông tin cá nhân'.toUpperCase(),
-                  icon: Icons.person,
-                  textTheme),
-              const SizedBox(
-                height: 10,
+                title: 'Thông tin cá nhân'.toUpperCase(),
+                icon: Icons.person,
+                textTheme: textTheme
               ),
+              const SizedBox(height: 10),
+
               CombinedTextFormField(
                 title: 'Họ tên',
                 hintText: 'Họ tên của bản',
@@ -308,9 +301,8 @@ class _ResumeCreationFormState extends State<ResumeCreationForm> {
                 keyboardType: TextInputType.name,
                 isRead: true,
               ),
-              const SizedBox(
-                height: 8,
-              ),
+              const SizedBox(height: 8),
+
               CombinedTextFormField(
                 title: 'Email',
                 hintText: 'Email của bạn',
@@ -318,9 +310,8 @@ class _ResumeCreationFormState extends State<ResumeCreationForm> {
                 keyboardType: TextInputType.name,
                 isRead: true,
               ),
-              const SizedBox(
-                height: 8,
-              ),
+              const SizedBox(height: 8),
+
               CombinedTextFormField(
                 title: 'Số điện thoại',
                 hintText: 'Số điện thoại của bạn',
@@ -328,9 +319,8 @@ class _ResumeCreationFormState extends State<ResumeCreationForm> {
                 keyboardType: TextInputType.name,
                 isRead: true,
               ),
-              const SizedBox(
-                height: 8,
-              ),
+              const SizedBox(height: 8),
+
               CombinedTextFormField(
                 title: 'Địa chỉ',
                 hintText: 'Địa chỉ của bạn',
@@ -338,18 +328,17 @@ class _ResumeCreationFormState extends State<ResumeCreationForm> {
                 keyboardType: TextInputType.name,
                 isRead: true,
               ),
-              const SizedBox(
-                height: 10,
-              ),
-              //Phần hiển thị thông tin các kinh nghiệm làm việc
+              const SizedBox(height: 10),
+
+              // Work Experience Section  
               _buildSectionTitle(
-                  title: 'Kinh nghiệm làm việc'.toUpperCase(),
-                  icon: Icons.work,
-                  textTheme),
-              const SizedBox(
-                height: 10,
+                title: 'Kinh nghiệm làm việc'.toUpperCase(),
+                icon: Icons.work,
+                textTheme: textTheme
               ),
-              ...List<Padding>.generate(numberOfExp, (index) {
+              const SizedBox(height: 10),
+
+              ...List<Padding>.generate(_numberOfExp, (index) {
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 10),
                   child: ExperienceFormDetail(
@@ -360,35 +349,36 @@ class _ResumeCreationFormState extends State<ResumeCreationForm> {
                   ),
                 );
               }),
-              const SizedBox(
-                height: 10,
-              ),
-              //Hiển thị học vấn
+              const SizedBox(height: 10),
+
+              // Education Section
               _buildSectionTitle(
-                  title: 'Học vấn'.toUpperCase(),
-                  icon: Icons.school,
-                  textTheme),
-              const SizedBox(
-                height: 10,
+                title: 'Học vấn'.toUpperCase(),
+                icon: Icons.school,
+                textTheme: textTheme
               ),
-              ...List<Padding>.generate(numberOfEdu, (index) {
+              const SizedBox(height: 10),
+
+              ...List<Padding>.generate(_numberOfEdu, (index) {
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 10),
                   child: EducationFormDetail(
                     school: educations[index].school,
-                    duration:
-                        '${educations[index].startDate} - ${educations[index].endDate}',
+                    duration: '${educations[index].startDate} - ${educations[index].endDate}',
                     degree: educations[index].degree,
                     specialization: educations[index].specialization,
                   ),
                 );
               }),
+
+              // Skills Section
               _buildSectionTitle(
-                  title: 'Kỹ năng'.toUpperCase(), icon: Icons.code, textTheme),
-              const SizedBox(
-                height: 10,
+                title: 'Kỹ năng'.toUpperCase(),
+                icon: Icons.code,
+                textTheme: textTheme
               ),
-              //Hiển thị danh sách các kỹ năng
+              const SizedBox(height: 10),
+
               Wrap(
                 alignment: WrapAlignment.start,
                 spacing: 5,
@@ -399,13 +389,13 @@ class _ResumeCreationFormState extends State<ResumeCreationForm> {
                       skills[index],
                       overflow: TextOverflow.ellipsis,
                     ),
-                    labelStyle: TextStyle(color: Colors.black),
+                    labelStyle: const TextStyle(color: Colors.black),
                   );
                 }).toList(),
               ),
-              const SizedBox(
-                height: 20,
-              ),
+              const SizedBox(height: 20),
+
+              // Action Buttons
               Center(
                 child: Row(
                   children: [
@@ -429,9 +419,7 @@ class _ResumeCreationFormState extends State<ResumeCreationForm> {
                         ),
                       ),
                     ),
-                    const SizedBox(
-                      width: 5,
-                    ),
+                    const SizedBox(width: 5),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         elevation: 3,
@@ -460,28 +448,34 @@ class _ResumeCreationFormState extends State<ResumeCreationForm> {
     );
   }
 
-  RichText _buildSectionTitle(TextTheme textTheme,
-      {required String title, required IconData icon}) {
+  RichText _buildSectionTitle({
+    required String title,
+    required IconData icon,
+    required TextTheme textTheme,
+  }) {
     return RichText(
-      text: TextSpan(children: [
-        WidgetSpan(
+      text: TextSpan(
+        children: [
+          WidgetSpan(
             alignment: PlaceholderAlignment.middle,
             child: Icon(
               icon,
               color: Colors.black54,
-            )),
-        const WidgetSpan(
-            child: SizedBox(
-          width: 8,
-        )),
-        TextSpan(
+            )
+          ),
+          const WidgetSpan(
+            child: SizedBox(width: 8)
+          ),
+          TextSpan(
             text: title,
             style: textTheme.titleMedium!.copyWith(
               color: Colors.black54,
               fontWeight: FontWeight.bold,
               fontSize: 18,
-            ))
-      ]),
+            )
+          )
+        ]
+      ),
     );
   }
 }
@@ -505,21 +499,21 @@ class ExperienceFormDetail extends StatefulWidget {
 }
 
 class _ExperienceFormDetailState extends State<ExperienceFormDetail> {
-  final _companycontroller = TextEditingController();
-  final _positionController = TextEditingController();
+  final TextEditingController _companyController = TextEditingController();
+  final TextEditingController _positionController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _companycontroller.text = widget.company;
+    _companyController.text = widget.company;
     _positionController.text = widget.position;
   }
 
   @override
   void dispose() {
-    super.dispose();
-    _companycontroller.dispose();
+    _companyController.dispose();
     _positionController.dispose();
+    super.dispose();
   }
 
   @override
@@ -530,13 +524,11 @@ class _ExperienceFormDetailState extends State<ExperienceFormDetail> {
       children: [
         Row(
           children: [
-            Icon(
+            const Icon(
               Icons.timelapse_rounded,
               color: Colors.blue,
             ),
-            const SizedBox(
-              width: 8,
-            ),
+            const SizedBox(width: 8),
             Text(
               widget.duration,
               style: textTheme.bodyLarge!.copyWith(
@@ -547,19 +539,17 @@ class _ExperienceFormDetailState extends State<ExperienceFormDetail> {
             ),
           ],
         ),
-        const SizedBox(
-          height: 8,
-        ),
+        const SizedBox(height: 8),
+
         CombinedTextFormField(
           title: 'Công ty',
           hintText: 'Công ty của bạn',
-          controller: _companycontroller,
+          controller: _companyController,
           keyboardType: TextInputType.name,
           isRead: true,
         ),
-        const SizedBox(
-          height: 8,
-        ),
+        const SizedBox(height: 8),
+
         CombinedTextFormField(
           title: 'Vị trí',
           hintText: 'Vị trí của bạn',
@@ -567,21 +557,14 @@ class _ExperienceFormDetailState extends State<ExperienceFormDetail> {
           keyboardType: TextInputType.name,
           isRead: true,
         ),
-        const SizedBox(
-          height: 8,
-        ),
-        const SizedBox(
-          height: 8,
-        ),
+        const SizedBox(height: 16),
+
         Text(
           'Mô tả thêm',
-          style: textTheme.titleMedium!.copyWith(
-            fontSize: 17,
-          ),
+          style: textTheme.titleMedium!.copyWith(fontSize: 17),
         ),
-        const SizedBox(
-          height: 5,
-        ),
+        const SizedBox(height: 5),
+
         TextFormField(
           controller: widget.controller,
           minLines: 3,
@@ -592,22 +575,18 @@ class _ExperienceFormDetailState extends State<ExperienceFormDetail> {
             hintText: 'Mô tả thêm về vị trí đã làm (Tùy chọn)',
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(
-                color: Colors.blue,
-              ),
+              borderSide: const BorderSide(color: Colors.blue),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(
+              borderSide: const BorderSide(
                 color: Colors.blue,
                 width: 2,
               ),
             ),
           ),
         ),
-        const SizedBox(
-          height: 8,
-        ),
+        const SizedBox(height: 8),
       ],
     );
   }
@@ -632,9 +611,9 @@ class EducationFormDetail extends StatefulWidget {
 }
 
 class _EducationFormDetailState extends State<EducationFormDetail> {
-  final _schoolController = TextEditingController();
-  final _degreeController = TextEditingController();
-  final _specializationController = TextEditingController();
+  final TextEditingController _schoolController = TextEditingController();
+  final TextEditingController _degreeController = TextEditingController();
+  final TextEditingController _specializationController = TextEditingController();
 
   @override
   void initState() {
@@ -646,10 +625,10 @@ class _EducationFormDetailState extends State<EducationFormDetail> {
 
   @override
   void dispose() {
-    super.dispose();
     _schoolController.dispose();
     _degreeController.dispose();
     _specializationController.dispose();
+    super.dispose();
   }
 
   @override
@@ -659,13 +638,11 @@ class _EducationFormDetailState extends State<EducationFormDetail> {
       children: [
         Row(
           children: [
-            Icon(
+            const Icon(
               Icons.timelapse_rounded,
               color: Colors.blue,
             ),
-            const SizedBox(
-              width: 8,
-            ),
+            const SizedBox(width: 8),
             Text(
               widget.duration,
               style: textTheme.bodyLarge!.copyWith(
@@ -676,9 +653,8 @@ class _EducationFormDetailState extends State<EducationFormDetail> {
             ),
           ],
         ),
-        const SizedBox(
-          height: 8,
-        ),
+        const SizedBox(height: 8),
+
         CombinedTextFormField(
           title: 'Trường',
           hintText: 'Trường của bạn',
@@ -686,9 +662,8 @@ class _EducationFormDetailState extends State<EducationFormDetail> {
           keyboardType: TextInputType.name,
           isRead: true,
         ),
-        const SizedBox(
-          height: 8,
-        ),
+        const SizedBox(height: 8),
+
         CombinedTextFormField(
           title: 'Chuyên ngành',
           hintText: 'Chuyên ngành của bạn',
@@ -696,9 +671,8 @@ class _EducationFormDetailState extends State<EducationFormDetail> {
           keyboardType: TextInputType.name,
           isRead: true,
         ),
-        const SizedBox(
-          height: 8,
-        ),
+        const SizedBox(height: 8),
+
         CombinedTextFormField(
           title: 'Bằng cấp',
           hintText: 'Bằng cấp của bạn',
@@ -706,9 +680,7 @@ class _EducationFormDetailState extends State<EducationFormDetail> {
           keyboardType: TextInputType.name,
           isRead: true,
         ),
-        const SizedBox(
-          height: 8,
-        ),
+        const SizedBox(height: 8),
       ],
     );
   }
