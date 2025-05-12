@@ -39,16 +39,16 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
   }
 
   Future<void> _gotoChatScreen() async {
-    //Kiểm tra xem có cuộc trò chuyện nào giữa jobseeker và company này không
+    //Check if there is any conversation between jobseeker and this company
     final conversationId = await context
         .read<MessageManager>()
         .verifyExistingConversation(jobposting.company!.id);
     if (conversationId != null) {
-      //Truy xuất đến conversation trong danh sách sẳn có
+      //Access conversation in existing list
       if (!mounted) return;
       context.pushNamed('chat', extra: conversationId);
     } else {
-      //Tạo mới conversation
+      //Create new conversation
       if (mounted) {
         String? conversationId = await context
             .read<MessageManager>()
@@ -101,7 +101,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                           backgroundColor: theme.primaryColor,
                         ),
                         onPressed: () async {
-                          //Kiểm tra xem có thiết lập CV chưa, nếu chưa thì báo lỗi
+                          //Check if CV is set up, if not then show error
                           final resumes =
                               context.read<JobseekerManager>().resumes;
                           if (resumes.isEmpty) {
@@ -114,21 +114,21 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                             );
                             return;
                           }
-                          //hiển thị modal cho phép chọn CV đã tạo
+                          //Show modal to select created CV
                           final selection = await showAdditionalScreen(
                             context: context,
                             title: 'Chọn CV của bạn',
                             child: const ResumeSelectionScreen(),
                             heightFactor: 0.7,
                           );
-                          //Nếu mở modal ra mà không chọn và đóng lại thì thôi
+                          //If modal is opened but no selection is made and closed then cancel
                           if (selection == null) {
                             return;
                           }
                           final selectedResumeIndex = selection as int;
                           final resumeLink = resumes[selectedResumeIndex].url;
-                          Utils.logMessage('CV link nộp: $resumeLink');
-                          //Hiển thị xác nhận và gửi CV
+                          Utils.logMessage('CV link submitted: $resumeLink');
+                          //Show confirmation and send CV
                           final isApply = await QuickAlert.show(
                             context: context,
                             type: QuickAlertType.confirm,
@@ -144,7 +144,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                                 Navigator.of(context).pop(true),
                           ) as bool;
                           if (isApply) {
-                            log('Apply liền luôn bạn ơi');
+                            log('Apply right away');
                             if (!context.mounted) return;
                             QuickAlert.show(
                                 context: context,
@@ -159,7 +159,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                                 .applyApplication(
                                     jobposting.id, employer!.email, resumeLink);
                             if (result && context.mounted) {
-                              //Loại bỏ màn hình loading
+                              //Remove loading screen
                               Navigator.of(context, rootNavigator: true).pop();
                               QuickAlert.show(
                                 context: context,
@@ -171,7 +171,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                               );
                             } else {
                               if (context.mounted) {
-                                //Loại bỏ màn hình đăng nhập
+                                //Remove login screen
                                 Navigator.of(context, rootNavigator: true)
                                     .pop();
                                 QuickAlert.show(
@@ -185,7 +185,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                               }
                             }
                           } else {
-                            log('Thôi để bữa khác');
+                            log('Maybe another time');
                           }
                         },
                         child: Text(
@@ -219,7 +219,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                           builder: (context, isFavorite, child) {
                             return IconButton(
                               onPressed: () async {
-                                //Ghi nhận hành động
+                                //Record action
                                 final jobseekerId = context
                                     .read<JobseekerManager>()
                                     .jobseeker
@@ -274,7 +274,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
             ),
       body: CustomScrollView(
         slivers: <Widget>[
-          //? Phần appbar dùng để chứa thông tin giới thiệu về bài tuyển dụng
+          //? AppBar section containing job posting introduction information
           SliverAppBar(
             expandedHeight: 400.0,
             floating: false,
@@ -282,7 +282,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
             toolbarHeight: 80,
             title: Padding(
               padding: const EdgeInsets.only(left: 0, right: 30),
-              //? Hiển thị tên công ty ở phần giữa AppBar
+              //? Display company name in middle of AppBar
               child: Text(
                 jobposting.company!.companyName,
                 maxLines: 2,
@@ -318,13 +318,13 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                     children: [
                       ClipRRect(
                         borderRadius: BorderRadius.circular(20),
-                        //? Hiển thị ảnh đại diện của công ty
+                        //? Display company avatar
                         child: Image.network(
                           jobposting.company!.avatarLink,
                           width: 150,
                         ),
                       ),
-                      //? Hiển thị tiêu đề của bài tuyển dụng
+                      //? Display job posting title
                       Text(
                         jobposting.title,
                         textAlign: TextAlign.center,
@@ -336,7 +336,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      //? Hiển thị ngày hết hạn ứng tuyển của bài viết
+                      //? Display job posting deadline
                       Text(
                         'Ngày hết hạn: $formattedDeadline',
                         style: theme.textTheme.bodySmall!.copyWith(
@@ -344,7 +344,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                           fontSize: 15,
                         ),
                       ),
-                      //? Hiển thị vị trí và mức lương
+                      //? Display location and salary
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 10),
                         child: Row(
@@ -366,7 +366,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                                         color: theme.colorScheme.primary,
                                       ),
                                     ),
-                                    //? Hiển thị vị trí làm việc của công ty
+                                    //? Display company work location
                                     title: Text(
                                       jobposting.workLocation,
                                       style:
@@ -398,7 +398,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                                         color: theme.colorScheme.primary,
                                       ),
                                     ),
-                                    //? Hiển thị mức lương
+                                    //? Display salary
                                     title: Text(
                                       jobposting.salary,
                                       style:
@@ -422,7 +422,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
               ),
             ),
           ),
-          //? Hiển thị phần nội dung chính
+          //? Display main content
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.all(10.0),
@@ -437,7 +437,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                       ShadowOverlay(
                         shadowHeight: 100,
                         shadowWidth: deviceSize.width,
-                        //? Hiển thị mô tả công việc ở dạng rút gọn
+                        //? Display job description in condensed form
                         child: ContentSection(
                           title: 'Mô tả công việc',
                           content: jobposting.description,
@@ -475,7 +475,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                     const SizedBox(
                       height: 10,
                     ),
-                    // //? Hiển thị yêu cầu công việc
+                    //? Display job requirements
                     ContentSection(
                       title: 'Yêu cầu công việc',
                       content: jobposting.requirements,
@@ -484,7 +484,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                     const SizedBox(
                       height: 10,
                     ),
-                    // //? Hiển thị phúc lợi
+                    //? Display benefits
                     ContentSection(
                       title: 'Phúc lợi dành cho bạn',
                       content: jobposting.benefit,
@@ -493,7 +493,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                     const SizedBox(
                       height: 10,
                     ),
-                    //? Hiển thị địa điểm làm việc
+                    //? Display work location
                     ContentSection(
                       title: 'Địa điểm làm việc',
                       content: jobposting.company!.companyAddress,
@@ -546,7 +546,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
               padding: const EdgeInsets.all(10.0),
               child: Column(
                 children: <Widget>[
-                  //? Hiển thị tiêu đề "Thông tin công ty"
+                  //? Display "Company Information" title
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
@@ -570,7 +570,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                   const SizedBox(
                     height: 5,
                   ),
-                  //todo Hiển thị Card chứa đựng thông tin công ty
+                  //todo Display Card containing company information
                   CompanyCard(
                     company: jobposting.company!,
                   )
@@ -584,7 +584,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
               padding: const EdgeInsets.all(10.0),
               child: Column(
                 children: <Widget>[
-                  //todo Hiển thị tiêu đề "Thông tin chung"
+                  //todo Display "General Information" title
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
