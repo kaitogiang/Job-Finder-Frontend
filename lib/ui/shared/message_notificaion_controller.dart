@@ -22,8 +22,8 @@ class MessageNotificaionController {
   @pragma('vm:entry-point')
   static Future<void> onActionReceivedMethod(
       ReceivedAction receivedAction) async {
-    //Xử lý notification tùy theo loại notification
-    //Nếu là thông báo tin nhắn (message_notification) thì chuyển hướng đến conversation
+    // Handle notification based on notification type
+    // If it's a message notification, navigate to conversation
     Utils.logMessage(
         'Received action: ${receivedAction.title} ${receivedAction.payload}');
     if (receivedAction.payload?['type'] == 'message_notification') {
@@ -31,12 +31,12 @@ class MessageNotificaionController {
       // Process the action and handle navigation
       if (navigatorKey?.currentState != null &&
           data?['type'] == 'message_notification') {
-        //Chuyển hướng đến conversation
+        // Navigate to conversation
         final currentContext = navigatorKey?.currentContext;
         Utils.logMessage(
-            'context truy cap trong MessageNotificationController: $currentContext');
+            'context accessed in MessageNotificationController: $currentContext');
         if (currentContext != null && data?['conversationId'] != null) {
-          //Chuyển hướng đến conversation
+          // Navigate to conversation
           GoRouter.of(currentContext).pushNamed(
             "chat",
             extra: data?['conversationId'],
@@ -44,11 +44,8 @@ class MessageNotificaionController {
         }
       }
     } else if (receivedAction.payload?['type'] == 'download_notification') {
-      //Xử lý notification tải xuống file
-      Utils.logMessage('Mở folder');
-      //todo open the image folder
-
-      // await OpenFile.open('/storage/emulated/0/Download/');
+      // Handle file download notification
+      Utils.logMessage('Open folder');
       // Get the path to the directory
       openFileManager(
         androidConfig: AndroidConfig(
@@ -57,27 +54,27 @@ class MessageNotificaionController {
       );
     } else if (receivedAction.payload?['type'] == 'normal_notification') {
       final target = receivedAction.payload?['target'];
-      //Nếu đối tượng nhận thông báo là jobseeker thì thực hiện
+      // If notification target is jobseeker then execute
       if (target == "jobseeker") {
-        //Chuyển hướng đến trang xem danh sách kết quả
+        // Navigate to results list page
         if (navigatorKey?.currentState != null) {
-          //Chuyển hướng đến conversation
+          // Navigate to conversation
           final currentContext = navigatorKey?.currentContext;
           if (currentContext != null) {
-            //Chuyển hướng đến conversation
+            // Navigate to conversation
             GoRouter.of(currentContext).goNamed(
               "saved-work",
             );
           }
         }
       } else if (target == "employer") {
-        //Thực hiện xử lý đối với thông báo tới employer
-        //Chuyển hướng đến tab ứng viên
+        // Handle notification for employer
+        // Navigate to candidates tab
         if (navigatorKey?.currentState != null) {
-          //Chuyển hướng đến conversation
+          // Navigate to conversation
           final currentContext = navigatorKey?.currentContext;
           if (currentContext != null) {
-            //Chuyển hướng đến conversation
+            // Navigate to conversation
             GoRouter.of(currentContext).goNamed(
               "application-list",
             );
