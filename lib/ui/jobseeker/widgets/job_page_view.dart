@@ -32,7 +32,7 @@ class _JobPageViewState extends State<JobPageView>
     if (widget.random != null) {
       randomLength = widget.random!.length;
       list = widget.random!;
-      log('Random length la: $randomLength');
+      log('Random length is: $randomLength');
     } else {
       randomLength = 0;
     }
@@ -43,10 +43,9 @@ class _JobPageViewState extends State<JobPageView>
     } else {
       tabLength = 3;
     }
-    log('Tab lengh: $tabLength');
+    log('Tab length: $tabLength');
     _pageViewController = PageController();
     _tabController = TabController(length: tabLength, vsync: this);
-    // Utils.logMessage("Phan tu trong JobPageView: ${list.toString()}");
   }
 
   @override
@@ -59,7 +58,7 @@ class _JobPageViewState extends State<JobPageView>
   @override
   void didUpdateWidget(covariant JobPageView oldWidget) {
     //implement didUpdateWidget
-    Utils.logMessage("Goi didUpdateWidget trong JobPageView");
+    Utils.logMessage("Calling didUpdateWidget in JobPageView");
     super.didUpdateWidget(oldWidget);
     if (widget.random != oldWidget.random) {
       _intialPageView();
@@ -72,8 +71,7 @@ class _JobPageViewState extends State<JobPageView>
   @override
   Widget build(BuildContext context) {
     super.build(context); // Call the super method
-    // _intialPageView();
-    Utils.logMessage("Goi build trong JobPageView");
+    Utils.logMessage("Calling build in JobPageView");
     return Stack(
       alignment: Alignment.bottomCenter,
       children: <Widget>[
@@ -125,8 +123,8 @@ class _JobPageViewState extends State<JobPageView>
     );
   }
 
-  //todo Hàm xử lý việc chuyển trang, 1. thay đổi nút được chọn bên dưới,
-  //todo 2. Đổi trang
+  //todo Function to handle page change, 1. change the selected button below,
+  //todo 2. Change page
   void _handlePageViewChanged(int currentPageIndex) {
     _tabController.index = currentPageIndex;
     _currentPageIndex.value = currentPageIndex;
@@ -139,7 +137,7 @@ class _JobPageViewState extends State<JobPageView>
   }
 }
 
-//? Tạo các nút tab chuyển trang
+//? Create page change tab buttons
 class PageIndicator extends StatelessWidget {
   const PageIndicator({
     super.key,

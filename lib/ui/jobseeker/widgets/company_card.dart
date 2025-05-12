@@ -24,10 +24,6 @@ class CompanyCard extends StatelessWidget {
           child: Column(
             children: [
               ListTile(
-                // leading: ClipRRect(
-                //   borderRadius: BorderRadius.circular(10),
-                //   child: Image.network(company.avatarLink),
-                // ),
                 leading: Container(
                   height: 70,
                   width: 70,
@@ -56,9 +52,9 @@ class CompanyCard extends StatelessWidget {
                           width: 5,
                         ),
                         Expanded(
-                          //? Hiển thị thông tin số lượng thành viên
+                          //? Display the number of members
                           child: Text(
-                            '${company.description?["companySize"]} thành viên',
+                            '${company.description?["companySize"]} members',
                             style: theme.textTheme.bodyMedium!.copyWith(
                               color: Colors.grey.shade600,
                             ),
@@ -75,7 +71,7 @@ class CompanyCard extends StatelessWidget {
                           width: 5,
                         ),
                         Expanded(
-                          //? Hiển thị thông tin lĩnh vực hoạt động
+                          //? Display the field of operation
                           child: Text(
                             '${company.description?["domain"]}',
                             style: theme.textTheme.bodyMedium!.copyWith(
@@ -91,7 +87,7 @@ class CompanyCard extends StatelessWidget {
                 trailing: IconButton(
                   icon: const Icon(Icons.keyboard_arrow_right_sharp),
                   onPressed: () {
-                    log('chuyển tới trang chi tiết công ty');
+                    log('Navigate to company details page');
                   },
                 ),
                 contentPadding: const EdgeInsets.only(
@@ -110,7 +106,7 @@ class CompanyCard extends StatelessWidget {
                       width: 5,
                     ),
                     Expanded(
-                      //? Hiển thị địa chỉ của công ty
+                      //? Display the company's address
                       child: Text(
                         company.companyAddress,
                         style: theme.textTheme.bodyMedium!.copyWith(
@@ -125,20 +121,20 @@ class CompanyCard extends StatelessWidget {
             ],
           ),
         ),
-        //todo Hiển thị thao tác chọn
+        //todo Display the selection action
         Positioned.fill(
           child: Material(
             color: Colors.transparent,
             child: InkWell(
               borderRadius: BorderRadius.circular(20),
               onTap: () {
-                //Ghi nhận hành động
+                //Record the action
                 final jobseekerId =
                     context.read<JobseekerManager>().jobseeker.id;
                 context
                     .read<JobseekerManager>()
                     .observeViewCompanyAction(jobseekerId, company.id);
-                log('Chuyển đén công ty');
+                log('Navigate to the company');
                 context.pushNamed('company-detail', extra: company);
               },
             ),
