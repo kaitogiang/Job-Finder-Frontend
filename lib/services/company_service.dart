@@ -35,9 +35,9 @@ class CompanyService extends NodeService {
         file: file,
         images: images,
       ) as Map<String, dynamic>;
-      // log('avatar link bi null: ${response['avatarLink']}');
+      // log('avatar link is null: ${response['avatarLink']}');
       // String avatar = response['avatarLink'];
-      // log('avatar la: $avatar');
+      // log('avatar is: $avatar');
 
       return Company.fromJson(response['updateCompany']);
     } catch (error) {
@@ -52,7 +52,7 @@ class CompanyService extends NodeService {
         '$databaseUrl/api/company/',
         method: HttpMethod.get,
       ) as List<dynamic>;
-      //? Chuyển mỗi phần tử trong response thì kiểu Map
+      //? Convert each element in the response to Map type
       List<Map<String, dynamic>> convertedResponse =
           List<Map<String, dynamic>>.from(response);
       return convertedResponse.map((e) => Company.fromJson(e)).toList();

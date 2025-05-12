@@ -21,9 +21,9 @@ class ApplicationService extends NodeService {
 
   Future<String?> downloadFile(String url, String filename) async {
     try {
-      //Yêu cầu quyền
+      // Request permission
       if (await _requestPermission()) {
-        //? Tải vào thư mục Download public của điện thoại
+        //? Download to the public Download folder of the phone
         String path = '/storage/emulated/0/Download/';
 
         String fullPath = "$path/$filename";
@@ -50,25 +50,25 @@ class ApplicationService extends NodeService {
     try {
       final response = await http.get(Uri.parse(link));
       if (response.statusCode == 200) {
-        //Blob một một đối tượng đại diện cho dữ liệu thô được lưu trữ dưới dạng
-        //mảng các byte. Blob có thể được dùng để tạo ra một file có thể tải được
-        //Lệnh này tạo một đối tượng Blob từ mảng byte của response.bodyBytes
+        // Blob is an object representing raw data stored as an array of bytes. 
+        // Blob can be used to create a downloadable file
+        // This command creates a Blob object from the byte array of response.bodyBytes
         final blob = html.Blob([response.bodyBytes]);
-        //Tạo một url tạm thời mà cho phép browser có thể truy cập được
-        //đối tượng blob. URL này chỉ tồn tại khi trang còn mở
+        // Create a temporary url that allows the browser to access
+        // the blob object. This URL only exists while the page is open
         final objectUrl = html.Url.createObjectUrlFromBlob(blob);
 
-        //Tạo một thẻ <a> trong html với thuộc tính href là objectUrl, có nghĩa
-        //là tạo liên kết đến url tạm thời của file blob. Đồng thời, nó
-        //đặt thuộc tính download của thẻ <a> là filename, filename là tên của
-        //file sẽ được tải về. Thẻ <a> trong html sẽ có dạng như sau:
+        // Create an <a> tag in html with the href attribute is objectUrl, meaning
+        // create a link to the temporary url of the blob file. At the same time, it
+        // sets the download attribute of the <a> tag to filename, filename is the name of
+        // the file to be downloaded. The <a> tag in html will look like this:
         //<a href="objectUrl" download="filename"></a>
-        //Thêm nữa, nó kích hoạt sự kiện tải xuống tự động khi gọi click(), giúp
-        //tự động tải về mà không cần người dùng click vào liên kết
+        // Furthermore, it triggers the automatic download event when calling click(), helping
+        // to automatically download without the user clicking on the link
         html.AnchorElement(href: objectUrl)
           ..setAttribute("download", filename)
           ..click();
-        //Giải phóng objectUrl để tránh rò rỉ bộ nhớ
+        // Release objectUrl to avoid memory leak
         html.Url.revokeObjectUrl(objectUrl);
       } else {
         Utils.logMessage(
@@ -80,22 +80,22 @@ class ApplicationService extends NodeService {
     }
   }
 
-  //Hàm xem thông tin CV trong một tab mới
+  // Function to view CV information in a new tab
   Future<void> openCVInNewTab(String url) async {
     final link = '$databaseUrl/$url';
     try {
       final response = await http.get(Uri.parse(link));
       if (response.statusCode == 200) {
         final blob = html.Blob(
-            [response.bodyBytes], 'application/pdf'); //Đảm bảo blob là file PDF
+            [response.bodyBytes], 'application/pdf'); // Ensure blob is a PDF file
         final objectUrl = html.Url.createObjectUrlFromBlob(blob);
 
-        //Đặt targe="_blank" để mở cv trong tab mới thay vì tải về
+        // Set target="_blank" to open cv in a new tab instead of downloading
         html.AnchorElement(href: objectUrl)
           ..setAttribute("target", "_blank")
           ..click();
 
-        //Giải phóng objectUrl để tránh rò rĩ bộ nhớ
+        // Release objectUrl to avoid memory leak
         html.Url.revokeObjectUrl(objectUrl);
       } else {
         Utils.logMessage('Error in onpenCVInNewTab service');
@@ -110,7 +110,7 @@ class ApplicationService extends NodeService {
     try {
       if (Platform.isAndroid) {
         final status = await Permission.storage.request();
-        log('Status la: $status');
+        log('Status is: $status');
         return status.isGranted;
       } else {
         return true;
@@ -125,17 +125,17 @@ class ApplicationService extends NodeService {
     Map<String, dynamic> decodedToken = JwtDecoder.decode(token!);
     String companyId = decodedToken['companyId'];
     log('CompanyId: $companyId');
-    log('CompanyId la: $companyId');
+    log('CompanyId is: $companyId');
     try {
       final response = await httpFetch(
         '$databaseUrl/api/application/company/$companyId',
         method: HttpMethod.get,
         headers: headers,
       ) as List<dynamic>;
-      //todo Chuyển đổi mỗi phần tử dynamic trong List<dynamic> thành Map<String, dynamic>
+      //todo Convert each dynamic element in List<dynamic> to Map<String, dynamic>
       List<Map<String, dynamic>> responseMapList =
           List<Map<String, dynamic>>.from(response);
-      //todo chuyển đổi phần tử Map thành ApplicationStorage
+      //todo convert Map element to ApplicationStorage
       List<ApplicationStorage> applicationStorageList =
           responseMapList.map((e) => ApplicationStorage.fromJson(e)).toList();
       return applicationStorageList;
@@ -166,7 +166,7 @@ class ApplicationService extends NodeService {
     }
   }
 
-  //?Hàm chấp nhận một hồ sơ cụ thể
+  //? Function to accept a specific application
   Future<bool> acceptApplication(
       String jobpostingId, String jobseekerId) async {
     try {
@@ -186,7 +186,7 @@ class ApplicationService extends NodeService {
     }
   }
 
-  //?Hàm từ chối một hồ sơ cụ thể
+  //? Function to reject a specific application
   Future<bool> rejectApplication(
       String jobpostingId, String jobseekerId) async {
     try {
@@ -264,10 +264,10 @@ class ApplicationService extends NodeService {
         headers: headers,
         method: HttpMethod.get,
       ) as List<dynamic>;
-      //Chuyển mỗi phần tử trong List<dynamic> sang List<Map<String, dynamic>>
+      // Convert each element in List<dynamic> to List<Map<String, dynamic>>
       final responseMapList = List<Map<String, dynamic>>.from(response);
-      //Chuyển mỗi phần tử của thành kiểu ApplicationStorage,
-      //Mỗi storage ứng với một jobposting
+      // Convert each element to ApplicationStorage type,
+      // Each storage corresponds to a jobposting
       final storageList = responseMapList
           .map((storage) => ApplicationStorage.fromJson(storage))
           .toList();
@@ -278,7 +278,7 @@ class ApplicationService extends NodeService {
     }
   }
 
-  //Hàm lấy thông tin của ApplicationStorage dựa vào id
+  // Function to get the information of ApplicationStorage based on id
   Future<ApplicationStorage?> getApplicationStorageById(String id) async {
     try {
       final response = await httpFetch(
@@ -286,7 +286,7 @@ class ApplicationService extends NodeService {
         headers: headers,
         method: HttpMethod.get,
       ) as Map<String, dynamic>;
-      //Chuyển đổi response sang kiểu ApplicationStorage
+      // Convert response to ApplicationStorage type
       final storage = ApplicationStorage.fromJson(response);
       return storage;
     } catch (error) {

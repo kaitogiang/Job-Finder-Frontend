@@ -14,7 +14,7 @@ import '../../shared/modal_bottom_sheet.dart';
 import 'status_card.dart';
 import '../../shared/utils.dart';
 
-//! Card dùng để hiển thị một hồ sơ đã nộp của một ứng viên
+//! Card used to display a submitted profile of a candidate
 class ApplicantCard extends StatelessWidget {
   const ApplicantCard({
     super.key,
@@ -53,7 +53,7 @@ class ApplicantCard extends StatelessWidget {
         title: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            //?Thẻ hiển thị trạng thái của hồ sơ
+            //? Card showing the status of the profile
             Expanded(child: Text(name)),
           ],
         ),
@@ -112,7 +112,7 @@ class ApplicantCard extends StatelessWidget {
             const SizedBox(
               height: 5,
             ),
-            //? Thẻ hiển thị trạng thái của hồ sơ
+            //? Card showing the status of the profile
             StatusCard(
               status: status,
             ),
@@ -196,22 +196,21 @@ class ApplicantCard extends StatelessWidget {
 
   Future<void> _chatWithJobseeker(
       BuildContext context, Application application) async {
-    //Trích xuất id của jobseeker
+    // Extract the id of the jobseeker
     final jobseekerId = application.jobseekerId;
-    //Trích xuất thông tin companyId của employer
+    // Extract the companyId information of the employer
     final companyId = context.read<AuthManager>().employer!.companyId;
-    //Kiểm tra xem có cuộc trò chuyện nào giữa jobseeker và nhà tuyển dụng chưa
+    // Check if there is any conversation between the jobseeker and the employer
     final conversationId = await context
         .read<MessageManager>()
         .verifyExistingConversation(companyId, jobseekerId);
-    //Nếu đã tồn tại conversation thì lấy conversation trong MessageManager
+    // If a conversation already exists, get the conversation from MessageManager
     if (conversationId != null) {
-      //Truy xuất đến conversation trong danh sách sẳn có
+      // Access the conversation in the existing list
       if (!context.mounted) return;
       context.pushNamed('chat', extra: conversationId);
     } else {
-      //Ngược lại chưa từng tồn tại cuộc trò chuyện, tạo mới cuộc
-      //trò chuyện
+      // Otherwise, if a conversation has never existed, create a new conversation
       if (context.mounted) {
         String? conversationId = await context
             .read<MessageManager>()
