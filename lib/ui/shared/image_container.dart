@@ -20,37 +20,49 @@ class ImageContainer extends StatelessWidget {
   final bool isFileType;
   final File? file;
   final void Function()? onDelete;
+
+  ImageProvider _getImageProvider() {
+    if (!isFileType && file == null) {
+      return NetworkImage(url);
+    }
+    return FileImage(file!) as ImageProvider;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Stack(
       alignment: Alignment.topRight,
       children: [
-        Container(
-          width: width,
-          height: height,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(borderRadius),
-            image: DecorationImage(
-              image: !isFileType && file == null
-                  ? NetworkImage(
-                      url,
-                    )
-                  : FileImage(file!) as ImageProvider,
-              fit: BoxFit.cover,
-            ),
-          ),
-        ),
-        if (onDelete != null)
-          IconButton(
-            onPressed: onDelete,
-            icon: CircleAvatar(
-                backgroundColor: Colors.white,
-                child: Icon(
-                  Icons.clear_outlined,
-                  color: Colors.grey.shade600,
-                )),
-          )
+        _buildImageContainer(),
+        if (onDelete != null) _buildDeleteButton(),
       ],
+    );
+  }
+
+  Widget _buildImageContainer() {
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(borderRadius),
+        image: DecorationImage(
+          image: _getImageProvider(),
+          fit: BoxFit.cover,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDeleteButton() {
+    return IconButton(
+      onPressed: onDelete,
+      icon: CircleAvatar(
+        backgroundColor: Colors.white,
+        child: Icon(
+          Icons.clear_outlined,
+          color: Colors.grey.shade600,
+        ),
+      ),
     );
   }
 }
