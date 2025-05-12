@@ -1,12 +1,8 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
-
 import '../../../models/education.dart';
 
 class JobseekerEducationCard extends StatelessWidget {
-  const JobseekerEducationCard(
-      {super.key, required this.edu, this.onCustomize});
+  const JobseekerEducationCard({Key? key, required this.edu, this.onCustomize}) : super(key: key);
 
   final Education edu;
   final void Function()? onCustomize;
@@ -15,7 +11,7 @@ class JobseekerEducationCard extends StatelessWidget {
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
     TextTheme textTheme = theme.textTheme;
-    log('Gia tri bool');
+
     return Container(
       margin: EdgeInsets.only(top: 10),
       width: double.maxFinite,
@@ -26,82 +22,7 @@ class JobseekerEducationCard extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          //Cột để hiển thị tên trường, bằng cách và thời gian học
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                //Hiển thị tên trường
-                Text(
-                  edu.school,
-                  style: textTheme.titleMedium!.copyWith(fontSize: 20),
-                ),
-                //Hiển thị tên chuyên ngành đã học
-                Tooltip(
-                  message: edu.specialization,
-                  preferBelow: false,
-                  child: RichText(
-                    text: TextSpan(
-                        children: [
-                          WidgetSpan(
-                              child: Icon(Icons.computer,
-                                  color: Colors.grey.shade700)),
-                          WidgetSpan(
-                              child: const SizedBox(
-                            width: 10,
-                          )),
-                          TextSpan(text: edu.specialization)
-                        ],
-                        style: textTheme.bodyLarge!.copyWith(
-                          color: Colors.grey.shade700,
-                          fontFamily: 'Lato',
-                          fontSize: 18,
-                        )),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                //Hiển thị loại bằng cấp
-                RichText(
-                  text: TextSpan(
-                      children: [
-                        WidgetSpan(
-                            child: Icon(Icons.school,
-                                color: Colors.grey.shade700)),
-                        WidgetSpan(
-                            child: const SizedBox(
-                          width: 10,
-                        )),
-                        TextSpan(text: edu.degree)
-                      ],
-                      style: textTheme.bodyLarge!.copyWith(
-                          color: Colors.grey.shade700,
-                          fontFamily: 'Lato',
-                          fontSize: 18)),
-                ),
-                //Hiển thị thời gian bắt đầu và kết thúc học
-                RichText(
-                  text: TextSpan(
-                      children: [
-                        WidgetSpan(
-                            child: Icon(
-                          Icons.access_time_filled,
-                          color: Colors.grey.shade700,
-                        )),
-                        WidgetSpan(
-                            child: const SizedBox(
-                          width: 10,
-                        )),
-                        TextSpan(text: '${edu.startDate} - ${edu.endDate}')
-                      ],
-                      style: textTheme.bodyLarge!.copyWith(
-                          color: Colors.grey.shade700,
-                          fontFamily: 'Lato',
-                          fontSize: 18)),
-                ),
-              ],
-            ),
-          ),
-          //Nút tùy chỉnh kinh nghiệm gồm chỉnh sửa, xóa
+          _buildEducationDetails(textTheme),
           if (onCustomize != null)
             IconButton(
               onPressed: onCustomize,
@@ -109,6 +30,95 @@ class JobseekerEducationCard extends StatelessWidget {
             )
         ],
       ),
+    );
+  }
+
+  Widget _buildEducationDetails(TextTheme textTheme) {
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          _buildSchoolName(textTheme),
+          _buildSpecialization(textTheme),
+          _buildDegree(textTheme),
+          _buildStudyPeriod(textTheme),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSchoolName(TextTheme textTheme) {
+    return Text(
+      edu.school,
+      style: textTheme.titleMedium!.copyWith(fontSize: 20),
+    );
+  }
+
+  Widget _buildSpecialization(TextTheme textTheme) {
+    return Tooltip(
+      message: edu.specialization,
+      preferBelow: false,
+      child: RichText(
+        text: TextSpan(
+            children: [
+              WidgetSpan(
+                  child: Icon(Icons.computer,
+                      color: Colors.grey.shade700)),
+              WidgetSpan(
+                  child: const SizedBox(
+                width: 10,
+              )),
+              TextSpan(text: edu.specialization)
+            ],
+            style: textTheme.bodyLarge!.copyWith(
+              color: Colors.grey.shade700,
+              fontFamily: 'Lato',
+              fontSize: 18,
+            )),
+        overflow: TextOverflow.ellipsis,
+      ),
+    );
+  }
+
+  Widget _buildDegree(TextTheme textTheme) {
+    return RichText(
+      text: TextSpan(
+          children: [
+            WidgetSpan(
+                child: Icon(Icons.school,
+                    color: Colors.grey.shade700)),
+            WidgetSpan(
+                child: const SizedBox(
+              width: 10,
+            )),
+            TextSpan(text: edu.degree)
+          ],
+          style: textTheme.bodyLarge!.copyWith(
+              color: Colors.grey.shade700,
+              fontFamily: 'Lato',
+              fontSize: 18)),
+    );
+  }
+
+  Widget _buildStudyPeriod(TextTheme textTheme) {
+    return RichText(
+      text: TextSpan(
+          children: [
+            WidgetSpan(
+                child: Icon(
+              Icons.access_time_filled,
+              color: Colors.grey.shade700,
+            )),
+            WidgetSpan(
+                child: const SizedBox(
+              width: 10,
+            )),
+            TextSpan(text: '${edu.startDate} - ${edu.endDate}')
+          ],
+          style: textTheme.bodyLarge!.copyWith(
+              color: Colors.grey.shade700,
+              fontFamily: 'Lato',
+              fontSize: 18)),
     );
   }
 }

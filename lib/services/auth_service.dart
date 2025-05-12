@@ -19,9 +19,9 @@ class AuthService {
         ? dotenv.env['DATABASE_BASE_URL_WEB']
         : dotenv.env['DATABASE_BASE_URL'];
   }
-  //Hàm xác định url dành cho loại người đăng nhập hiện tại
-  //Nếu isEmployer là true tức là nhà tuyển dụng đăng nhập
-  //Thì sử dụng api dành cho nhà tuyển dụng, ngược lại dành cho người tìm việc
+  // Function to determine the url for the current type of user logging in
+  // If isEmployer is true, it means the employer is logging in
+  // Then use the api for the employer, otherwise for the job seeker
   String _buildAuthUrl(bool isEmployer) {
     return isEmployer
         ? '$_baseUrl/api/employer/sign-in'
@@ -32,7 +32,7 @@ class AuthService {
     return '$_baseUrl/api/admin/sign-in';
   }
 
-  //Hàm xác thực đăng nhập
+  // Function to authenticate login
   Future<AuthToken> _authenticate(
       String email, String password, bool isEmployer) async {
     try {
@@ -45,15 +45,15 @@ class AuthService {
       if (response.statusCode >= 200 && response.statusCode < 300) {
         final responseJson = json.decode(response.body);
         Utils.logMessage(
-            'Đang trong auth_service:  ${responseJson.toString()}');
+            'Currently in auth_service:  ${responseJson.toString()}');
         final token = responseJson['token'];
         //decode token to get information
         if (token != null) {
           Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
           Utils.logMessage(
-              'Đang trong auth_service: ${decodedToken.toString()}');
+              'Currently in auth_service: ${decodedToken.toString()}');
           final authToken = _fromJson(responseJson);
-          //lưu trữ lại AuthToken để đăng nhập tự động khi còn thời gian
+          // Store the AuthToken for automatic login while there is still time
           await _saveAuthToken(authToken);
           return authToken;
         } else {
@@ -69,7 +69,7 @@ class AuthService {
     }
   }
 
-  //Hàm xác thực đăng nhập dành cho admin
+  // Function to authenticate login for admin
   Future<AuthToken> _authenticateAdmin(String email, String password) async {
     try {
       final url = Uri.parse(_buildAdminUrl());
@@ -102,18 +102,18 @@ class AuthService {
     }
   }
 
-  //Hàm đăng nhập dành cho admin
+  // Function to login for admin
   Future<AuthToken> signInAdmin(String email, String password) async {
     return _authenticateAdmin(email, password);
   }
 
-  //Hàm đăng nhập vào ứng dụng
+  // Function to login to the application
   Future<AuthToken> signIn(
       {String? email, String? password, bool isEmployer = false}) async {
     return _authenticate(email!, password!, isEmployer);
   }
 
-  //Hàm nạp dữ liệu người dùng
+  // Function to load user data
   Future<dynamic> fetchUserInfo(String id, bool isEmployer) async {
     String url = '';
     if (isEmployer) {

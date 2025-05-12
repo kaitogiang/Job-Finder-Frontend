@@ -20,17 +20,22 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
   final _authenticateEmailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _emailController = TextEditingController();
+  final _isFull = ValueNotifier(false);
 
-  ValueNotifier<bool> isFull = ValueNotifier(false);
-  String password = '';
-  String email = '';
+  String _password = '';
+  String _email = '';
 
   @override
   void initState() {
-    _passwordController.addListener(_isValidForm);
-    _emailController.addListener(_isValidForm);
-    _authenticateEmailController.addListener(_isValidForm);
     super.initState();
+    _setupControllerListeners();
+  }
+
+  void _setupControllerListeners() {
+    void listener() => _validateForm();
+    _passwordController.addListener(listener);
+    _emailController.addListener(listener);
+    _authenticateEmailController.addListener(listener);
   }
 
   @override
@@ -41,134 +46,87 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
     super.dispose();
   }
 
-  void _isValidForm() {
-    isFull.value = _passwordController.text.isNotEmpty &&
+  void _validateForm() {
+    _isFull.value = _passwordController.text.isNotEmpty &&
         _emailController.text.isNotEmpty &&
         _authenticateEmailController.text.isNotEmpty;
-    log('IsFull la: ${isFull.value}');
   }
 
-  Future<void> _changeEmailForJobseeker() async {
-    if (!_formKey.currentState!.validate()) {
-      return;
-    }
-    if (_emailController.text.compareTo(_authenticateEmailController.text) !=
-        0) {
-      QuickAlert.show(
-          context: context,
-          type: QuickAlertType.error,
-          title: 'Lỗi',
-          text: 'Email chưa khớp, vui lòng nhập lại',
-          confirmBtnText: 'Tôi biết rồi');
-    } else {
-      try {
-        _formKey.currentState!.save();
-
-        final result = await context
-            .read<JobseekerManager>()
-            .changeEmail(password, email)
-            .whenComplete(() {
-          // QuickAlert.show(
-          //     context: context,
-          //     type: QuickAlertType.success,
-          //     title: 'Thành công',
-          //     text: 'Bạn đã đổi email thành công');
-          clearAllField();
-        });
-        if (result && mounted) {
-          QuickAlert.show(
-              context: context,
-              type: QuickAlertType.success,
-              title: 'Thành công',
-              text: 'Bạn đã đổi email thành công');
-        } else {
-          if (mounted) {
-            QuickAlert.show(
-              context: context,
-              type: QuickAlertType.error,
-              title: 'Không thể đổi email',
-              text: 'Email hoặc mật khẩu chưa chính xác',
-            );
-          }
-        }
-      } catch (error) {
-        if (mounted) {
-          QuickAlert.show(
-            context: context,
-            type: QuickAlertType.error,
-            title: 'Không thể đổi email',
-            text: 'Email hoặc mật khẩu chưa chính xác',
-          );
-        }
-        log('Lỗi trong chagne email screen $error');
-      }
-    }
-  }
-
-  void clearAllField() {
+  void _clearAllFields() {
     _authenticateEmailController.clear();
     _passwordController.clear();
     _emailController.clear();
   }
 
-  Future<void> _changeEmailForEmployer() async {
-    if (!_formKey.currentState!.validate()) {
+  bool _validateEmails() {
+    if (_emailController.text != _authenticateEmailController.text) {
+      _showErrorAlert('Email chưa khớp, vui lòng nhập lại');
+      return false;
+    }
+    return true;
+  }
+
+  void _showErrorAlert(String message) {
+    QuickAlert.show(
+      context: context,
+      type: QuickAlertType.error,
+      title: 'Lỗi',
+      text: message,
+      confirmBtnText: 'Tôi biết rồi',
+    );
+  }
+
+  void _showSuccessAlert() {
+    QuickAlert.show(
+      context: context,
+      type: QuickAlertType.success,
+      title: 'Thành công',
+      text: 'Bạn đã đổi email thành công',
+    );
+  }
+
+  Future<void> _handleChangeEmail(Future<bool> Function(String, String) changeEmail) async {
+    if (!_formKey.currentState!.validate() || !_validateEmails()) {
       return;
     }
-    if (_emailController.text.compareTo(_authenticateEmailController.text) !=
-        0) {
-      QuickAlert.show(
-          context: context,
-          type: QuickAlertType.error,
-          title: 'Lỗi',
-          text: 'Email chưa khớp, vui lòng nhập lại',
-          confirmBtnText: 'Tôi biết rồi');
-    } else {
-      try {
-        _formKey.currentState!.save();
 
-        final result = await context
-            .read<EmployerManager>()
-            .changeEmail(password, email)
-            .whenComplete(() {
-          clearAllField();
-        });
-        if (result && mounted) {
-          QuickAlert.show(
-              context: context,
-              type: QuickAlertType.success,
-              title: 'Thành công',
-              text: 'Bạn đã đổi email thành công');
-        } else {
-          if (mounted) {
-            QuickAlert.show(
-              context: context,
-              type: QuickAlertType.error,
-              title: 'Không thể đổi email',
-              text: 'Email hoặc mật khẩu chưa chính xác',
-            );
-          }
-        }
-      } catch (error) {
-        if (mounted) {
-          QuickAlert.show(
-            context: context,
-            type: QuickAlertType.error,
-            title: 'Không thể đổi email',
-            text: 'Email hoặc mật khẩu chưa chính xác',
-          );
-        }
-        log('Lỗi trong chagne email screen $error');
+    try {
+      _formKey.currentState!.save();
+      final result = await changeEmail(_password, _email);
+      _clearAllFields();
+
+      if (result && mounted) {
+        _showSuccessAlert();
+      } else if (mounted) {
+        _showErrorAlert('Email hoặc mật khẩu chưa chính xác');
       }
+    } catch (error) {
+      if (mounted) {
+        _showErrorAlert('Email hoặc mật khẩu chưa chính xác');
+      }
+      log('Lỗi trong change email screen: $error');
     }
+  }
+
+  Future<void> _changeEmailForJobseeker() async {
+    await _handleChangeEmail(
+      context.read<JobseekerManager>().changeEmail,
+    );
+  }
+
+  Future<void> _changeEmailForEmployer() async {
+    await _handleChangeEmail(
+      context.read<EmployerManager>().changeEmail,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    Size deviceSize = MediaQuery.of(context).size;
-    ThemeData theme = Theme.of(context);
-    TextTheme textTheme = theme.textTheme;
-    bool isEmployer = context.read<AuthManager>().isEmployer;
+    final deviceSize = MediaQuery.of(context).size;
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+    final isEmployer = context.read<AuthManager>().isEmployer;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Đổi email truy cập'),
@@ -194,79 +152,53 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
                   return null;
                 },
                 onSaved: (value) {
-                  password = value!;
+                  _password = value!;
                 },
               ),
-              const SizedBox(
-                height: 10,
-              ),
+              const SizedBox(height: 10),
               CombinedTextFormField(
                 title: 'Email mới',
                 hintText: 'Bắt buộc',
                 keyboardType: TextInputType.text,
                 controller: _emailController,
-                validator: (value) {
-                  // Define a regular expression pattern for validating email addresses
-                  final RegExp emailRegex = RegExp(
-                    r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
-                  );
-
-                  // Check if the email matches the pattern
-                  if (value!.isEmpty || !emailRegex.hasMatch(value)) {
-                    return 'Email không hợp lệ';
-                  }
-                  return null;
-                },
+                validator: _validateEmail,
                 onSaved: (value) {
-                  email = value!;
+                  _email = value!;
                 },
               ),
-              const SizedBox(
-                height: 10,
-              ),
+              const SizedBox(height: 10),
               CombinedTextFormField(
                 title: 'Xác nhận email mới',
                 hintText: 'Bắt buộc',
                 keyboardType: TextInputType.text,
                 controller: _authenticateEmailController,
-                validator: (value) {
-                  // Define a regular expression pattern for validating email addresses
-                  final RegExp emailRegex = RegExp(
-                    r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
-                  );
-
-                  // Check if the email matches the pattern
-                  if (value!.isEmpty || !emailRegex.hasMatch(value)) {
-                    return 'Email không hợp lệ';
-                  }
-                  return null;
-                },
+                validator: _validateEmail,
               ),
               Expanded(
                 child: Align(
                   alignment: Alignment.bottomCenter,
                   child: ValueListenableBuilder(
-                      valueListenable: isFull,
-                      builder: (context, isValid, child) {
-                        return ElevatedButton(
-                          onPressed: isValid == false
-                              ? null
-                              : (!isEmployer)
-                                  ? _changeEmailForJobseeker
-                                  : _changeEmailForEmployer,
-                          style: ElevatedButton.styleFrom(
-                              disabledBackgroundColor: Colors.grey.shade300,
-                              fixedSize: Size(deviceSize.width, 60),
-                              backgroundColor: theme.primaryColor,
-                              elevation: 5,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              foregroundColor: theme.colorScheme.onPrimary,
-                              textStyle: textTheme.titleMedium),
-                          child: Text("ĐỔI EMAIL"),
-                        );
-                      }),
+                    valueListenable: _isFull,
+                    builder: (context, isValid, child) {
+                      return ElevatedButton(
+                        onPressed: isValid
+                            ? (isEmployer ? _changeEmailForEmployer : _changeEmailForJobseeker)
+                            : null,
+                        style: ElevatedButton.styleFrom(
+                          disabledBackgroundColor: Colors.grey.shade300,
+                          fixedSize: Size(deviceSize.width, 60),
+                          backgroundColor: theme.primaryColor,
+                          elevation: 5,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          foregroundColor: theme.colorScheme.onPrimary,
+                          textStyle: textTheme.titleMedium,
+                        ),
+                        child: const Text("ĐỔI EMAIL"),
+                      );
+                    },
+                  ),
                 ),
               )
             ],
@@ -274,5 +206,16 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
         ),
       ),
     );
+  }
+
+  String? _validateEmail(String? value) {
+    final emailRegex = RegExp(
+      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+    );
+
+    if (value!.isEmpty || !emailRegex.hasMatch(value)) {
+      return 'Email không hợp lệ';
+    }
+    return null;
   }
 }

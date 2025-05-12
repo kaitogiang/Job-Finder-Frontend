@@ -9,10 +9,10 @@ class ConversationService extends NodeService {
 
   final headers = {'Content-Type': 'application/json; charset=UTF-8'};
 
-  //Hàm tạo mới một conversation từ phía jobseeker
+  //Function to create a new conversation from the jobseeker side
   Future<Conversation?> createConversation(String companyId,
       [String? userId]) async {
-    //Gán lại userId nếu nó bị null
+    //Assign userId again if it is null
     userId = userId ?? super.userId;
     try {
       final response = await httpFetch('$databaseUrl/api/conversation',
@@ -42,13 +42,13 @@ class ConversationService extends NodeService {
     }
   }
 
-  //Kiểm tra cuộc trò chuyện giữa nhà tuyển dụng dựa vào jobseekerId và companyId
-  //Khi gửi companyId vào thì server tự động truy xuất employerId dựa vào companyId
-  //Sau đó dựa vào cặp jobseekerId và employerId để truy xuất conversationId
-  //Nếu tồn tại conversation thì trả về conversationId, ngược lại trả về null
+  //Check the conversation between the employer based on jobseekerId and companyId
+  //When sending companyId, the server automatically retrieves employerId based on companyId
+  //Then based on the pair of jobseekerId and employerId to retrieve conversationId
+  //If the conversation exists, return conversationId, otherwise return null
   Future<String?> isExistingConversation(String companyId,
       [String? userId]) async {
-    //Gán lại userId nếu nó bị null
+    //Assign userId again if it is null
     userId = userId ?? super.userId;
     try {
       final response = await httpFetch(
@@ -67,7 +67,7 @@ class ConversationService extends NodeService {
     }
   }
 
-  //Hàm nạp tất cả các conversation của một jobseeker
+  //Function to load all conversations of a jobseeker
   Future<List<Conversation>> getAllJobseekerConversation() async {
     try {
       final response = await httpFetch(
@@ -87,7 +87,7 @@ class ConversationService extends NodeService {
     }
   }
 
-  //Hàm nạp tất cả các conversation của một employer
+  //Function to load all conversations of an employer
   Future<List<Conversation>> getAllEmployerConversation() async {
     try {
       final response = await httpFetch(
@@ -107,7 +107,7 @@ class ConversationService extends NodeService {
     }
   }
 
-  //Hàm gửi tin nhắn
+  //Function to send a message
   Future<Message?> sendMessage(Message newMessage) async {
     try {
       final response = await httpFetch('$databaseUrl/api/conversation/message/',
@@ -122,11 +122,11 @@ class ConversationService extends NodeService {
     }
   }
 
-  //Hàm đánh dấu đã đọc tin nhắn
+  //Function to mark a message as read
   Future<bool> markMessageAsRead(
       String conversationId, String userId, bool userIsEmployer) async {
-    //Bên dart khi biểu diễn kiểu Object thì phải có đầy đủ key và value, nếu không
-    //Thì nó sẽ tưởng là kiểu Set
+    //In Dart, when representing the Object type, it must have a full key and value, otherwise
+    //It will be considered as a Set type
     Utils.logMessage('userIsEmployer: $userIsEmployer');
     try {
       final response =

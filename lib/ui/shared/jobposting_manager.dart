@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:math';
-import 'dart:developer' as dp;
 import 'package:flutter/material.dart';
 import 'package:job_finder_app/models/auth_token.dart';
 import 'package:job_finder_app/services/jobposting_service.dart';
@@ -27,25 +26,51 @@ enum TimeFilter {
 }
 
 class JobpostingManager extends ChangeNotifier {
+  final JobpostingService _jobpostingService;
+  SocketService? _socketService;
+
   List<Jobposting> _jobpostings = [];
   List<Jobposting> _filteredPosts = [];
   List<Jobposting> _searchResult = [];
   List<Jobposting> _companyPost = [];
   List<Jobposting> _filteredCompanyPosts = [];
-  //danh sách gợi ý từ server
+  // List of suggested jobs from server
   List<Jobposting> _jobpostingSuggestion = [];
-
-  // final ValueNotifier<List<Jobposting>> _randomJobpostingNotifier =
-  //     ValueNotifier([]);
-
   bool _isLoading = false;
 
-  final JobpostingService _jobpostingService;
-  SocketService? _socketService;
+  JobpostingManager([AuthToken? authToken]) 
+    : _jobpostingService = JobpostingService(authToken);
 
-  JobpostingManager([AuthToken? authToken])
-      : _jobpostingService = JobpostingService(authToken);
+  // Getters
+  List<Jobposting> get jobpostings => _jobpostings;
+  List<Jobposting> get filteredPosts => _filteredPosts;
+  List<Jobposting> get searchResults => _searchResult;
+  List<Jobposting> get companyPosts => _companyPost;
+  List<Jobposting> get filteredCompanyPosts => _filteredCompanyPosts;
+  List<Jobposting> get jobpostingSuggestion => _jobpostingSuggestion;
+  bool get isLoading => _isLoading;
 
+  List<Jobposting> get favoriteJob => 
+    _jobpostings.where((job) => job.isFavorite).toList();
+
+  List<Jobposting> get notExpiredCompanyPost => _companyPost.where((post) {
+    final deadline = DateTime.parse(post.deadline);
+    return deadline.isAfter(DateTime.now());
+  }).toList();
+
+  List<Jobposting> get expiredCompanyPost => _companyPost.where((post) {
+    final deadline = DateTime.parse(post.deadline);
+    return deadline.isBefore(DateTime.now());
+  }).toList();
+
+  // Shuffle function to provide random suggestions
+  List<Jobposting> get randomJobposting {
+    final copy = List<Jobposting>.from(_jobpostings);
+    copy.shuffle(Random());
+    return copy;
+  }
+
+  // Setters
   set authToken(AuthToken? authToken) {
     _jobpostingService.authToken = authToken;
     notifyListeners();
@@ -56,130 +81,50 @@ class JobpostingManager extends ChangeNotifier {
     notifyListeners();
   }
 
-  void jobpostingEventRunning() {
-    Utils.logMessage("Jobposting event running, socket: $_socketService");
-
-    _socketService?.socket?.on("jobposting:modified", (data) {
-      Utils.logMessage("Xu ly jobposting socket event trong JobpostinManager");
-    });
-  }
-
-  List<Jobposting> get jobpostings => _jobpostings;
-
-  List<Jobposting> get filteredPosts => _filteredPosts;
-
-  List<Jobposting> get searchResults => _searchResult;
-
-  bool get isLoading => _isLoading;
-
-  // List<Jobposting> get randomJobposting => _randomJobpostingNotifier.value;
-
-  List<Jobposting> get favoriteJob {
-    return _jobpostings.where((job) => job.isFavorite).toList();
-  }
-
-  // List<Jobposting> get companyPosts => _jobpostings;
-  List<Jobposting> get companyPosts => _companyPost;
-
-  List<Jobposting> get filteredCompanyPosts => _filteredCompanyPosts;
-
-  List<Jobposting> get notExpiredCompanyPost {
-    return _companyPost.where((post) {
-      final deadline = DateTime.parse(post.deadline);
-      return deadline.isAfter(DateTime.now());
-    }).toList();
-  }
-
-  List<Jobposting> get expiredCompanyPost {
-    return _companyPost.where((post) {
-      final deadline = DateTime.parse(post.deadline);
-      return deadline.isBefore(DateTime.now());
-    }).toList();
-  }
-
-  // todo Hàm xáo trộn để đưa ra gợi ý ngẫu nhiên
-  List<Jobposting> get randomJobposting {
-    List<Jobposting> copy = [];
-    for (int i = 0; i < _jobpostings.length; i++) {
-      copy.add(_jobpostings[i]);
-    }
-    copy.shuffle(Random());
-    return copy;
-  }
-
-  List<Jobposting> get jobpostingSuggestion => _jobpostingSuggestion;
-
-  // void _updateRandomJobposting() {
-  //   List<Jobposting> copy = List.from(_jobpostings);
-  //   copy.shuffle(Random());
-  //   _randomJobpostingNotifier.value = copy;
-  // }
-
+  // Public methods
   List<Jobposting> companyJobpostings(String companyId) {
     return _jobpostings.where((post) => post.company!.id == companyId).toList();
+  }
+
+  void jobpostingEventRunning() {
+    Utils.logMessage("Jobposting event running, socket: $_socketService");
+    _socketService?.socket?.on("jobposting:modified", (data) {
+      Utils.logMessage("Processing jobposting socket event in JobpostingManager");
+    });
   }
 
   Future<void> fetchJobposting() async {
     final jobpostings = await _jobpostingService.fetchJobpostingList();
     final suggestion = await _jobpostingService.fetchJobpostingSuggestionList();
+    
     if (jobpostings != null && suggestion != null) {
-      dp.log('Trong Jobmanager, da nap: ${jobpostings.length}');
       _jobpostings = jobpostings;
       _filteredPosts = _jobpostings;
-      //Thêm các công việc nằm trong danh sách gợi ý
+      
+      // Add jobs from suggestion list
       _jobpostingSuggestion = _jobpostings.where((jobpost) {
         return suggestion.any((suggestedJob) => suggestedJob.id == jobpost.id);
       }).toList();
-      // for (var jobpost in suggestion) {
-      //   //Tìm công việc trong jobposting dựa vào mảng công việc đề xuất trong suggestion
-      //   //Thêm để có tham chiếu, lỗ người dùng bấm yêu thích thì nó cập nhật
-      //   //ở những chỗ khác
-      //   final foundedJob =
-      //       _jobpostings.firstWhere((job) => job.id == jobpost.id);
-      //   _jobpostingSuggestion
-      //       .add(foundedJob); //Thêm tham chiếu của phần tử trong jobpostings
-      // }
+
       notifyListeners();
     }
   }
 
-  void _handleJobpostingUpdate(Map<String, dynamic> data) {
-    final operationType = data["operationType"];
-    final updatedJobposting = Jobposting.fromJson(data["modifiedJobposting"]);
-    Utils.logMessage("Cập nhật lại update jobposting: $data");
-    if (operationType == "insert") {
-      _jobpostings.add(updatedJobposting);
-    } else if (operationType == "update") {
-      final index =
-          _jobpostings.indexWhere((job) => job.id == updatedJobposting.id);
-      if (index != -1) {
-        _jobpostings[index] = updatedJobposting;
-      } else {
-        Utils.logMessage("Không tìm thấy jobposting cần cập nhật");
-      }
-    } else if (operationType == "delete") {
-      _jobpostings.removeWhere((job) => job.id == updatedJobposting.id);
-    } else {
-      Utils.logMessage("Unknown operation type: $operationType");
-    }
-
-    _filteredPosts = _jobpostings;
-    notifyListeners();
-  }
-
   void listenToJobpostingChanges() {
-    Utils.logMessage("Goi listenToJobpostingChanges trong JobseekerHome");
-    _socketService?.jobpostingStream.listen((data) {
-      _handleJobpostingUpdate(data);
-    }, onError: (error) {
-      Utils.logMessage("Error: $error");
-    });
+    Utils.logMessage("Called listenToJobpostingChanges in JobseekerHome");
+    _socketService?.jobpostingStream.listen(
+      _handleJobpostingUpdate,
+      onError: (error) => Utils.logMessage("Error: $error")
+    );
   }
 
   Future<void> changeFavoriteStatus(Jobposting jobposting) async {
     final savedState = jobposting.isFavorite;
     final isSuccess = await _jobpostingService.changeFavoriteState(
-        !savedState, jobposting.id);
+      !savedState, 
+      jobposting.id
+    );
+    
     if (isSuccess) {
       jobposting.isFavorite = !savedState;
       notifyListeners();
@@ -187,36 +132,25 @@ class JobpostingManager extends ChangeNotifier {
   }
 
   Future<void> filterJobposting(FilterType condition) async {
-    String queryStr = switch (condition) {
-      FilterType.all => "tất cả",
-      FilterType.intern => "intern",
-      FilterType.fresher => "fresher",
-      FilterType.junior => "junior",
-      FilterType.middle => "middle",
-      FilterType.senior => "senior",
-      FilterType.manager => "manager",
-      FilterType.leader => "leader",
-    };
+    final queryStr = _getFilterQueryString(condition);
+    
     final filteredList = jobpostings.where((post) {
-      List<String> level = post.level.map((e) => e.toLowerCase()).toList();
-      return level.contains(queryStr);
+      final levels = post.level.map((e) => e.toLowerCase()).toList();
+      return levels.contains(queryStr);
     }).toList();
 
-    if (condition == FilterType.all) {
-      _filteredPosts = jobpostings;
-    } else {
-      _filteredPosts = filteredList;
-    }
+    _filteredPosts = condition == FilterType.all ? jobpostings : filteredList;
     notifyListeners();
   }
 
-  Future<void> search(String searchTex) async {
+  Future<void> search(String searchText) async {
     _isLoading = true;
     notifyListeners();
+
     _searchResult = jobpostings.where((post) {
-      String removedAccentPost = Utils.removeVietnameseAccent(post.toString());
-      String removedAccentSearch = Utils.removeVietnameseAccent(searchTex);
-      return removedAccentPost.contains(removedAccentSearch);
+      final normalizedPost = Utils.removeVietnameseAccent(post.toString());
+      final normalizedSearch = Utils.removeVietnameseAccent(searchText);
+      return normalizedPost.contains(normalizedSearch);
     }).toList();
 
     _isLoading = false;
@@ -224,8 +158,7 @@ class JobpostingManager extends ChangeNotifier {
   }
 
   Future<void> fetchCompanyPosts(String companyId) async {
-    final companyPosts =
-        await _jobpostingService.getCompanyJobposting(companyId);
+    final companyPosts = await _jobpostingService.getCompanyJobposting(companyId);
     if (companyPosts != null) {
       _companyPost = companyPosts;
       _filteredCompanyPosts = _companyPost;
@@ -234,12 +167,11 @@ class JobpostingManager extends ChangeNotifier {
   }
 
   void filterCompanyPosts(TimeFilter condition) {
-    List<Jobposting> filteredList = switch (condition) {
+    _filteredCompanyPosts = switch (condition) {
       TimeFilter.all => _companyPost,
       TimeFilter.notExpired => notExpiredCompanyPost,
       TimeFilter.expired => expiredCompanyPost,
     };
-    _filteredCompanyPosts = filteredList;
     notifyListeners();
   }
 
@@ -254,7 +186,7 @@ class JobpostingManager extends ChangeNotifier {
   Future<void> updateJobposting(Jobposting editedJob) async {
     final updatedJob = await _jobpostingService.updatePost(editedJob);
     if (updatedJob != null) {
-      int index = companyPosts.indexWhere((job) => job.id == editedJob.id);
+      final index = companyPosts.indexWhere((job) => job.id == editedJob.id);
       _companyPost[index] = updatedJob;
       notifyListeners();
     }
@@ -267,4 +199,42 @@ class JobpostingManager extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  // Private methods
+  void _handleJobpostingUpdate(Map<String, dynamic> data) {
+    final operationType = data["operationType"];
+    final updatedJobposting = Jobposting.fromJson(data["modifiedJobposting"]);
+
+    Utils.logMessage("Updating jobposting: $data");
+
+    switch (operationType) {
+      case "insert":
+        _jobpostings.add(updatedJobposting);
+      case "update":
+        final index = _jobpostings.indexWhere((job) => job.id == updatedJobposting.id);
+        if (index != -1) {
+          _jobpostings[index] = updatedJobposting;
+        } else {
+          Utils.logMessage("Jobposting not found for update");
+        }
+      case "delete":
+        _jobpostings.removeWhere((job) => job.id == updatedJobposting.id);
+      default:
+        Utils.logMessage("Unknown operation type: $operationType");
+    }
+
+    _filteredPosts = _jobpostings;
+    notifyListeners();
+  }
+
+  String _getFilterQueryString(FilterType condition) => switch (condition) {
+    FilterType.all => "all",
+    FilterType.intern => "intern", 
+    FilterType.fresher => "fresher",
+    FilterType.junior => "junior",
+    FilterType.middle => "middle",
+    FilterType.senior => "senior",
+    FilterType.manager => "manager",
+    FilterType.leader => "leader",
+  };
 }

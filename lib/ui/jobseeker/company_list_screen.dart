@@ -16,18 +16,93 @@ class _CompanyListScreenState extends State<CompanyListScreen> {
 
   @override
   void initState() {
+    super.initState();
+    _setupSearchListener();
+  }
+
+  void _setupSearchListener() {
     _searchController.addListener(() {
       if (_searchController.text.isEmpty) {
         context.read<CompanyManager>().search("");
       }
     });
-    super.initState();
   }
 
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  void _handleSearch(String value) async {
+    if (value.isEmpty) return;
+    
+    final jobseekerId = context.read<JobseekerManager>().jobseeker.id;
+    context.read<JobseekerManager>().observeSearchCompanyAction(jobseekerId, value);
+    context.read<CompanyManager>().search(value);
+  }
+
+  Widget _buildSearchHeader(BuildContext context, ThemeData theme, TextTheme textTheme) {
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          FractionallySizedBox(
+            widthFactor: 0.8,
+            child: Text(
+              'Nhập vào tên công ty, lĩnh vực, hoặc vị trí bên dưới',
+              style: textTheme.titleMedium!.copyWith(
+                color: theme.indicatorColor,
+                fontSize: 18,
+                fontWeight: FontWeight.w400,
+              ),
+              textAlign: TextAlign.left,
+            ),
+          ),
+          const SizedBox(height: 10),
+          TextFormField(
+            controller: _searchController,
+            decoration: InputDecoration(
+              constraints: const BoxConstraints.tightFor(height: 60),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+              hintText: 'Tìm kiếm lĩnh vực của bạn',
+              prefixIcon: const Icon(Icons.search),
+              filled: true,
+              fillColor: Colors.white,
+              suffixIcon: IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () => _searchController.clear(),
+              )
+            ),
+            keyboardType: TextInputType.text,
+            textInputAction: TextInputAction.search,
+            onFieldSubmitted: _handleSearch,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCompanyList(CompanyManager companyManager, TextTheme textTheme) {
+    final companyList = companyManager.searchResults;
+    
+    if (companyList.isEmpty) {
+      return Center(
+        child: Text(
+          'Chưa có công ty nào',
+          style: textTheme.bodyLarge,
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: ListView.builder(
+        itemCount: companyList.length,
+        itemBuilder: (context, index) => CompanyCard(company: companyList[index]),
+      ),
+    );
   }
 
   @override
@@ -42,9 +117,7 @@ class _CompanyListScreenState extends State<CompanyListScreen> {
         centerTitle: true,
         title: const Text(
           'Danh sách các công ty',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
         flexibleSpace: Container(
           width: deviceSize.width,
@@ -62,95 +135,25 @@ class _CompanyListScreenState extends State<CompanyListScreen> {
         ),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(150),
-          child: Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                FractionallySizedBox(
-                  widthFactor: 0.8,
-                  child: Text(
-                    'Nhập vào tên công ty, lĩnh vực, hoặc vị trí bên dưới',
-                    style: textTheme.titleMedium!.copyWith(
-                      color: theme.indicatorColor,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w400,
-                    ),
-                    textAlign: TextAlign.left,
-                  ),
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                TextFormField(
-                  controller: _searchController,
-                  decoration: InputDecoration(
-                      constraints: BoxConstraints.tightFor(height: 60),
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10)),
-                      hintText: 'Tìm kiếm lĩnh vực của bạn',
-                      prefixIcon: const Icon(Icons.search),
-                      filled: true,
-                      fillColor: Colors.white,
-                      suffixIcon: IconButton(
-                        icon: const Icon(Icons.close),
-                        onPressed: () {
-                          _searchController.clear();
-                        },
-                      )),
-                  keyboardType: TextInputType.text,
-                  textInputAction: TextInputAction.search,
-                  onFieldSubmitted: (value) async {
-                    if (value.isEmpty) {
-                      return;
-                    }
-                    //Ghi nhận hành động
-                    final jobseekerId =
-                        context.read<JobseekerManager>().jobseeker.id;
-                    context
-                        .read<JobseekerManager>()
-                        .observeSearchCompanyAction(jobseekerId, value);
-                    context.read<CompanyManager>().search(value);
-                  },
-                ),
-              ],
-            ),
-          ),
+          child: _buildSearchHeader(context, theme, textTheme),
         ),
       ),
       body: FutureBuilder(
-          future: context.read<CompanyManager>().fetchAllCompanies(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            }
-            return RefreshIndicator(
-              onRefresh: () =>
-                  context.read<CompanyManager>().fetchAllCompanies(),
-              child: Consumer<CompanyManager>(
-                  builder: (context, companyManager, child) {
-                final companyList = companyManager.searchResults;
-                return companyList.isNotEmpty
-                    ? Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: ListView.builder(
-                          itemCount: companyList.length,
-                          itemBuilder: (context, index) {
-                            return CompanyCard(company: companyList[index]);
-                          },
-                        ),
-                      )
-                    : Center(
-                        child: Text(
-                          'Chưa có công ty nào',
-                          style: textTheme.bodyLarge,
-                        ),
-                      );
-              }),
-            );
-          }),
+        future: context.read<CompanyManager>().fetchAllCompanies(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          
+          return RefreshIndicator(
+            onRefresh: () => context.read<CompanyManager>().fetchAllCompanies(),
+            child: Consumer<CompanyManager>(
+              builder: (context, companyManager, _) => 
+                _buildCompanyList(companyManager, textTheme),
+            ),
+          );
+        }
+      ),
     );
   }
 }

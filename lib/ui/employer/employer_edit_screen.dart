@@ -24,59 +24,57 @@ class EmployerEditScreen extends StatefulWidget {
 class EmployerEditScreenState extends State<EmployerEditScreen> {
   final _formKey = GlobalKey<FormState>();
   final ImagePicker _picker = ImagePicker();
-  File? file;
-  final firstNameController = TextEditingController();
-  final lastNameController = TextEditingController();
-  final phoneController = TextEditingController();
-  final addressController = TextEditingController();
-  final roleController = TextEditingController();
-  final searchController = TextEditingController();
-  Map<String, String> userInfo = {
+  File? _file;
+  final _firstNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _addressController = TextEditingController();
+  final _roleController = TextEditingController();
+  final _searchController = TextEditingController();
+  Map<String, String> _userInfo = {
     'firstName': '',
     'lastName': '',
     'phone': '',
     'address': '',
     'role': '',
   };
-  ValueNotifier<List<String>> provinceListenable =
+  ValueNotifier<List<String>> _provinceListenable =
       ValueNotifier(VietNameProvinces.provinces);
-  ValueNotifier<int> selectedProvinceIndex = ValueNotifier(0);
+  ValueNotifier<int> _selectedProvinceIndex = ValueNotifier(0);
   bool _isLoading = false;
 
   @override
   void initState() {
-    firstNameController.text = widget.employer!.firstName;
-    lastNameController.text = widget.employer!.lastName;
-    phoneController.text = widget.employer!.phone;
-    roleController.text = widget.employer!.role;
-    addressController.text = widget.employer!.address;
-    //Tìm chỉ số tỉnh mà trùng với danh sách tỉnh
-    int selectedIndex = provinceListenable.value.indexWhere((element) {
+    super.initState();
+    _firstNameController.text = widget.employer!.firstName;
+    _lastNameController.text = widget.employer!.lastName;
+    _phoneController.text = widget.employer!.phone;
+    _roleController.text = widget.employer!.role;
+    _addressController.text = widget.employer!.address;
+    int selectedIndex = _provinceListenable.value.indexWhere((element) {
       String alteredElement =
           Utils.removeVietnameseAccent(element).toLowerCase();
       String alteredAddress =
-          Utils.removeVietnameseAccent(addressController.text).toLowerCase();
+          Utils.removeVietnameseAccent(_addressController.text).toLowerCase();
       return alteredElement.compareTo(alteredAddress) == 0;
     });
-    //Đặt chỉ số được chọn lại
-    selectedProvinceIndex.value = selectedIndex;
-    searchController.addListener(() {
-      String searchText = searchController.text;
+    _selectedProvinceIndex.value = selectedIndex;
+    _searchController.addListener(() {
+      String searchText = _searchController.text;
       List<String> searchProivinces =
           VietNameProvinces.searchProvinces(searchText);
-      provinceListenable.value = searchProivinces;
+      _provinceListenable.value = searchProivinces;
     });
-    super.initState();
   }
 
   @override
   void dispose() {
-    firstNameController.dispose();
-    lastNameController.dispose();
-    phoneController.dispose();
-    addressController.dispose();
-    searchController.dispose();
-    roleController.dispose();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _phoneController.dispose();
+    _addressController.dispose();
+    _searchController.dispose();
+    _roleController.dispose();
     super.dispose();
   }
 
@@ -85,7 +83,7 @@ class EmployerEditScreenState extends State<EmployerEditScreen> {
       final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
       if (pickedFile != null) {
         setState(() {
-          file = File(pickedFile.path);
+          _file = File(pickedFile.path);
         });
       }
     } catch (error) {
@@ -100,13 +98,13 @@ class EmployerEditScreenState extends State<EmployerEditScreen> {
     }
 
     _formKey.currentState!.save();
-    Utils.logMessage(userInfo.toString());
+    Utils.logMessage(_userInfo.toString());
     try {
       setState(() {
         _isLoading = true;
       });
       final employerManager = context.read<EmployerManager>();
-      await employerManager.updateProfile(userInfo, file);
+      await employerManager.updateProfile(_userInfo, _file);
       setState(() {
         _isLoading = false;
       });
@@ -149,7 +147,6 @@ class EmployerEditScreenState extends State<EmployerEditScreen> {
                             Stack(
                               alignment: Alignment.bottomRight,
                               children: [
-                                //Hiển thị ảnh đại diện trong Container
                                 Container(
                                   width: 130,
                                   height: 130,
@@ -164,8 +161,8 @@ class EmployerEditScreenState extends State<EmployerEditScreen> {
                                     ],
                                     borderRadius: BorderRadius.circular(15),
                                     image: DecorationImage(
-                                      image: file != null
-                                          ? FileImage(file!)
+                                      image: _file != null
+                                          ? FileImage(_file!)
                                               as ImageProvider<Object>
                                           : NetworkImage((widget.employer ==
                                                   null)
@@ -175,7 +172,6 @@ class EmployerEditScreenState extends State<EmployerEditScreen> {
                                     ),
                                   ),
                                 ),
-                                //Hiển thị nút chỉnh sửa ảnh
                                 CircleAvatar(
                                   radius: 20,
                                   backgroundColor: theme.colorScheme.primary,
@@ -184,21 +180,16 @@ class EmployerEditScreenState extends State<EmployerEditScreen> {
                                       Icons.edit,
                                       color: theme.indicatorColor,
                                     ),
-                                    onPressed: () {
-                                      Utils.logMessage('Upload ảnh');
-                                      _pickFile();
-                                    },
+                                    onPressed: _pickFile,
                                   ),
                                 ),
-                                //hiện thị form cho phép chỉnh sửa
                               ],
                             ),
-                            //Trường nhập tên của người tìm việc
                             CombinedTextFormField(
                               title: 'Tên của bạn',
                               hintText: 'Bắt buộc',
                               keyboardType: TextInputType.name,
-                              controller: firstNameController,
+                              controller: _firstNameController,
                               validator: (value) {
                                 if (value!.isEmpty) {
                                   return 'Vui lòng nhập tên';
@@ -206,18 +197,17 @@ class EmployerEditScreenState extends State<EmployerEditScreen> {
                                 return null;
                               },
                               onSaved: (value) {
-                                userInfo['firstName'] = value!;
+                                _userInfo['firstName'] = value!;
                               },
                             ),
                             const SizedBox(
                               height: 20,
                             ),
-                            //Trường nhập họ của người tìm việc
                             CombinedTextFormField(
                               title: 'Họ của bạn',
                               hintText: 'Bắt buộc',
                               keyboardType: TextInputType.name,
-                              controller: lastNameController,
+                              controller: _lastNameController,
                               validator: (value) {
                                 if (value!.isEmpty) {
                                   return 'Vui lòng nhập họ';
@@ -225,18 +215,17 @@ class EmployerEditScreenState extends State<EmployerEditScreen> {
                                 return null;
                               },
                               onSaved: (value) {
-                                userInfo['lastName'] = value!;
+                                _userInfo['lastName'] = value!;
                               },
                             ),
                             const SizedBox(
                               height: 20,
                             ),
-                            //Trường nhập số điện thoại của người tìm việ
                             CombinedTextFormField(
                               title: 'Số điện thoại',
                               hintText: 'Bắt buộc',
                               keyboardType: TextInputType.phone,
-                              controller: phoneController,
+                              controller: _phoneController,
                               validator: (value) {
                                 if (value!.isEmpty) {
                                   return 'Vui lòng nhập số điện thoại';
@@ -244,7 +233,7 @@ class EmployerEditScreenState extends State<EmployerEditScreen> {
                                 return null;
                               },
                               onSaved: (value) {
-                                userInfo['phone'] = value!;
+                                _userInfo['phone'] = value!;
                               },
                             ),
                             const SizedBox(
@@ -254,7 +243,7 @@ class EmployerEditScreenState extends State<EmployerEditScreen> {
                               title: 'Chức vụ',
                               hintText: 'Bắt buộc',
                               keyboardType: TextInputType.text,
-                              controller: roleController,
+                              controller: _roleController,
                               validator: (value) {
                                 if (value!.isEmpty) {
                                   return 'Vui lòng nhập chức vụ của bạn';
@@ -262,7 +251,7 @@ class EmployerEditScreenState extends State<EmployerEditScreen> {
                                 return null;
                               },
                               onSaved: (value) {
-                                userInfo['role'] = value!;
+                                _userInfo['role'] = value!;
                               },
                             ),
                             const SizedBox(
@@ -273,7 +262,7 @@ class EmployerEditScreenState extends State<EmployerEditScreen> {
                               hintText: 'Bắt buộc',
                               isRead: true,
                               keyboardType: TextInputType.streetAddress,
-                              controller: addressController,
+                              controller: _addressController,
                               onTap: _showProvincesOption,
                               validator: (value) {
                                 if (value!.isEmpty) {
@@ -282,7 +271,7 @@ class EmployerEditScreenState extends State<EmployerEditScreen> {
                                 return null;
                               },
                               onSaved: (value) {
-                                userInfo['address'] = value!;
+                                _userInfo['address'] = value!;
                               },
                             ),
                           ],
@@ -292,13 +281,11 @@ class EmployerEditScreenState extends State<EmployerEditScreen> {
                     const SizedBox(
                       height: 40,
                     ),
-                    //Nút dùng để lưu form lại
                     Container(
                       margin: const EdgeInsets.only(bottom: 10),
                       child: ElevatedButton(
                         onPressed: _updateProfile,
                         style: ElevatedButton.styleFrom(
-                          // side: BorderSide(color: theme.colorScheme.primary),
                           elevation: 0,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
@@ -324,14 +311,14 @@ class EmployerEditScreenState extends State<EmployerEditScreen> {
   }
 
   void _showProvincesOption() {
-    Utils.logMessage('So luong tinh: ${provinceListenable.value.length}');
+    Utils.logMessage('So luong tinh: ${_provinceListenable.value.length}');
     showAdditionalScreen(
         context: context,
         title: 'Tỉnh/thành phố',
         child: Column(
           children: [
             TextFormField(
-              controller: searchController,
+              controller: _searchController,
               decoration: InputDecoration(
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
@@ -346,12 +333,11 @@ class EmployerEditScreenState extends State<EmployerEditScreen> {
               child: Container(
                   padding: const EdgeInsets.only(top: 5),
                   child: ValueListenableBuilder<List<String>>(
-                      valueListenable: provinceListenable,
+                      valueListenable: _provinceListenable,
                       builder: (context, provinces, child) {
                         return provinces.isNotEmpty
                             ? ListView.separated(
-                                shrinkWrap:
-                                    true, //Chỉ định kích thước của ListView bằng với cố lượng phần tử
+                                shrinkWrap: true,
                                 itemCount: provinces.length,
                                 separatorBuilder:
                                     (BuildContext context, int index) =>
@@ -360,7 +346,7 @@ class EmployerEditScreenState extends State<EmployerEditScreen> {
                                         ),
                                 itemBuilder: (context, index) {
                                   return ValueListenableBuilder<int>(
-                                      valueListenable: selectedProvinceIndex,
+                                      valueListenable: _selectedProvinceIndex,
                                       builder: (context, provinceIndex, child) {
                                         return ListTile(
                                           selected: index == provinceIndex,
@@ -387,9 +373,9 @@ class EmployerEditScreenState extends State<EmployerEditScreen> {
                                           onTap: () {
                                             Utils.logMessage(
                                                 'Đã chọn ${provinces[index]}');
-                                            addressController.text =
+                                            _addressController.text =
                                                 provinces[index];
-                                            selectedProvinceIndex.value = index;
+                                            _selectedProvinceIndex.value = index;
                                             Navigator.pop(context);
                                           },
                                         );

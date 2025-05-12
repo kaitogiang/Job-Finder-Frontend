@@ -82,23 +82,6 @@ class JobseekerService extends NodeService {
       return false;
     }
   }
-  //Code cũ
-  // Future<Resume?> uploadResume(String filename, File file) async {
-  //   try {
-  //     final result = await httpUpload(
-  //         '$databaseUrl/api/jobseeker/$userId/resume',
-  //         file: file,
-  //         fields: {'filename': filename},
-  //         fileFieldName: 'resume') as Map<String, dynamic>;
-  //     Map<String, dynamic> pdfValue = result['pdf'][0];
-  //     Resume resume = Resume.fromJson(pdfValue);
-
-  //     return resume;
-  //   } catch (error) {
-  //     log('job service: $error');
-  //     return null;
-  //   }
-  // }
   Future<List<Resume>?> uploadResume(String filename, File file) async {
     try {
       final result = await httpUpload(

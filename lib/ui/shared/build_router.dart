@@ -38,7 +38,6 @@ import 'package:job_finder_app/ui/shared/job_detail_screen.dart';
 import 'package:job_finder_app/ui/shared/jobseeker_detail_screen.dart';
 import 'package:job_finder_app/ui/shared/message_screen.dart';
 import 'package:job_finder_app/ui/shared/user_setting_screen.dart';
-import 'package:path/path.dart';
 import '../employer/approved_application_screen.dart';
 import '../employer/company_screen.dart';
 import '../employer/employer_edit_screen.dart';
@@ -51,59 +50,55 @@ import 'scaffold_with_navbar.dart';
 import 'splash_screen.dart';
 import '../auth/auth_screen.dart';
 
-final _rootNavigatorkey = GlobalKey<NavigatorState>(debugLabel: 'root');
-// final _generalNavigatorkey = GlobalKey<NavigatorState>(debugLabel: 'general');
-final globalNavigatorKey = _rootNavigatorkey;
+final _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
+final globalNavigatorKey = _rootNavigatorKey;
 
 GoRouter buildRouter(AuthManager authManager) {
-  //Ban đầu khi chưa đăng nhập thì sẽ hiển thị màn hình đăng nhập cho người dùng
-  //Khi họ đăng nhập xong và thay đổi getter isAuth và gọi notifyListener thì
-  //sẽ báo hiệu cho các phần khác bao gồm GoRouter nạp lại giao diện
+  // Initially show login screen when not authenticated
+  // After login and notifyListener is called, GoRouter will rebuild UI based on user type
   return GoRouter(
-    navigatorKey: _rootNavigatorkey,
+    navigatorKey: _rootNavigatorKey,
     initialLocation: authManager.isAuth
         ? (authManager.isEmployer ? '/employer-home' : '/jobseeker-home')
         : '/login',
-    routes: <RouteBase>[
+    routes: [
       GoRoute(
-          name: 'login',
-          path: '/login',
-          builder: (context, state) => FutureBuilder(
-                future: authManager.tryAutoLogin(),
-                builder: (ctx, snapshot) {
-                  return snapshot.connectionState == ConnectionState.waiting
-                      ? const SafeArea(child: SplashScreen())
-                      : const SafeArea(child: AuthScreen());
-                },
-              )),
-      //Routes cho người tìm việc
+        name: 'login',
+        path: '/login',
+        builder: (context, state) => FutureBuilder(
+          future: authManager.tryAutoLogin(),
+          builder: (ctx, snapshot) => snapshot.connectionState == ConnectionState.waiting
+              ? const SafeArea(child: SplashScreen())
+              : const SafeArea(child: AuthScreen()),
+        ),
+      ),
+      // Routes for job seeker
       StatefulShellRoute.indexedStack(
-        builder: (context, state, navigationShell) {
-          return ScaffoldWithNavBar(navigationShell: navigationShell);
-        },
+        builder: (context, state, navigationShell) => 
+          ScaffoldWithNavBar(navigationShell: navigationShell),
         branches: _buildJobseekerRoutes(),
       ),
-      //Routes cho nhà tuyển dụng
+      // Routes for employer
       StatefulShellRoute.indexedStack(
-          builder: (context, state, navigationShell) {
-            return ScaffoldWithNavBar(navigationShell: navigationShell);
-          },
-          branches: _buildEmployerRoutes()),
-      //Các route bên dưới là các route chung của cả hai người dùng
+        builder: (context, state, navigationShell) =>
+          ScaffoldWithNavBar(navigationShell: navigationShell),
+        branches: _buildEmployerRoutes(),
+      ),
+      // Shared routes for both user types
       GoRoute(
-        parentNavigatorKey: _rootNavigatorkey,
+        parentNavigatorKey: _rootNavigatorKey,
         name: 'jobseeker-setting',
         path: '/jobseeker-setting',
         builder: (context, state) => UserSettingScreen(),
-        routes: <RouteBase>[
+        routes: [
           GoRoute(
-            parentNavigatorKey: _rootNavigatorkey,
+            parentNavigatorKey: _rootNavigatorKey,
             name: 'change-email',
             path: 'change-email',
             builder: (context, state) => ChangeEmailScreen(),
           ),
           GoRoute(
-            parentNavigatorKey: _rootNavigatorkey,
+            parentNavigatorKey: _rootNavigatorKey,
             name: 'change-password',
             path: 'change-password',
             builder: (context, state) => ChangePasswordScreen(),
@@ -111,34 +106,34 @@ GoRouter buildRouter(AuthManager authManager) {
         ],
       ),
       GoRoute(
-        parentNavigatorKey: _rootNavigatorkey,
+        parentNavigatorKey: _rootNavigatorKey,
         name: 'job-detail',
         path: '/job-detail',
         builder: (context, state) => JobDetailScreen(state.extra as Jobposting),
       ),
-      //? Route xem chi tiết công ty
+      // Route for company details
       GoRoute(
-        parentNavigatorKey: _rootNavigatorkey,
+        parentNavigatorKey: _rootNavigatorKey,
         name: 'company-detail',
         path: '/company-detail',
-        builder: (context, state) =>
-            CompanyDetailScreen(state.extra as Company),
+        builder: (context, state) => CompanyDetailScreen(state.extra as Company),
       ),
-      //Route dùng để xem image
+      // Route for image preview
       GoRoute(
-        parentNavigatorKey: _rootNavigatorkey,
+        parentNavigatorKey: _rootNavigatorKey,
         name: 'image-preview',
         path: '/image-preview',
         builder: (context, state) {
-          Map<String, dynamic> data = state.extra as Map<String, dynamic>;
-          List<String> images = data['images'] as List<String>;
-          int currentIndex = data['index'] as int;
-          return ImagePreview(gallaryItems: images, index: currentIndex);
+          final data = state.extra as Map<String, dynamic>;
+          return ImagePreview(
+            gallaryItems: data['images'] as List<String>,
+            index: data['index'] as int,
+          );
         },
       ),
-      //?Xem chi tiết về ứng viên
+      // Route for job seeker details
       GoRoute(
-        parentNavigatorKey: _rootNavigatorkey,
+        parentNavigatorKey: _rootNavigatorKey,
         name: 'jobseeker-detail',
         path: '/jobseeker-detail',
         builder: (context, state) => JobseekerDetailScreen(
@@ -146,17 +141,18 @@ GoRouter buildRouter(AuthManager authManager) {
         ),
       ),
       GoRoute(
-        parentNavigatorKey: _rootNavigatorkey,
+        parentNavigatorKey: _rootNavigatorKey,
         name: 'conversation-list',
         path: '/conversation-list',
         builder: (context, state) => MessageScreen(),
-        routes: <RouteBase>[
+        routes: [
           GoRoute(
-            parentNavigatorKey: _rootNavigatorkey,
+            parentNavigatorKey: _rootNavigatorKey,
             name: 'chat',
             path: 'chat',
-            builder: (context, state) =>
-                ChatScreen(conversationId: state.extra as String),
+            builder: (context, state) => ChatScreen(
+              conversationId: state.extra as String,
+            ),
           )
         ],
       )
@@ -164,114 +160,121 @@ GoRouter buildRouter(AuthManager authManager) {
   );
 }
 
-//Các routes con cho người tìm việc
+// Child routes for job seeker
 List<StatefulShellBranch> _buildJobseekerRoutes() {
-  List<StatefulShellBranch> routes = [
-    //Nhánh cho tab trang chủ của người tìm việc
+  return [
+    // Branch for job seeker home tab
     StatefulShellBranch(
-      routes: <RouteBase>[
+      routes: [
         GoRoute(
-            name: 'jobseeker-home',
-            path: '/jobseeker-home',
-            builder: (context, state) => JobseekerHome()),
+          name: 'jobseeker-home',
+          path: '/jobseeker-home',
+          builder: (context, state) => JobseekerHome(),
+        ),
       ],
     ),
-    //Nhánh tìm kiếm bài viết hoặc công ty....
+    // Branch for job/company search
     StatefulShellBranch(
-      routes: <RouteBase>[
+      routes: [
         GoRoute(
-            name: 'searching',
-            path: '/searching',
-            builder: (context, state) => const SearchJobScreen(),
-            routes: <RouteBase>[
-              GoRoute(
-                parentNavigatorKey: _rootNavigatorkey,
-                name: 'search-result',
-                path: 'search-result',
-                builder: (context, state) => const SearchResultScreen(),
-              )
-            ]),
+          name: 'searching',
+          path: '/searching',
+          builder: (context, state) => const SearchJobScreen(),
+          routes: [
+            GoRoute(
+              parentNavigatorKey: _rootNavigatorKey,
+              name: 'search-result',
+              path: 'search-result',
+              builder: (context, state) => const SearchResultScreen(),
+            )
+          ],
+        ),
       ],
     ),
-    //Nhánh xem công việc đã lưu, đã thích và đã nộp CV
+    // Branch for saved jobs, liked jobs and submitted applications
     StatefulShellBranch(
-      routes: <RouteBase>[
+      routes: [
         GoRoute(
-            name: 'saved-work',
-            path: '/saved-work',
-            builder: (context, state) => const MyJobScreen()),
+          name: 'saved-work',
+          path: '/saved-work',
+          builder: (context, state) => const MyJobScreen(),
+        ),
       ],
     ),
-    //Nhánh xem danh sách tất cả công ty đã hợp tác
+    // Branch for viewing all partner companies
     StatefulShellBranch(
-      routes: <RouteBase>[
+      routes: [
         GoRoute(
-            name: 'company',
-            path: '/company',
-            builder: (context, state) => const CompanyListScreen()),
+          name: 'company',
+          path: '/company',
+          builder: (context, state) => const CompanyListScreen(),
+        ),
       ],
     ),
-    //Nhánh xem tài khoản cùng các thông tin cá nhân
+    // Branch for account and personal information
     StatefulShellBranch(
-      routes: <RouteBase>[
+      routes: [
         GoRoute(
           name: 'account',
           path: '/account',
           builder: (context, state) => JobseekerProfileScreen(),
-          routes: <RouteBase>[
-            //Trang chỉnh sửa thông tin cá nhân
+          routes: [
+            // Personal information edit page
             GoRoute(
-                parentNavigatorKey: _rootNavigatorkey,
-                name: 'information-edit',
-                path: 'information-edit',
-                builder: (context, state) => InformationEditScreen(
-                      state.extra as Jobseeker,
-                    )),
-            //Trang thêm skill
+              parentNavigatorKey: _rootNavigatorKey,
+              name: 'information-edit',
+              path: 'information-edit',
+              builder: (context, state) => InformationEditScreen(
+                state.extra as Jobseeker,
+              ),
+            ),
+            // Skill addition page
             GoRoute(
-                parentNavigatorKey: _rootNavigatorkey,
-                name: 'skill-addition',
-                path: 'skill-addition',
-                builder: (context, state) => SkillAdditionScreen()),
-            GoRoute(
-              parentNavigatorKey: _rootNavigatorkey,
-              name: 'resume-upload',
-              path: 'resume-upload',
-              builder: (context, state) =>
-                  ResumeUploadScreen(resume: state.extra as Resume?),
+              parentNavigatorKey: _rootNavigatorKey,
+              name: 'skill-addition',
+              path: 'skill-addition',
+              builder: (context, state) => SkillAdditionScreen(),
             ),
             GoRoute(
-              parentNavigatorKey: _rootNavigatorkey,
+              parentNavigatorKey: _rootNavigatorKey,
+              name: 'resume-upload',
+              path: 'resume-upload',
+              builder: (context, state) => ResumeUploadScreen(
+                resume: state.extra as Resume?,
+              ),
+            ),
+            GoRoute(
+              parentNavigatorKey: _rootNavigatorKey,
               name: 'experience-addition',
               path: 'experience-addition',
               builder: (context, state) => ExperienceAdditionScreen(
-                  experience: state.extra as Experience?),
+                experience: state.extra as Experience?,
+              ),
             ),
             GoRoute(
-              parentNavigatorKey: _rootNavigatorkey,
+              parentNavigatorKey: _rootNavigatorKey,
               name: 'education-addition',
               path: 'education-addition',
-              builder: (context, state) =>
-                  EducationAdditionScreen(education: state.extra as Education?),
+              builder: (context, state) => EducationAdditionScreen(
+                education: state.extra as Education?,
+              ),
             ),
-            //Trang hiển thị thêm CV mới
+            // Resume list display page
             GoRoute(
-              parentNavigatorKey: _rootNavigatorkey,
+              parentNavigatorKey: _rootNavigatorKey,
               name: 'resume-list',
               path: 'resume-list',
               builder: (context, state) => const ResumeListScreen(),
-              routes: <RouteBase>[
+              routes: [
                 GoRoute(
-                  parentNavigatorKey: _rootNavigatorkey,
+                  parentNavigatorKey: _rootNavigatorKey,
                   name: 'resume-creation',
                   path: 'resume-creation',
-                  builder: (context, state) =>
-                      const ResumeCreationForm(),
-                  routes: <RouteBase>[
-                    //Trang dùng để xem trước file PDF của CV
-                    //Map chứa jobseeker và các thông tin mô tả bổ sung cho các kinh nghiệm nếu có
+                  builder: (context, state) => const ResumeCreationForm(),
+                  routes: [
+                    // PDF preview page for resume
                     GoRoute(
-                      parentNavigatorKey: _rootNavigatorkey,
+                      parentNavigatorKey: _rootNavigatorKey,
                       name: 'resume-creation-preview',
                       path: 'resume-creation-preview',
                       builder: (context, state) => ResumeCreationPreview(
@@ -280,12 +283,14 @@ List<StatefulShellBranch> _buildJobseekerRoutes() {
                     )
                   ],
                 ),
-                //Route dùng để xem file PDF trước của CV
+                // Route for PDF preview
                 GoRoute(
-                  parentNavigatorKey: _rootNavigatorkey,
+                  parentNavigatorKey: _rootNavigatorKey,
                   name: 'resume-preview',
                   path: 'resume-preview',
-                  builder: (context, state) => ResumePreviewScreen(url: state.extra as String),
+                  builder: (context, state) => ResumePreviewScreen(
+                    url: state.extra as String,
+                  ),
                 )
               ],
             ),
@@ -294,95 +299,83 @@ List<StatefulShellBranch> _buildJobseekerRoutes() {
       ],
     ),
   ];
-
-  return routes;
 }
 
-//Các routes con cho nhà tuyển dụng
+// Child routes for employer
 List<StatefulShellBranch> _buildEmployerRoutes() {
-  List<StatefulShellBranch> routes = [
-    //Nhánh cho tab bài đăng của nhà tuyển dụng
-    StatefulShellBranch(routes: <RouteBase>[
-      GoRoute(
+  return [
+    // Branch for employer job postings tab
+    StatefulShellBranch(
+      routes: [
+        GoRoute(
           name: 'employer-home',
           path: '/employer-home',
           builder: (context, state) => const EmployerJobposting(),
-          routes: <RouteBase>[
+          routes: [
             GoRoute(
-                parentNavigatorKey: _rootNavigatorkey,
-                name: 'jobposting-creation',
-                path: 'jobposting-creation',
-                builder: (context, state) => JobpostingCreationForm(
-                      jobposting: state.extra as Jobposting?,
-                    ),
-                routes: <RouteBase>[
-                  GoRoute(
-                    parentNavigatorKey: _rootNavigatorkey,
-                    name: 'quill-editor',
-                    path: 'quill-editor',
-                    builder: (context, state) {
-                      Map<String, dynamic> data =
-                          state.extra as Map<String, dynamic>;
-                      String title = data['title'] as String;
-                      String subtitle = data['subtitle'] as String;
-                      Document document = data['document'] as Document;
-                      void Function(Document)? onSaved =
-                          data['onSaved'] as Function(Document);
-
-                      return QuillEditorScreen(
-                        title: title,
-                        subtitle: subtitle,
-                        document: document,
-                        onSaved: onSaved,
-                      );
-                    },
-                  ),
-                  //?Trang hiển thị nhập công nghệ yêu cầu
-                  GoRoute(
-                    parentNavigatorKey: _rootNavigatorkey,
-                    name: 'tech-addition',
-                    path: 'tech-addition',
-                    builder: (context, state) {
-                      Map<String, dynamic> data =
-                          state.extra as Map<String, dynamic>;
-                      void Function(List<String>) onSaved =
-                          data['onSaved'] as Function(List<String>);
-                      List<String>? techList =
-                          data['techList'] as List<String>?;
-
-                      return TechAdditionScreen(
-                        onSaved: onSaved,
-                        techList: techList,
-                      );
-                    },
-                  ),
-                  //?Trang hiển thị thêm trình độ
-                  GoRoute(
-                      parentNavigatorKey: _rootNavigatorkey,
-                      name: 'level-addition',
-                      path: 'level-addition',
-                      builder: (context, state) {
-                        Map<String, dynamic> data =
-                            state.extra as Map<String, dynamic>;
-                        List<String>? level = data['level'] as List<String>?;
-                        void Function(List<String>) onSaved = data['onSaved'];
-                        return LevelAdditionScreen(
-                          existingLevel: level,
-                          onSaved: onSaved,
-                        );
-                      })
-                ])
-          ]),
-    ]),
-    //Nhánh xem danh sách tất cả ứng viên cùng thông tin của họ
-    StatefulShellBranch(routes: <RouteBase>[
-      GoRoute(
+              parentNavigatorKey: _rootNavigatorKey,
+              name: 'jobposting-creation',
+              path: 'jobposting-creation',
+              builder: (context, state) => JobpostingCreationForm(
+                jobposting: state.extra as Jobposting?,
+              ),
+              routes: [
+                GoRoute(
+                  parentNavigatorKey: _rootNavigatorKey,
+                  name: 'quill-editor',
+                  path: 'quill-editor',
+                  builder: (context, state) {
+                    final data = state.extra as Map<String, dynamic>;
+                    return QuillEditorScreen(
+                      title: data['title'] as String,
+                      subtitle: data['subtitle'] as String,
+                      document: data['document'] as Document,
+                      onSaved: data['onSaved'] as Function(Document),
+                    );
+                  },
+                ),
+                // Required technology input page
+                GoRoute(
+                  parentNavigatorKey: _rootNavigatorKey,
+                  name: 'tech-addition',
+                  path: 'tech-addition',
+                  builder: (context, state) {
+                    final data = state.extra as Map<String, dynamic>;
+                    return TechAdditionScreen(
+                      onSaved: data['onSaved'] as Function(List<String>),
+                      techList: data['techList'] as List<String>?,
+                    );
+                  },
+                ),
+                // Level addition page
+                GoRoute(
+                  parentNavigatorKey: _rootNavigatorKey,
+                  name: 'level-addition',
+                  path: 'level-addition',
+                  builder: (context, state) {
+                    final data = state.extra as Map<String, dynamic>;
+                    return LevelAdditionScreen(
+                      existingLevel: data['level'] as List<String>?,
+                      onSaved: data['onSaved'] as Function(List<String>),
+                    );
+                  },
+                )
+              ],
+            )
+          ],
+        ),
+      ],
+    ),
+    // Branch for viewing all candidates and their information
+    StatefulShellBranch(
+      routes: [
+        GoRoute(
           name: 'application-list',
           path: '/application-list',
           builder: (context, state) => const SubmittedApplicationScreen(),
-          routes: <RouteBase>[
+          routes: [
             GoRoute(
-              parentNavigatorKey: _rootNavigatorkey,
+              parentNavigatorKey: _rootNavigatorKey,
               name: 'application-detail',
               path: 'application-detail',
               builder: (context, state) => ApplicationDetailScreen(
@@ -390,7 +383,7 @@ List<StatefulShellBranch> _buildEmployerRoutes() {
               ),
             ),
             GoRoute(
-              parentNavigatorKey: _rootNavigatorkey,
+              parentNavigatorKey: _rootNavigatorKey,
               name: 'approved-application',
               path: 'approved-application',
               builder: (context, state) => ApprovedApplicationScreen(
@@ -398,67 +391,72 @@ List<StatefulShellBranch> _buildEmployerRoutes() {
               ),
             ),
             GoRoute(
-              parentNavigatorKey: _rootNavigatorkey,
+              parentNavigatorKey: _rootNavigatorKey,
               name: 'rejected-application',
               path: 'rejected-application',
               builder: (context, state) => RejectedApplicationScreen(
                 applicationStorageId: state.extra as String,
               ),
             ),
-          ]),
-    ]),
-    //Nhánh xem những hồ sơ đã duyệt
-    // StatefulShellBranch(routes: <RouteBase>[
-    //   GoRoute(
-    //     name: 'approved-resume',
-    //     path: '/approved-resume',
-    //     builder: (context, state) => const SafeArea(child: EmployerHome()),
-    //   ),
-    // ]),
-    //Nhánh xem và tùy chỉnh thông tin công ty
-    StatefulShellBranch(routes: <RouteBase>[
-      GoRoute(
+          ],
+        ),
+      ],
+    ),
+    // Branch for viewing and customizing company information
+    StatefulShellBranch(
+      routes: [
+        GoRoute(
           name: 'company-info',
           path: '/company-info',
           builder: (context, state) => const CompanyScreen(),
-          routes: <RouteBase>[
+          routes: [
             GoRoute(
-                name: 'company-edit',
-                path: 'company-edit',
-                builder: (context, state) =>
-                    CompanyEditScreen(state.extra as Company))
-          ]),
-    ]),
-    StatefulShellBranch(routes: <RouteBase>[
-      GoRoute(
+              name: 'company-edit',
+              path: 'company-edit',
+              builder: (context, state) => CompanyEditScreen(
+                state.extra as Company,
+              ),
+            )
+          ],
+        ),
+      ],
+    ),
+    StatefulShellBranch(
+      routes: [
+        GoRoute(
           name: 'conversations',
           path: '/conversations',
           builder: (context, state) => MessageScreen(),
-          routes: <RouteBase>[
+          routes: [
             GoRoute(
               name: 'chat-detail',
               path: 'chat-detail',
-              builder: (context, state) =>
-                  ChatScreen(conversationId: state.extra as String),
+              builder: (context, state) => ChatScreen(
+                conversationId: state.extra as String,
+              ),
             )
-          ])
-    ]),
-    //Nhánh xem tài khoản cho nhà tuyển dụng
-    StatefulShellBranch(routes: <RouteBase>[
-      GoRoute(
+          ],
+        ),
+      ],
+    ),
+    // Branch for employer account
+    StatefulShellBranch(
+      routes: [
+        GoRoute(
           name: 'employer-info',
           path: '/employer-info',
           builder: (context, state) => EmployerProfileScreen(),
-          routes: <RouteBase>[
+          routes: [
             GoRoute(
               name: 'employer-edit',
               path: 'employer-edit',
-              builder: (context, state) =>
-                  EmployerEditScreen(state.extra as Employer),
+              builder: (context, state) => EmployerEditScreen(
+                state.extra as Employer,
+              ),
             )
-          ])
-    ])
+          ],
+        ),
+      ],
+    )
   ];
-
-  return routes;
 }

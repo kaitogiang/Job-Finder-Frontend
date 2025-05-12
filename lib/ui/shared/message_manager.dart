@@ -15,23 +15,18 @@ class MessageManager extends ChangeNotifier {
   int _unseenJobseekerMessages = 0;
   int _unseenEmployerMessages = 0;
 
-  //Hàm này sai nghiêm trọng tại vì ban đầu khởi tao MessageManager ở ProxyProvider thì
-  //Token không được truyền vào hàm xây dựng mà truyền vào setter của authToken
-  //Nên khi này khởi tạo thì nó sẽ tạo một Socket service mới chứa không còn là tham chiếu
-  //mà trong khi đó tại AuthManager đã khởi tạo SocketService rồi nên có nghĩa là socket được
-  //tạo ra tới hai lần dến server, một cái thì token không null, còn socket còn lại ở trong
-  //Hàm xây dựng này là null, vì null nên khi gửi lên server thì nó sẽ bị chặn lại ở socket middleware.
-  //Chính vì vậy mà nó bị reconnect liên tục.
-  // MessageManager([AuthToken? authToken])
-  //     : _socketService = SocketService(authToken),
-  //       _conversationService = ConversationService(authToken),
-  //       _authToken = authToken;
-
   MessageManager([AuthToken? authToken])
       : _conversationService = ConversationService(authToken),
         _authToken = authToken;
 
-  //Định nghĩa các hàm setter
+  // Getters and setters
+  List<Conversation> get conversations => _conversations;
+  int get unseenJobseekerMessages => _unseenJobseekerMessages;
+  int get unseenEmployerMessages => _unseenEmployerMessages;
+
+  Conversation getConversation(String conversationId) {
+    return _conversations.firstWhere((c) => c.id == conversationId);
+  }
 
   set socketService(SocketService? socketService) {
     _socketService = socketService;
@@ -44,251 +39,197 @@ class MessageManager extends ChangeNotifier {
     notifyListeners();
   }
 
-  set unseenJobseekerMessages(int unseenJobseekerMessages) {
-    _unseenJobseekerMessages = unseenJobseekerMessages;
+  set unseenJobseekerMessages(int value) {
+    _unseenJobseekerMessages = value;
     notifyListeners();
   }
 
-  set unseenEmployerMessages(int unseenEmployerMessages) {
-    _unseenEmployerMessages = unseenEmployerMessages;
+  set unseenEmployerMessages(int value) {
+    _unseenEmployerMessages = value;
     notifyListeners();
   }
 
-  //Định nghĩa các hàm getter
-
-  List<Conversation> get conversations => _conversations;
-
-  int get unseenJobseekerMessages => _unseenJobseekerMessages;
-
-  int get unseenEmployerMessages => _unseenEmployerMessages;
-
-  Conversation getConversation(String conversationId) => _conversations
-      .where((conversation) => conversation.id == conversationId)
-      .first;
-
-  //Tăng tin nhắn chưa đọc cho nhà tuyển dụng hoặc người tìm việc
-  //Nếu receiverIsEmployer có nghĩa là người nhận là Employer => tăng tin nhắn chưa đọc
-  //Ngược là thì tăng tin nhắn chưa đọc cho Jobseeker
-  void _increaseUnseenMessages(
-      bool isRead, bool receiverIsEmployer, Conversation conversation) {
-    //Nếu tin nhắn đã được đọc thì không cần tăng thêm số lượng tin nhắn
+  // Increase unread messages for employer or jobseeker
+  // If receiverIsEmployer is true, increase employer unread messages
+  // Otherwise increase jobseeker unread messages
+  void _increaseUnseenMessages(bool isRead, bool receiverIsEmployer, Conversation conversation) {
     if (isRead) return;
-    //Tăng tin nhắn chưa đọc cho Employer
+
     if (receiverIsEmployer) {
       conversation.unseenEmployerMessages++;
       _unseenEmployerMessages++;
-      // notifyListeners();
     } else {
-      //Tăng tin nhắn chưa đọc cho Jobseeker
       conversation.unseenJobseekerMessages++;
       _unseenJobseekerMessages++;
-      // notifyListeners();
     }
   }
 
-  //Reset lại số lượng tin nhắn chưa đọc về 0 của từng người dùng cụ thể
+  // Reset unread message count to 0 for specific user
   void _resetUnseenMessages(Conversation conversation, bool userIsEmployer) {
-    //Nếu là employer thì reset biến unseenEmployerMessages và ngược lại
     if (userIsEmployer) {
-      //Reset thuộc tính của conversation
       conversation.unseenEmployerMessages = 0;
-      //Reset lại biến quan sát giá trị unseenMessages
       _unseenEmployerMessages = 0;
     } else {
-      //Reset thuộc tính của conversation dành cho jobseeker
       conversation.unseenJobseekerMessages = 0;
       _unseenJobseekerMessages = 0;
     }
   }
 
-  //Hàm tạo conversation
+  // Create a new conversation
   Future<String?> createConversation(String companyId, [String? jobseekerId]) async {
     try {
-      final conversation =
-          await _conversationService.createConversation(companyId, jobseekerId);
+      final conversation = await _conversationService.createConversation(companyId, jobseekerId);
       if (conversation != null) {
         conversations.add(conversation);
-        //Gọi sự kiện tạo conversation để báo hiệu cho Employer biết có conversation mới
+        // Emit create conversation event to notify employer about new conversation
         _socketService?.createConversation(conversation);
         notifyListeners();
         return conversation.id;
-      } else {
-        Utils.logMessage(
-            'Error in createConversation of MessageManager, cannot add to conversations list');
-        return null;
       }
+      Utils.logMessage('Error: Could not add conversation to list');
+      return null;
     } catch (error) {
-      Utils.logMessage('Error in createConversation of MessageManager: $error');
+      Utils.logMessage('Error creating conversation: $error');
       return null;
     }
   }
 
+  // Listen for new conversations created by jobseekers
   void listenForNewConversation() {
     if (_socketService?.conversationController.hasListener ?? true) return;
-    //Lắng nghe sự kiện tạo conversation mới của jobseeker
+
     _socketService?.conversationStream.listen((newConversation) {
-      Utils.logMessage('Nhan duoc conversation moi tu Jobseeker!!!');
+      Utils.logMessage('Received new conversation from jobseeker');
       conversations.add(newConversation);
       notifyListeners();
     });
   }
 
-  //Định nghĩa các hàm xử lý tin nhắn
-  //Nạp tất cả các cuộc trò chuyện của jobseeker với các nhà tuyển dụng khác
+  // Load all conversations for either jobseeker or employer
   Future<void> getAllConversation() async {
     try {
       if (_authToken!.isEmployer) {
-        final conversations =
-            await _conversationService.getAllEmployerConversation();
-        _conversations = conversations;
-        _unseenEmployerMessages = _conversations.fold(0,
-            (sum, conversation) => sum + conversation.unseenEmployerMessages);
+        _conversations = await _conversationService.getAllEmployerConversation();
+        _unseenEmployerMessages = _conversations.fold(
+          0,
+          (sum, conv) => sum + conv.unseenEmployerMessages
+        );
       } else {
-        final conversations =
-            await _conversationService.getAllJobseekerConversation();
-        _conversations = conversations;
-        _unseenJobseekerMessages = _conversations.fold(0,
-            (sum, conversation) => sum + conversation.unseenJobseekerMessages);
+        _conversations = await _conversationService.getAllJobseekerConversation();
+        _unseenJobseekerMessages = _conversations.fold(
+          0,
+          (sum, conv) => sum + conv.unseenJobseekerMessages
+        );
       }
-
       notifyListeners();
     } catch (error) {
-      Utils.logMessage(
-          'Error in getAllJobseekerConversation method of MessageManager: $error');
+      Utils.logMessage('Error getting conversations: $error');
     }
   }
 
-  //Hàm gửi tin nhắn mới
-  Future<void> sendMessage(
-      String conversationId, String messageText, bool senderIsJobseeker) async {
-    //Lấy thông tin về conversation, vài trò người nhắn và id của họ
+  // Send a new message
+  Future<void> sendMessage(String conversationId, String messageText, bool senderIsJobseeker) async {
     final conversation = getConversation(conversationId);
-    bool isEmployer = _authToken?.isEmployer ?? false;
+    final isEmployer = _authToken?.isEmployer ?? false;
     final senderId = _authToken?.userId;
+    final receiverId = isEmployer ? conversation.jobseeker.id : conversation.employer.id;
 
-    //Quyết định id của người nhận tùy thuộc vào giá trị isEmployer
-    //Nếu là jobseeker thì người nhận là employer và ngược lại
-    final receiverId =
-        isEmployer ? conversation.jobseeker.id : conversation.employer.id;
+    final newMessage = Message(
+      id: '',
+      conversationId: conversationId,
+      senderId: senderId!,
+      receiverId: receiverId,
+      senderIsJobseeker: senderIsJobseeker,
+      messageText: messageText,
+      timestamp: DateTime.now(),
+      isRead: false
+    );
 
-    Message newMessage = Message(
-        id: '',
-        conversationId: conversationId,
-        senderId: senderId!,
-        receiverId: receiverId,
-        senderIsJobseeker: senderIsJobseeker,
-        messageText: messageText,
-        timestamp: DateTime.now(),
-        isRead: false);
     try {
-      Message? fullMessage = await _conversationService.sendMessage(newMessage);
+      final fullMessage = await _conversationService.sendMessage(newMessage);
       if (fullMessage != null) {
-        Utils.logMessage('Gửi message thành công');
         conversation.messages.add(fullMessage);
         _socketService?.sendMessage(conversationId, receiverId, fullMessage);
         conversation.lastMessage = fullMessage.messageText;
         conversation.lastMessageTime = fullMessage.timestamp;
       } else {
-        Utils.logMessage('Message bị null, gửi thất bại');
+        Utils.logMessage('Failed to send message - null response');
       }
     } catch (error) {
-      Utils.logMessage('Error in sendMessage method of MessageManager: $error');
+      Utils.logMessage('Error sending message: $error');
     }
-    // _socketService?.sendMessage();
     notifyListeners();
   }
 
-  // void _addMessageToConversation(Message newMessage) {
-  //   Conversation currentConversation =
-  //       getConversation(newMessage.conversationId);
-  //   currentConversation.messages.add(newMessage);
-  // }
-
-  //Hàm tham gia vào một cuộc trò chuyện
+  // Join a conversation room
   void joinConversation(String conversationId) {
     _socketService?.joinRoom(conversationId);
   }
 
+  // Leave a conversation room
   void leaveConversation(String conversationId) {
     _socketService?.leaveRoom(conversationId);
   }
 
-  //Hàm nhận tin nhắn real time và thêm vào trong danh sách tin nhắn
+  // Listen for incoming real-time messages and add them to message list
   void listenToIncomingMessages() {
     if (_socketService?.messageController.hasListener ?? true) return;
+
     _socketService?.messageStream.listen((message) {
-      //Hiển thị tin nhắn ra
-      Utils.logMessage('Tin nhắn mới: ${message.messageText}');
-      // _addMessageToConversation(message);
-      Conversation currentConversation =
-          getConversation(message.conversationId);
+      final currentConversation = getConversation(message.conversationId);
+      
       currentConversation.messages.add(message);
       currentConversation.lastMessage = message.messageText;
       currentConversation.lastMessageTime = message.timestamp;
 
-      Utils.logMessage(
-          'unseenEmployerMessage before ----: ${currentConversation.unseenEmployerMessages}');
-      Utils.logMessage(
-          'unseenJobseekerMessage before----: ${currentConversation.unseenJobseekerMessages}');
-
-      //Tăng số lượng tin nhắn chưa đọc nếu nhận tin nhắn mà không có trong converation
-      bool senderIsJobseeker = message.senderIsJobseeker;
-      bool receiverIsEmployer = senderIsJobseeker ? true : false;
-      //Gọi hàm cập nhật số lượng tin nhắn chưa đọc
-      _increaseUnseenMessages(
-          message.isRead, receiverIsEmployer, currentConversation);
-      Utils.logMessage(
-          'unseenEmployerMessage: ${currentConversation.unseenEmployerMessages}');
-      Utils.logMessage(
-          'unseenJobseekerMessage: ${currentConversation.unseenJobseekerMessages}');
+      final receiverIsEmployer = message.senderIsJobseeker;
+      _increaseUnseenMessages(message.isRead, receiverIsEmployer, currentConversation);
+      
       notifyListeners();
     });
   }
 
-  //Hàm kiểm tra cuộc trò chuyện giữa jobseeker và company đã có chưa, nó có tồn tại thì trả về id của conversation
+  // Check if conversation between jobseeker and company exists
+  // Returns conversation ID if exists
   Future<String?> verifyExistingConversation(String companyId, [String? jobseekerId]) async {
     try {
-      final conversationId =
-          await _conversationService.isExistingConversation(companyId, jobseekerId);
-      return conversationId;
+      return await _conversationService.isExistingConversation(companyId, jobseekerId);
     } catch (error) {
-      Utils.logMessage('Exception occur in verifyExistingConversation: $error');
+      Utils.logMessage('Error verifying conversation: $error');
       return null;
     }
   }
 
-  void _setReadStatusForUserMessages(
-      String conversationId, String userId, bool userIsEmployer) {
-    //Truy xuất conversation cụ thể và danh sách tin nhắn cụ thể
-    Conversation conversation = getConversation(conversationId);
-    List<Message> messages = conversation.messages;
-    //Cập nhật trạng thái đã đọc của những tin nhắn được gửi tới mình
-    for (var message in messages) {
+  // Update read status for user messages
+  void _setReadStatusForUserMessages(String conversationId, String userId, bool userIsEmployer) {
+    final conversation = getConversation(conversationId);
+    
+    for (var message in conversation.messages) {
       if (message.receiverId == userId && !message.isRead) {
         message.isRead = true;
       }
     }
-    //Cập nhật lại số lượng trong conversation và biến quan sát số lượng tin nhắn chưa đọc
+    
     _resetUnseenMessages(conversation, userIsEmployer);
   }
 
-  //Hàm đánh dấu tin nhắn đã đọc
-  Future<void> readMessages(
-      String conversationId, String userId, bool userIsEmployer) async {
+  // Mark messages as read
+  Future<void> readMessages(String conversationId, String userId, bool userIsEmployer) async {
     try {
-      final result = await _conversationService.markMessageAsRead(
-          conversationId, userId, userIsEmployer);
-      if (result) {
-        Utils.logMessage('Read messages sucessfully');
-        //Gọi hàm cập nhật trạng thái đã đọc
+      final success = await _conversationService.markMessageAsRead(
+        conversationId, 
+        userId,
+        userIsEmployer
+      );
+
+      if (success) {
         _setReadStatusForUserMessages(conversationId, userId, userIsEmployer);
-        //báo cho UI để cập nhật lại giao diện
         notifyListeners();
       } else {
-        Utils.logMessage('Cannot read messages');
+        Utils.logMessage('Failed to mark messages as read');
       }
     } catch (error) {
-      Utils.logMessage('Error in readMessage of MessageManager: $error');
+      Utils.logMessage('Error marking messages as read: $error');
     }
   }
 }

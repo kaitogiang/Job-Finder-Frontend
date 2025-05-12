@@ -23,7 +23,7 @@ class JobpostingService extends NodeService {
         method: HttpMethod.get,
       ) as List<dynamic>;
 
-      //todo Phải chuyển mỗi phần tử thành chuỗi thì mới ép kiểu được
+      //todo Must convert each element to a string to be able to cast
       List<String> favoritePosts = favorteResponse.isNotEmpty
           ? favorteResponse
               .map(
@@ -31,17 +31,17 @@ class JobpostingService extends NodeService {
               )
               .toList()
           : [];
-      log('List<Jobposting> đã nạp: ${response.length}');
-      log('Favorite hien tai la: ${favoritePosts.length}');
-      //? Danh sách tất cả các bài tuyển dụng
+      log('List<Jobposting> loaded: ${response.length}');
+      log('Current favorite is: ${favoritePosts.length}');
+      //? List of all job postings
       List<Map<String, dynamic>> list =
           response.map((e) => e as Map<String, dynamic>).toList();
-      //todo Kết hợp lại với favorite, chuyển đổi thuộc tính isFavorite của từng
-      //todo phần tử nếu nó có trong danh sách favoritePosts
+      //todo Combine with favorite, convert the isFavorite attribute of each
+      //todo element if it is in the favoritePosts list
       if (favoritePosts.isNotEmpty) {
         List<Jobposting> jobpostingList =
             list.map((e) => Jobposting.fromJson(e)).toList();
-        //todo kiểm tra xem bài viết có trong favoritePost không
+        //todo check if the post is in favoritePost
         for (Jobposting post in jobpostingList) {
           if (favoritePosts.contains(post.id)) {
             post.isFavorite = true;
@@ -58,7 +58,7 @@ class JobpostingService extends NodeService {
       return null;
     }
   }
-  //Hàm lấy đề xuất công việc
+  //Function to get job suggestions
   Future<List<Jobposting>?> fetchJobpostingSuggestionList() async {
     try {
       final response = await httpFetch(
@@ -72,7 +72,7 @@ class JobpostingService extends NodeService {
         method: HttpMethod.get,
       ) as List<dynamic>;
 
-      //todo Phải chuyển mỗi phần tử thành chuỗi thì mới ép kiểu được
+      //todo Must convert each element to a string to be able to cast
       List<String> favoritePosts = favorteResponse.isNotEmpty
           ? favorteResponse
               .map(
@@ -80,17 +80,17 @@ class JobpostingService extends NodeService {
               )
               .toList()
           : [];
-      log('List<Jobposting> đã nạp: ${response.length}');
-      log('Favorite hien tai la: ${favoritePosts.length}');
-      //? Danh sách tất cả các bài tuyển dụng
+      log('List<Jobposting> loaded: ${response.length}');
+      log('Current favorite is: ${favoritePosts.length}');
+      //? List of all job postings
       List<Map<String, dynamic>> list =
           response.map((e) => e as Map<String, dynamic>).toList();
-      //todo Kết hợp lại với favorite, chuyển đổi thuộc tính isFavorite của từng
-      //todo phần tử nếu nó có trong danh sách favoritePosts
+      //todo Combine with favorite, convert the isFavorite attribute of each
+      //todo element if it is in the favoritePosts list
       if (favoritePosts.isNotEmpty) {
         List<Jobposting> jobpostingList =
             list.map((e) => Jobposting.fromJson(e)).toList();
-        //todo kiểm tra xem bài viết có trong favoritePost không
+        //todo check if the post is in favoritePost
         for (Jobposting post in jobpostingList) {
           if (favoritePosts.contains(post.id)) {
             post.isFavorite = true;
@@ -110,8 +110,8 @@ class JobpostingService extends NodeService {
 
   Future<bool> changeFavoriteState(bool value, String jobpostingId) async {
     try {
-      //todo kiểm tra xem giá trị của value, nếu là true tức là thêm nó vào
-      //todo danh sách yêu thích, ngược lại thì xóa nó khỏi danh sách yêu thích
+      //todo check the value of value, if it is true then add it to
+      //todo the favorite list, otherwise remove it from the favorite list
       if (value) {
         await httpFetch('$databaseUrl/api/jobposting/user/$userId/favorite',
             headers: headers,
@@ -205,8 +205,8 @@ class JobpostingService extends NodeService {
     }
   }
 
-  //Các dịch vụ thêm cho admin
-  //Hàm lấy tất cả các jobposting bao gồm cả những bài đăng hết hạn
+  //Additional services for admin
+  //Function to get all job postings including expired posts
   Future<List<Jobposting>> getAllJobpostings() async {
     try {
       final response = await httpFetch(
@@ -217,10 +217,10 @@ class JobpostingService extends NodeService {
       if (response.isEmpty) {
         return [];
       }
-      //Chuyển mỗi phần tử sang kiểu Map<String, dynamic>
+      //Convert each element to Map<String, dynamic>
       List<Map<String, dynamic>> jobpostingMapList =
           List<Map<String, dynamic>>.from(response);
-      //Chuyển mỗi phần tử sang kiểu jobposting
+      //Convert each element to jobposting
       List<Jobposting> jobpostingList = jobpostingMapList
           .map((jobposting) => Jobposting.fromJson(jobposting))
           .toList();
@@ -232,7 +232,7 @@ class JobpostingService extends NodeService {
     }
   }
 
-  //Hàm nạp danh sách bài tuyển dụng gần đây, trong một tuần
+  //Function to load recent job postings, within a week
   Future<List<Jobposting>> getRecentJobpostings() async {
     try {
       final response = await httpFetch(
@@ -240,9 +240,9 @@ class JobpostingService extends NodeService {
         headers: headers,
         method: HttpMethod.get,
       ) as List<dynamic>;
-      //Chuyển mỗi phần tử trong list thành kiểu Map<String, dynamic>
+      //Convert each element in the list to Map<String, dynamic>
       final recentJobpostingMapList = List<Map<String, dynamic>>.from(response);
-      //Chuyển mỗi phần tử trong mảng trên từ Map sang Jobposting
+      //Convert each element in the array above from Map to Jobposting
       final recentJobpostingList = recentJobpostingMapList
           .map((jobposting) => Jobposting.fromJson(jobposting))
           .toList();
@@ -254,7 +254,7 @@ class JobpostingService extends NodeService {
     }
   }
 
-  //Hàm trả về số lượng yêu thích của mỗi JobpostingId
+  //Function to return the number of favorites for each JobpostingId
   Future<List<Map<String, dynamic>>> getFavoriteNumberOfJobpostings() async {
     try {
       final response = await httpFetch(
@@ -262,21 +262,21 @@ class JobpostingService extends NodeService {
         headers: headers,
         method: HttpMethod.get,
       ) as List<dynamic>;
-      //Chuyển mỗi phần tử sang kiểu map
+      //Convert each element to map
       final responseMap = List<Map<String, dynamic>>.from(response);
-      //Chỉ trả về những phần tử mà có lượt yêu thích
+      //Only return elements that have favorites
       final favoriteList = responseMap.where((favorite) {
         final favoriteCount = favorite['favoriteCount'] as int;
         return favoriteCount > 0;
       }).toList();
-      //Chuyển đổi List sang Map<String, int> và trả về nó có phần tử
+      //Convert List to Map<String, int> and return it if it has elements
       if (favoriteList.isEmpty) {
         return [];
       } else {
         return favoriteList;
       }
     } catch (error) {
-      Utils.logMessage('Errro in getFavoriteNumberOfJobpostings: $error');
+      Utils.logMessage('Error in getFavoriteNumberOfJobpostings: $error');
       return [];
     }
   }
@@ -287,7 +287,7 @@ class JobpostingService extends NodeService {
           '$databaseUrl/api/jobposting/$jobpostingId',
           headers: headers,
           method: HttpMethod.get) as Map<String, dynamic>;
-      //Chuyển kiểu của response sang Jobposting
+      //Convert the type of response to Jobposting
       final receivedJobposting = Jobposting.fromJson(response);
 
       return receivedJobposting;

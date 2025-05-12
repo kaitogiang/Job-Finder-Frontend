@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-
 import '../../../models/experience.dart';
 
 class JobseekerExperienceCard extends StatelessWidget {
-  const JobseekerExperienceCard(
-      {super.key, required this.exp, this.onCustomize});
+  const JobseekerExperienceCard({
+    Key? key, 
+    required this.exp, 
+    this.onCustomize
+  }) : super(key: key);
 
   final Experience exp;
   final void Function()? onCustomize;
@@ -15,71 +17,86 @@ class JobseekerExperienceCard extends StatelessWidget {
     TextTheme textTheme = theme.textTheme;
 
     return Container(
-      margin: EdgeInsets.only(top: 10),
-      width: double.maxFinite,
-      padding: EdgeInsets.all(10),
+      margin: const EdgeInsets.only(top: 10),
+      width: double.infinity,
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-          border: Border.all(color: theme.dividerColor),
-          borderRadius: BorderRadius.circular(15)),
+        border: Border.all(color: theme.dividerColor),
+        borderRadius: BorderRadius.circular(15),
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          //Cột để hiển thị tên vị trí, công ty và thời gian làm
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  exp.role,
-                  style: textTheme.titleMedium!.copyWith(fontSize: 20),
-                  overflow: TextOverflow.ellipsis,
-                ),
-                RichText(
-                  overflow: TextOverflow.ellipsis,
-                  text: TextSpan(
-                      children: [
-                        WidgetSpan(
-                            child: Icon(Icons.business,
-                                color: Colors.grey.shade700)),
-                        WidgetSpan(
-                            child: const SizedBox(
-                          width: 10,
-                        )),
-                        TextSpan(text: exp.company)
-                      ],
-                      style: textTheme.bodyLarge!.copyWith(
-                          color: Colors.grey.shade700,
-                          fontFamily: 'Lato',
-                          fontSize: 18)),
-                ),
-                RichText(
-                  overflow: TextOverflow.ellipsis,
-                  text: TextSpan(
-                      children: [
-                        WidgetSpan(
-                            child: Icon(Icons.work_history,
-                                color: Colors.grey.shade700)),
-                        WidgetSpan(
-                            child: const SizedBox(
-                          width: 10,
-                        )),
-                        TextSpan(text: exp.duration)
-                      ],
-                      style: textTheme.bodyLarge!.copyWith(
-                          color: Colors.grey.shade700,
-                          fontFamily: 'Lato',
-                          fontSize: 18)),
-                ),
-              ],
-            ),
-          ),
-          //Nút tùy chỉnh kinh nghiệm gồm chỉnh sửa, xóa
+          _buildExperienceDetails(textTheme),
           if (onCustomize != null)
             IconButton(
               onPressed: onCustomize,
-              icon: Icon(Icons.more_vert),
-            )
+              icon: const Icon(Icons.more_vert),
+            ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildExperienceDetails(TextTheme textTheme) {
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          _buildRole(textTheme),
+          _buildCompany(textTheme),
+          _buildDuration(textTheme),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRole(TextTheme textTheme) {
+    return Text(
+      exp.role,
+      style: textTheme.titleMedium!.copyWith(fontSize: 20),
+      overflow: TextOverflow.ellipsis,
+    );
+  }
+
+  Widget _buildCompany(TextTheme textTheme) {
+    return _buildRichText(
+      icon: Icons.business,
+      text: exp.company,
+      textTheme: textTheme,
+    );
+  }
+
+  Widget _buildDuration(TextTheme textTheme) {
+    return _buildRichText(
+      icon: Icons.work_history,
+      text: exp.duration,
+      textTheme: textTheme,
+    );
+  }
+
+  Widget _buildRichText({
+    required IconData icon,
+    required String text,
+    required TextTheme textTheme,
+  }) {
+    return RichText(
+      overflow: TextOverflow.ellipsis,
+      text: TextSpan(
+        children: [
+          WidgetSpan(
+            child: Icon(icon, color: Colors.grey.shade700),
+          ),
+          const WidgetSpan(
+            child: SizedBox(width: 10),
+          ),
+          TextSpan(text: text),
+        ],
+        style: textTheme.bodyLarge!.copyWith(
+          color: Colors.grey.shade700,
+          fontFamily: 'Lato',
+          fontSize: 18,
+        ),
       ),
     );
   }

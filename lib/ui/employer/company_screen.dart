@@ -48,14 +48,6 @@ class _CompanyScreenState extends State<CompanyScreen> {
     log('Ở company screen: ${context.read<CompanyManager>().company?.policy}');
     String? baseUrl = dotenv.env['DATABASE_BASE_URL'];
     return Scaffold(
-      // appBar: AppBar(
-      //   title: Text('Công ty của tôi',
-      //       style: textTheme.headlineMedium!.copyWith(
-      //         color: theme.indicatorColor,
-      //         fontWeight: FontWeight.bold,
-      //       )),
-      //   elevation: 5,
-      // ),
       body: FutureBuilder(
           future: context.read<CompanyManager>().fetchCompanyInfo(),
           builder: (context, snapshot) {
@@ -176,67 +168,6 @@ class _CompanyScreenState extends State<CompanyScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: <Widget>[
-                              // Container(
-                              //   width: deviceSize.width,
-                              //   padding: const EdgeInsets.only(
-                              //       bottom: 40, top: 50, left: 10, right: 10),
-                              //   decoration: const BoxDecoration(
-                              //       image: DecorationImage(
-                              //           image: AssetImage(
-                              //               'assets/images/background.jpg'),
-                              //           fit: BoxFit.cover)),
-                              //   child: Column(
-                              //     crossAxisAlignment: CrossAxisAlignment.center,
-                              //     children: <Widget>[
-                              //       Container(
-                              //         height: 150,
-                              //         width: 150,
-                              //         decoration: BoxDecoration(
-                              //             boxShadow: [
-                              //               BoxShadow(
-                              //                   color: Colors.grey.shade600,
-                              //                   spreadRadius: 1,
-                              //                   blurRadius: 5,
-                              //                   offset: const Offset(0, 3))
-                              //             ],
-                              //             borderRadius:
-                              //                 BorderRadius.circular(15),
-                              //             image: DecorationImage(
-                              //                 image: NetworkImage(companyManager
-                              //                     .company!.imageLink),
-                              //                 fit: BoxFit.cover)),
-                              //       ),
-                              //       const SizedBox(
-                              //         height: 20,
-                              //       ),
-                              //       //todo Hiển thị tên công ty ở đây
-                              //       Text(
-                              //         companyManager.company!.companyName,
-                              //         style: textTheme.titleLarge!.copyWith(
-                              //             color: theme.indicatorColor,
-                              //             fontWeight: FontWeight.bold,
-                              //             fontFamily: 'Lato',
-                              //             fontSize: 25),
-                              //         softWrap: true,
-                              //         textAlign: TextAlign.center,
-                              //       ),
-                              //       const SizedBox(
-                              //         height: 20,
-                              //       ),
-                              //       ElevatedButton(
-                              //         onPressed: () {
-                              //           log('Chỉnh sửa công ty');
-                              //           context.pushNamed('company-edit',
-                              //               extra: companyManager.company);
-                              //         },
-                              //         child: const Text(
-                              //           'Chỉnh sửa',
-                              //           style: TextStyle(fontSize: 17),
-                              //         ),
-                              //       )
-                              //     ],
-                              //   ),
-                              // ),
                               const SizedBox(
                                 height: 15,
                               ),

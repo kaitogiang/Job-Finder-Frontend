@@ -323,24 +323,6 @@ class _JobpostingCreationFormState extends State<JobpostingCreationForm> {
       deadline: deadline,
       company: null,
     );
-    // Jobposting job = Jobposting(
-    //   id: '',
-    //   title: title,
-    //   description: desc,
-    //   requirements: req,
-    //   benefit: benifit,
-    //   skills: tech,
-    //   level: level,
-    //   workLocation: address,
-    //   workTime: workTime,
-    //   experience: experience,
-    //   jobType: jobType,
-    //   contractType: contractType,
-    //   salary: salary,
-    //   deadline: deadline,
-    //   company: null,
-    //   createdAt: '',
-    // );
     try {
       if (widget.jobposting == null) {
         await context.read<JobpostingManager>().createJobposting(editedJob!);

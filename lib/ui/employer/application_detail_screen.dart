@@ -24,7 +24,7 @@ class ApplicationDetailScreen extends StatelessWidget {
     final applicationList = applicationStorage.applications;
     context.read<ApplicationManager>().sortApplicationsList(applicationList);
     final jobposting = applicationStorage.jobposting;
-    //todo khởi tạo dữ liệu
+    //todo initialize data
     final title = jobposting.title;
     final deadline =
         DateFormat("dd-MM-yyyy").format(applicationStorage.deadlineDate);
@@ -61,7 +61,7 @@ class ApplicationDetailScreen extends StatelessWidget {
         padding: const EdgeInsets.all(10.0),
         child: Column(
           children: [
-            //? Hiển thị tên bài viết và nút để xem chi tiết
+            //? Display the name of the post and a button to view details
             Card(
               elevation: 5,
               color: theme.indicatorColor,
@@ -106,7 +106,7 @@ class ApplicationDetailScreen extends StatelessWidget {
             const SizedBox(
               height: 10,
             ),
-            //? Hiển thị số lượng đã nhận, đã chấp nhận và đã từ chối
+            //? Display the number of received, accepted and rejected
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -206,7 +206,7 @@ class ApplicationDetailScreen extends StatelessWidget {
             const SizedBox(
               height: 10,
             ),
-            //? Hiển thị danh sách ứng viên
+            //? Display the list of candidates
             Expanded(
               child: RefreshIndicator(
                 onRefresh: () => context
